@@ -21,6 +21,7 @@ def getVisitorsFromFolder( moduleName ):
         attr = getattr( module, item )
         try:
             visitors.addVisitor( attr.getInstance() )
+            print 'added visitor {0}/{1}'.format( moduleName, item )
         except Exception as e:
             if type(e) is AssertionError:
                  print '{0}.py:'.format(item), str(e)
@@ -40,6 +41,8 @@ def main():
     storageManager = storageVisitors.select( config )
     if storageManager == None:
         raise Exception( 'unable to derive storage manager from config file' )
+    else:
+        storageManager = storageManager.visit( config )
 
     for section in config:
         visitor = exchangeVisitors.select( section )
