@@ -16,7 +16,7 @@ class StubVisitor:
     """
     def accept( self, obj ):
         try:
-            return obj['name'] == 'stub'
+            return obj['type'] == 'stub'
         except Exception as e:
             return False
 

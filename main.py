@@ -35,23 +35,26 @@ def getVisitorsFromFolder( moduleName ):
 
 def main():
     exchangeVisitors = getVisitorsFromFolder( 'exchanges' )
-    storageVisitors = getVisitorsFromFolder( 'storage' )
+    #storageVisitors = getVisitorsFromFolder( 'storage' )
 
     # get contents of config file
-    config = None #todo get config file contents
+    config = json.load( open( 'config.json', 'r' ) ) #todo get config file contents
 
-    storageManager = storageVisitors.select( config )
+    """
+    storageManager = storageVisitors.select( config['storage'] )
     if storageManager == None:
         raise Exception( 'unable to derive storage manager from config file' )
     else:
         storageManager = storageManager.visit( config )
+    """
 
-    for section in config:
+    for section in config['exchanges']:
         visitor = exchangeVisitors.select( section )
         if visitor != None:
             try:
                 info = visitor.visit( section )
-                storageManager.write( info, section )
+                print info
+                #storageManager.write( info, section )
             except Exception as e:
                 print str(e)
         else:
