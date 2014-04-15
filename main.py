@@ -10,49 +10,47 @@
 #-------------------------------------------------------------------------------
 
 import visitorpattern
-import exchanges
+# dynamic import of all modules in folder exchanges/
+# dynamic import of all modules in folder ?????/
+
+def getVisitorsFromFolder( moduleName ):
+    visitors = visitorpattern.VisitorPattern()
+
+    for item in __import__(moduleName).__all__:
+        module = __import__( moduleName + '.' + item )
+        attr = getattr( module, item )
+        try:
+            visitors.addVisitor( attr.getInstance() )
+        except Exception as e:
+            if type(e) is AssertionError:
+                 print '{0}.py:'.format(item), str(e)
+            else:
+                print '{0}.py: unable to add exchange visitor.'.format( item )
+
+    return visitors
+
 
 def main():
+    exchangeVisitors = getVisitorsFromFolder( 'exchanges' )
+    storageVisitors = getVisitorsFromFolder( 'storage' )
 
-	# get all visitors for exchanges
-	exchangeVisitors = visitorpattern.VisitorPattern()
+    # get contents of config file
+    config = None #todo get config file contents
 
-	for item in exchanges.__all__:
-		module = __import__( 'exchanges.' + item )
-		attr = getattr( module, item )
-		try:
-			exchangeVisitors.addVisitor( attr.getInstance() )
-		except Exception as e:
-			if type(e) is AssertionError:
-		 		print str(e)
-			else:
-				print 'unable to add exchange visitor for module {0}.py'\
-				.format( item )
+    storageManager = storageVisitors.select( config )
+    if storageManager == None:
+        raise Exception( 'unable to derive storage manager from config file' )
 
-	"""
-
-	# get contents of config file
-	config = json-iets...
-
-	# get exchange visitors
-	exchangeVisitors = ...
-
-	# get storage manager
-	storageManager = ...
-
-	# for each section in config file
-	for section in config:
-		visitor = exchangeVisitors.select( section )
-		if visitor != None:
-			try:
-				info = visitor.visit( section )
-				storageManager.write( info, section )
-			except Exception as e:
-				print str(e)
-		else:
-			print 'no visitor could be found that accepts', section
-
-	"""
+    for section in config:
+        visitor = exchangeVisitors.select( section )
+        if visitor != None:
+            try:
+                info = visitor.visit( section )
+                storageManager.write( info, section )
+            except Exception as e:
+                print str(e)
+        else:
+            print 'no visitor could be found that accepts', section
 
 if __name__ == '__main__':
     main()
