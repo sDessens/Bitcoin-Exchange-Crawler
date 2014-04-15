@@ -1,0 +1,12 @@
+{
+	"storage" : {},
+	"exchanges" :
+	[
+		{
+			"type" : "kraken",
+			"name" : "kraken-testing",
+			"pubkey" : "+lnomcQb0drYuYf1LPEq0ht7L1oTWftvn3JEoh/W9rEVWxDMxdwi3G3Q",
+			"privkey" : "5dHcchCqQYJTlEKwUPjDn4yoPTjFhj2zMRg3ATa9phBe6T8eCRLXYb2xglSNxqlzsl76FFSv/Vpysq2O8k7JzQ=="
+		}
+	]
+}

@@ -10,11 +10,19 @@ class StubVisitor:
     def __init__(self):
         pass
 
+    """
+    return True if this visitor accepts the given object.
+    False otherwise
+    """
     def accept( self, obj ):
         try:
             return obj['name'] == 'stub'
         except Exception as e:
             return False
 
+    """
+    return this balance of this exchange, or throw an exception if an error
+    occurs.
+    """
     def visit( self, obj ):
-        pass
+        return 0

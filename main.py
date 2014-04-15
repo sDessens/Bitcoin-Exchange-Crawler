@@ -9,6 +9,8 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 
+import json
+
 import visitorpattern
 # dynamic import of all modules in folder exchanges/
 # dynamic import of all modules in folder ?????/
