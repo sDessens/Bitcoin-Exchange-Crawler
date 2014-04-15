@@ -9,7 +9,28 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 
+import visitorpattern
+import exchanges
+
 def main():
+
+	# get all visitors for exchanges
+	exchangeVisitors = visitorpattern.VisitorPattern()
+
+	for item in exchanges.__all__:
+		module = __import__( 'exchanges.' + item )
+		attr = getattr( module, item )
+		try:
+			exchangeVisitors.addVisitor( attr.getInstance() )
+		except Exception as e:
+			if type(e) is AssertionError:
+		 		print str(e)
+			else:
+				print 'unable to add exchange visitor for module {0}.py'\
+				.format( item )
+
+	"""
+
 	# get contents of config file
 	config = json-iets...
 
@@ -21,13 +42,17 @@ def main():
 
 	# for each section in config file
 	for section in config:
-		for visitor in exchangeVisitors:
-			if visitor.accepts( section ):
-				try:
-					info = visitor.visit( section )
-					storageManager.write( info, section )
-				except Exception as e:
-					print str(e)
+		visitor = exchangeVisitors.select( section )
+		if visitor != None:
+			try:
+				info = visitor.visit( section )
+				storageManager.write( info, section )
+			except Exception as e:
+				print str(e)
+		else:
+			print 'no visitor could be found that accepts', section
+
+	"""
 
 if __name__ == '__main__':
     main()

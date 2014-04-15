@@ -21,7 +21,10 @@ class VisitorPattern:
 	"""
 	def addVisitor( self, vis ):
 		self.__visitors__.append( vis );
-		assert( 'append' in dir(vis) )
+		if not 'accept' in dir(vis):
+			raise AssertionError( 'visitor could not be added, ' +
+				'because the object does not meet the minimum ' +
+				'requirements of a visitor' )
 
 	"""
 	Select an visitor that accepts this object,
@@ -35,6 +38,3 @@ class VisitorPattern:
 				return visitor
 		return None
 
-
-if __name__ == '__main__':
-    main()
