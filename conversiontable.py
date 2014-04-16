@@ -9,7 +9,7 @@ class ConversionTable:
     # where rate is the exchange rate of primary in terms of secondary,
     # and cost is the cost of this path. An lower cost makes it more likely
     # that an conversion will go through this market. If you don't know, just
-    # use 1 for the cost at every market.
+    # use 1 for the cost at every market. Cost must NOT be zero.
     def __init__(self, markets):
         uniqueMarkets = set( a for a, b in markets ) | \
                         set( b for a, b in markets )
@@ -39,7 +39,7 @@ class ConversionTable:
     def convert(self, fromStock, toStock, amount ):
         rate = self._computeExchangeRate( fromStock, toStock )
         total = rate * amount
-        print amount, fromStock, 'is', total, toStock
+        #print amount, fromStock, 'is', total, toStock
         return total
 
     def _computeExchangeRate(self, primary, secondary):
@@ -52,23 +52,28 @@ class ConversionTable:
         #   set of all visited stocks )
         initialState = ( 0, primary, 1, {primary} )
         queue = Queue.PriorityQueue()
-
         queue.put( initialState )
 
-        while queue.not_empty:
+        if primary in self.connections:
+            if len(self.connections[primary]) == 0:
+                return 0 # it is not possible to connect this stock in any way.
+
+        while queue.qsize() > 0:
             # grab next state
             (cost, stock, rate, visited) = queue.get()
 
             if stock == secondary:
                 return rate
 
-            for childStock in self.connections[ stock ]:
-                arc = ( stock, childStock )
-                childState = ( cost + self.costs[arc],
-                               childStock,
-                               rate * self.conversionRates[arc],
-                               visited | {childStock} )
-                queue.put( childState )
+            if stock in self.connections:
+                for childStock in self.connections[ stock ]:
+                    if childStock not in visited:
+                        arc = ( stock, childStock )
+                        childState = ( cost + self.costs[arc],
+                                       childStock,
+                                       rate * self.conversionRates[arc],
+                                       visited | {childStock} )
+                        queue.put( childState )
 
         raise Exception( 'could not convert {0} to {1}'.format(primary, secondary) )
 
