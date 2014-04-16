@@ -1,7 +1,15 @@
 
 import Queue
 
-class Graph:
+class ConversionTable:
+    ##Initialize an conversion table that allows converting
+    # any stock in the table to any other stock
+    #
+    # @param markets an dictionary (primary, secondary) -> (rate, cost)
+    # where rate is the exchange rate of primary in terms of secondary,
+    # and cost is the cost of this path. An lower cost makes it more likely
+    # that an conversion will go through this market. If you don't know, just
+    # use 1 for the cost at every market.
     def __init__(self, markets):
         uniqueMarkets = set( a for a, b in markets ) | \
                         set( b for a, b in markets )
@@ -23,13 +31,25 @@ class Graph:
         self.conversionRates = conversionRates
         self.costs = costs
 
-    def computeExchangeRate(self, primary, secondary):
+    ##convert any stock to an different stock
+    # @param fromStock the stock to convert from
+    # @param toStock the stock to convert to
+    # @param amount the amount of fromStock to convert
+    # @return the converted amount
+    def convert(self, fromStock, toStock, amount ):
+        rate = self._computeExchangeRate( fromStock, toStock )
+        total = rate * amount
+        print amount, fromStock, 'is', total, toStock
+        return total
+
+    def _computeExchangeRate(self, primary, secondary):
+        # this does a A* search with H = 0
+        #
         # the state is a tuple of:
         # ( current cost,
         #   current stock,
         #   current conversion rate,
         #   set of all visited stocks )
-        #
         initialState = ( 0, primary, 1, {primary} )
         queue = Queue.PriorityQueue()
 
@@ -48,53 +68,29 @@ class Graph:
                                childStock,
                                rate * self.conversionRates[arc],
                                visited | {childStock} )
-                #print childState
                 queue.put( childState )
 
         raise Exception( 'could not convert {0} to {1}'.format(primary, secondary) )
 
-
-class ConversionTable:
-    ##Initialize an conversion table that allows converting
-    # any stock in the table to any other stock
-    #
-    # @param markets an dictionary (primary, secondary) -> (rate, cost)
-    # where rate is the exchange rate of primary in terms of secondary,
-    # and cost is the cost of this path. An lower cost makes it more likely
-    # that an conversion will go through this market
-    def __init__(self, markets):
-        uniqueMarkets = set( a for a, b in markets ) | \
-                        set( b for a, b in markets )
-
-        conversionRate = {}
-
-        graph = Graph( markets )
-
-        for primary in uniqueMarkets:
-            for secondary in uniqueMarkets:
-                rate = graph.computeExchangeRate( primary, secondary )
-                print primary, '->', secondary, '=', rate
-                conversionRate[(primary, secondary)] = rate
-
-        self.conversionRate = conversionRate
-
-    def convert(self, fromStock, toStock, amount ):
-        total = self.conversionRate[(fromStock, toStock)] * amount
-        print amount, fromStock, 'is', total, toStock
-        return total
-
 def main():
     d = {
-        ('DGC', 'BTC') : (0.01, 2), # e.g. 0.01 DGC = 1 BTC
-        ('LTC', 'BTC') : (0.02, 1),
-        ('XPM', 'LTC') : (0.1, 1)
+        ('LTC', 'BTC') : (0.02, 1), # 0.02 BTC = 1 LTC. cost 1
+        ('XPM', 'LTC') : (0.1, 3),  # higher cost for lesser used market
+        ('XPM', 'BTC') : (0.01, 2),
+        ('DEV', 'LTC') : (0.1, 5),
+        ('DEV', 'XPM') : (0.1, 10)
     }
 
     tab = ConversionTable( d )
 
-    tab.convert( 'DGC', 'BTC', 100 )
-    tab.convert( 'BTC', 'BTC', 100 )
-    tab.convert( 'LTC', 'BTC', 10 )
+    assert( tab.convert( 'BTC', 'BTC', 1.23 ) == 1.23 )
+    assert( tab.convert( 'LTC', 'BTC', 50) == 1 )
+    assert( tab.convert( 'BTC', 'LTC', 1) == 50 )
+    assert( tab.convert( 'LTC', 'BTC', 10 ) == 0.2 )
+
+    # conversion should be dev-ltc-btc, not dev-xpm-btc
+    # because the cost of the latter is higher
+    assert( tab.convert( 'DEV', 'BTC', 1 ) == 0.002 )
 
 if __name__ == '__main__':
     main()
