@@ -1,3 +1,13 @@
+#-------------------------------------------------------------------------------
+# Name          kraken
+# Purpose:      Module allows the retreival of balances from Kraken
+#
+# Author:       Stefan Dessens
+#
+# Created:      15-04-2014
+# Copyright:    (c) Stefan Dessens 2014
+# Licence:      TBD
+#-------------------------------------------------------------------------------
 
 import json
 import urllib
@@ -29,6 +39,7 @@ class KrakenVisitor:
         else:
             raise Exception( 'Kraken: ' + str( ret['error'] ) )
 
+
 class KrakenApi:
     def __init__(self, pub, priv):
         self.pub = pub
@@ -58,6 +69,7 @@ class KrakenApi:
         }
 
         return self.query( path, params, headers )
+
 
 def main():
     api = KrakenApi( 'bogus-public-key', '5555555555555555555555555555555555555555555555555555555555555555555555555555555555555Q==' )

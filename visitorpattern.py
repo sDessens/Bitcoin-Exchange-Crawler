@@ -1,13 +1,14 @@
 #-------------------------------------------------------------------------------
-# Name:        module1
-# Purpose:
+# Name          VisitorPattern
+# Purpose:      Module that wraps the Visitor design pattern
 #
-# Author:      Stefan
+# Author:       Stefan Dessens
 #
-# Created:     15-04-2014
-# Copyright:   (c) Stefan 2014
-# Licence:     <your licence>
+# Created:      15-04-2014
+# Copyright:    (c) Stefan Dessens 2014
+# Licence:      TBD
 #-------------------------------------------------------------------------------
+
 
 class VisitorPattern:
     def __init__( self ):

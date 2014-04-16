@@ -1,19 +1,21 @@
 #-------------------------------------------------------------------------------
-# Name:        module1
-# Purpose:
+# Name          main
+# Purpose:      Module that manages the entire exchange balance crawing process.
+#               Various Exchange and Storage visitors are initialized from
+#               the subfolders /exchanges/ and /storage/, which specify
+#               what type of information gets crawled and stored.
 #
-# Author:      Stefan
+# Author:       Stefan Dessens
 #
-# Created:     15-04-2014
-# Copyright:   (c) Stefan 2014
-# Licence:     <your licence>
+# Created:      15-04-2014
+# Copyright:    (c) Stefan Dessens 2014
+# Licence:      TBD
 #-------------------------------------------------------------------------------
 
 import json
-
 import visitorpattern
-# dynamic import of all modules in folder exchanges/
-# dynamic import of all modules in folder ?????/
+# dynamic import of all modules in folder exchanges/*
+# dynamic import of all modules in folder storage/*
 
 def getVisitorsFromFolder( moduleName ):
     visitors = visitorpattern.VisitorPattern()
@@ -35,18 +37,16 @@ def getVisitorsFromFolder( moduleName ):
 
 def main():
     exchangeVisitors = getVisitorsFromFolder( 'exchanges' )
-    #storageVisitors = getVisitorsFromFolder( 'storage' )
+    storageVisitors = getVisitorsFromFolder( 'storage' )
 
     # get contents of config file
-    config = json.load( open( 'config.json', 'r' ) ) #todo get config file contents
+    config = json.load( open( 'config.json', 'r' ) )
 
-    """
-    storageManager = storageVisitors.select( config['storage'] )
-    if storageManager == None:
+    storageVisitor = storageVisitors.select( config['storage'] )
+    if storageVisitor == None:
         raise Exception( 'unable to derive storage manager from config file' )
     else:
-        storageManager = storageManager.visit( config )
-    """
+        storageManager = storageVisitor.visit( config )
 
     for section in config['exchanges']:
         visitor = exchangeVisitors.select( section )
@@ -54,7 +54,7 @@ def main():
             try:
                 info = visitor.visit( section )
                 print info
-                #storageManager.write( info, section )
+                storageManager.write( info, section )
             except Exception as e:
                 print str(e)
         else:
