@@ -17,6 +17,14 @@ class StubVisitor:
             return obj['type'] == 'stub'
         except Exception as e:
             return False
+
+    def visit( self, obj ):
+        return StubStorage()
+
+
+class StubStorage:
+    def __init__(self):
+        pass;
     
     ##The read function that downloads the data and returns a BalanceData object
     # @param identifier a string that identifies the file it will be written to.
@@ -29,4 +37,4 @@ class StubVisitor:
     # @param identifier a string that identifies the file it will be written to.
     # @param value the value that should be writen
     def write(self,identifier,value):
-        return 0
+        print 'StubStorage: write value', value, 'to', identifier

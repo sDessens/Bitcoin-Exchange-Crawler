@@ -1,5 +1,7 @@
 {
-	"storage" : {},
+	"storage" : {
+		"type" : "stub"
+		},
 	"exchanges" :
 	[
 		{

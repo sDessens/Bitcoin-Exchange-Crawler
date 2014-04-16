@@ -53,8 +53,7 @@ def main():
         if visitor != None:
             try:
                 info = visitor.visit( section )
-                print info
-                storageManager.write( info, section )
+                storageManager.write( section['name'], info )
             except Exception as e:
                 print str(e)
         else:
