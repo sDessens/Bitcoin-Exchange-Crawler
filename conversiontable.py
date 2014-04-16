@@ -25,7 +25,7 @@ class Graph:
 
     def computeExchangeRate(self, primary, secondary):
         # the state is a tuple of:
-        # ( current weight,
+        # ( current cost,
         #   current stock,
         #   current conversion rate,
         #   set of all visited stocks )
@@ -37,14 +37,14 @@ class Graph:
 
         while queue.not_empty:
             # grab next state
-            (weight, stock, rate, visited) = queue.get()
+            (cost, stock, rate, visited) = queue.get()
 
             if stock == secondary:
                 return rate
 
             for childStock in self.connections[ stock ]:
                 arc = ( stock, childStock )
-                childState = ( weight + self.costs[arc],
+                childState = ( cost + self.costs[arc],
                                childStock,
                                rate * self.conversionRates[arc],
                                visited | {childStock} )
@@ -60,7 +60,7 @@ class ConversionTable:
     #
     # @param markets an dictionary (primary, secondary) -> (rate, cost)
     # where rate is the exchange rate of primary in terms of secondary,
-    # and cost is the weight of this path. An lower cost makes it more likely
+    # and cost is the cost of this path. An lower cost makes it more likely
     # that an conversion will go through this market
     def __init__(self, markets):
         uniqueMarkets = set( a for a, b in markets ) | \
