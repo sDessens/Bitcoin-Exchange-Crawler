@@ -1,3 +1,16 @@
+#-------------------------------------------------------------------------------
+# Name          ConversionTable
+# Purpose:      Module allows conversion of an stock to a different stock. For
+#               example, one can query the amount of BTC 100000 DOGE is worth.
+#               The conversion rate from DOGE to BTC is then calculated using
+#               an search algorithm.
+#
+# Author:       Stefan Dessens
+#
+# Created:      16-04-2014
+# Copyright:    (c) Stefan Dessens 2014
+# Licence:      TBD
+#-------------------------------------------------------------------------------
 
 import Queue
 

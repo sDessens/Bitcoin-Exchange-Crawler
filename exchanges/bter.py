@@ -1,10 +1,10 @@
 #-------------------------------------------------------------------------------
-# Name          kraken
-# Purpose:      Module allows query of balances from Kraken
+# Name          Bter
+# Purpose:      Module allows query of balances from Bter
 #
 # Author:       Stefan Dessens
 #
-# Created:      15-04-2014
+# Created:      16-04-2014
 # Copyright:    (c) Stefan Dessens 2014
 # Licence:      TBD
 #-------------------------------------------------------------------------------
@@ -112,23 +112,3 @@ class BterApi:
         signature = hmac.new( self.priv, post, hashlib.sha512 )
         headers = dict(Sign=signature.hexdigest(), Key=self.pub)
         return self.query( uri, params, headers )
-
-
-def main():
-    api = BterApi( '806C4D49-8483-438F-8BCD-C91F0F34FB25',
-                'ed25a34efa5e9be8a485965cc32d363e1c048fae8872d7df73ff9bc7ea38902a' )
-
-    ret = api.query_public( 'tickers' )
-    print ret
-
-    ret = api.query_private( 'getfunds', {} )
-    print ret.keys()
-    print ret['locked_funds']
-    print ret['available_funds']
-    print ret
-
-    visitor = BterVisitor()
-    visitor._buildConversionTable(api)
-
-if __name__ == '__main__':
-    main()
