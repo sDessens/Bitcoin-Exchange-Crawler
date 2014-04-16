@@ -1,6 +1,6 @@
 {
 	"storage" : {
-		"type" : "dropboxstorage",
+		"type" : "stub",
 		"app_key":"mykey",
 		"app_secret":"mysecret",
 		"separator":",",
