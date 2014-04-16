@@ -43,14 +43,14 @@ def main():
     config = json.load( open( 'config.json', 'r' ) )
 
     storageVisitor = storageVisitors.select( config['storage'] )
-    if storageVisitor == None:
+    if storageVisitor is None:
         raise Exception( 'unable to derive storage manager from config file' )
     else:
         storageManager = storageVisitor.visit( config['storage'] )
 
     for section in config['exchanges']:
         visitor = exchangeVisitors.select( section )
-        if visitor != None:
+        if visitor is not None:
             try:
                 info = visitor.visit( section )
                 storageManager.write( section['name'], info )
