@@ -46,7 +46,7 @@ def main():
     if storageVisitor is None:
         raise Exception( 'unable to derive storage manager from config file' )
     else:
-        storageManager = storageVisitor.visit( config )
+        storageManager = storageVisitor.visit( config['storage'] )
 
     for section in config['exchanges']:
         visitor = exchangeVisitors.select( section )
