@@ -10,14 +10,10 @@ Construct an instance of the BalanceData class
 
 """
 class BalanceData:
-    def __init__( self, timestamps = None, values =None ):
-        self._timestamps = []
-        self._balance = []
-        if timestamps == None and values == None:
-            return;
+    def __init__( self, timestamps = None, values = None ):
+        self._timestamps = timestamps if timestamps is not None else []
+        self._balance = values if values is not None else []
 
-        self._timestamps = timestamps
-        self._balance = values
         # assert if the list is non sorted
         assert( all(b >= a for a, b in zip(self._timestamps, self._timestamps[1:])) )
         
@@ -42,7 +38,7 @@ class BalanceData:
                 self._balance[i] += val;
 
     """
-    returns a NEW chart
+    returns a new BalanceData object
     """
     def generateDiff( self, days = 1 ):
         seconds = days * 24 * 60 * 60
@@ -71,9 +67,9 @@ class BalanceData:
             timestamp = float(time.mktime( timestamp.timetuple() ))
 
         if timestamp < self._timestamps[0]:
-            return 0;
+            return 0
         if timestamp > self._timestamps[-1]:
-            return self._balance[-1];
+            return self._balance[-1]
 
         index = bisect_left(self._timestamps,timestamp,0,len( self._timestamps ))
 
