@@ -1,10 +1,19 @@
-#!/bin/env/python
+#-------------------------------------------------------------------------------
+# Name          btce
+# Purpose:      Module allows the retrieval of balances from BTC-e
+#
+# Author:       Jasper van Gelder
+#
+# Created:      15-04-2014
+# Copyright:    (c) Jasper van Gelder 2014
+# Licence:      TBD
+#-------------------------------------------------------------------------------
+
 import urllib
 import urllib2
 import json
 import time
 import hmac,hashlib
-from datetime import datetime
 
 def getInstance():
     return BtceVisitor()
