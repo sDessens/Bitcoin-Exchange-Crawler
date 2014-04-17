@@ -39,7 +39,7 @@ class CryptsyVisitor:
         try:
             data = api.query_private('getinfo')
         except Exception as e:
-            raise ("Crypty "+e)
+            raise Exception("Crypty "+str(e))
         if int(data['success']):
             ret = data['return']
             balances = dict()
@@ -59,17 +59,17 @@ class CryptsyVisitor:
                     total += self._table.convert( key,toValueKey, value );
                     #print "total is "+str(total)+" after "+key+"-"+toValueKey+" amount: "+str(value)
                 except Exception as e:
-                    raise e
+                    raise
             return total
         else:
-            raise Exception('Cryptsy error: '+data['error'])
+            raise Exception('Cryptsy error: '+data['error'] )
         
     def _buildConversionTable(self, api):
         #get market values
         try:
             data = api.query_public('marketdatav2')
         except Exception as e:
-            raise ("Crypty "+e)
+            raise Exception( str("Crypty "+str(e)) )
         ret = data['return']['markets']
         markets = {}
         for key, item in ret.items():

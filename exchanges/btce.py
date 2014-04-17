@@ -75,8 +75,8 @@ class BtceVisitor:
 
 class BtceApi:
     def __init__(self, APIKey, Secret):
-        self.APIKey = APIKey
-        self.Secret = Secret
+        self.APIKey = str(APIKey)
+        self.Secret = str(Secret)
         self.Pairs = []
         self.fillPairs()
         
