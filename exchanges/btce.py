@@ -131,10 +131,15 @@ class BtceApi:
         return ret['ticker']['avg']
 
 def main():
-    obj = {"pubkey": "pub","privkey":"priv"}
-    try:
-        print BtceVisitor().visit(obj)
-    except Exception as e:
-        print e
+    vis = BtceVisitor()
+    json = { 'type':'btce',
+             'name':'btce-test',
+             'pubkey':'bogus-public-key',
+             'privkey':'aa33153451345134513451345314'}
+
+    assert( vis.accept( json ) )
+
+    print vis.visit( json )
+
 if __name__ == '__main__':
     main()

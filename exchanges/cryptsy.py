@@ -120,7 +120,17 @@ class CryptsyApi:
         jsonRet = json.loads(ret.read())
         return jsonRet
 
+def main():
+    vis = CryptsyVisitor()
+    json = { 'type':'cryptsy',
+             'name':'cryptsy-test',
+             'pubkey':'bogus-public-key',
+             'privkey':'aa33153451345134513451345314'}
 
+    assert( vis.accept( json ) )
 
+    print vis.visit( json )
 
+if __name__ == '__main__':
+    main()
 
