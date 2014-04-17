@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Name          cryptsy
-# Purpose:      Module allows the retreival of balances from cryptsy
+# Purpose:      Module allows the retrieval of balances from cryptsy
 #
 # Author:       Jasper van Gelder
 #
@@ -8,12 +8,12 @@
 # Copyright:    (c) Jasper van Gelder 2014
 # Licence:      TBD
 #-------------------------------------------------------------------------------
+
 import urllib
 import urllib2
 import json
 import time
 import hmac,hashlib
-from datetime import datetime
 from conversiontable import ConversionTable
 
 def getInstance():

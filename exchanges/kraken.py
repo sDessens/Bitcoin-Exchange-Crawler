@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Name          kraken
-# Purpose:      Module allows the retreival of balances from Kraken
+# Purpose:      Module allows the retrieval of balances from Kraken
 #
 # Author:       Stefan Dessens
 #
