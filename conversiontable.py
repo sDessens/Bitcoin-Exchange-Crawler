@@ -47,12 +47,12 @@ class ConversionTable:
     ##convert any stock to an different stock
     # @param fromStock the stock to convert from
     # @param toStock the stock to convert to
-    # @param amount the amount of fromStock to convert
+    # @param amount the amount to convert
     # @return the converted amount
+    # can throw an ConversionException if conversion fails for some reason.
     def convert(self, fromStock, toStock, amount ):
         rate = self._computeExchangeRate( fromStock, toStock )
         total = rate * amount
-        #print amount, fromStock, 'is', total, toStock
         return total
 
     def _computeExchangeRate(self, primary, secondary):
@@ -69,13 +69,15 @@ class ConversionTable:
 
         if primary in self.connections:
             if len(self.connections[primary]) == 0:
-                return 0 # it is not possible to connect this stock in any way.
+                raise ConversionException( 'could not convert {0} to {1} because destination is unreachable'
+                                           .format(primary, secondary) )
 
         while queue.qsize() > 0:
             # grab next state
             (cost, stock, rate, visited) = queue.get()
 
             if stock == secondary:
+                print 'conversion rate', primary, '->', secondary, 'rate', rate, 'over', visited
                 return rate
 
             if stock in self.connections:
@@ -88,7 +90,11 @@ class ConversionTable:
                                        visited | {childStock} )
                         queue.put( childState )
 
-        raise Exception( 'could not convert {0} to {1}'.format(primary, secondary) )
+        raise ConversionException( 'could not convert {0} to {1} because destination is unreachable'
+                                   .format(primary, secondary) )
+
+class ConversionException(Exception):
+    pass
 
 def main():
     d = {
