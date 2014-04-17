@@ -1,8 +1,7 @@
 #-------------------------------------------------------------------------------
-# Name          stub
-# Purpose:      Module is stub implementation of PostProcess Visitor.
-#               Developers can use this file as an example when implementing
-#               additional post processing algorithms
+# Name          sum
+# Purpose:      module is post process visitor that allows summing multiple
+#               BalanceData objects together.
 #
 # Author:       Stefan Dessens
 #
@@ -35,8 +34,6 @@ class SumVisitor:
     # @return post-processed {'identifier' : BalanceData} map
     def visit( self, json, data ):
         for k, v in json['data'].items():
-            print k, '<-', v
             arr = [ data[id] for id in v if id in data ]
             data[k] = balanceData.sum( arr )
-
         return data
