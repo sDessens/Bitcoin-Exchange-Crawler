@@ -1,0 +1,62 @@
+{
+	"import" :
+	[
+		{
+			"type" : "dropbox",
+			"app_key":"mykey",
+			"app_secret":"mysecret",
+			"separator":",",
+			"folder":"/mydropboxsubfolder",
+			"data" : [ "stefan-kraken", "stefan-bter" ]
+		},
+		{
+			"type" : "blockchain",
+			"data" : { "stefan-blockchain" : "1BDdF6gVzb3w71Hd7HceiT3kSPLw9ske86" }
+		},
+		{
+			"type" : "localstorage",
+			"folder" : "foobar",
+			"data" : [ "jasper-btce" ]
+		}
+	],
+
+	"postprocess" :
+	[
+		{ 
+			"type" : "sum",
+			"data" :
+			{
+				"stefan-total" : [ "stefan-kraken", "stefan-bter" ], 
+				"jasper-total" : [ "jasper-btce" ] 
+			}
+		},
+		{
+			"type" : "ema",
+			"input" : 
+			[
+				{ "name" : "stefan-ema", "input" : "stefan-total", "N" : 19 },
+				{ "name" : "stefan-ema", "input" : "stefan-total", "N" : 19 }
+			]
+		}
+	],
+
+	"export" :
+	[
+		{
+			"type" : "matplotlibpdf",
+			"views" : 
+			[
+				{ 
+					"name" : "stefan-iets",
+					"source" : [ "stefan-totaal", "stefan-kraken" ],
+					"days" : 7
+				},
+				{ 
+					"name" : "jasper-iets",
+					"source" : [ "stefan-totaal", "stefan-kraken" ],
+					"days" : 1234
+				}
+			]
+		}
+	]
+}

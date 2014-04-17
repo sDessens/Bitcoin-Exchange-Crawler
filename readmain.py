@@ -1,9 +1,7 @@
 #-------------------------------------------------------------------------------
-# Name          main
-# Purpose:      Module that manages the entire exchange balance crawing process.
-#               Various Exchange and Storage visitors are initialized from
-#               the subfolders /exchanges/ and /storage/, which specify
-#               what type of information gets crawled and stored.
+# Name          read
+# Purpose:      read data from various exchanges, specified in (by default)
+#               readconfig.json. data is then written to db.
 #
 # Author:       Stefan Dessens
 #
@@ -15,12 +13,12 @@
 import json
 import parsevisitorsfromfolder as pv
 # dynamic import of all modules in folder exchanges/*
-# dynamic import of all modules in folder storage/*
+# dynamic import of all modules in folder writedb/*
 
 
 def main():
     exchangeVisitors = pv.getVisitorsFromFolder( 'exchanges' )
-    storageVisitors = pv.getVisitorsFromFolder( 'storage' )
+    storageVisitors = pv.getVisitorsFromFolder( 'writedb' )
 
     # get contents of config file
     config = json.load( open( 'readconfig.json', 'r' ) )

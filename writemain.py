@@ -1,9 +1,8 @@
 #-------------------------------------------------------------------------------
-# Name          main
-# Purpose:      Module that manages the entire exchange balance crawing process.
-#               Various Exchange and Storage visitors are initialized from
-#               the subfolders /exchanges/ and /storage/, which specify
-#               what type of information gets crawled and stored.
+# Name          write
+# Purpose:      Import data from db and other various sources,  as specified in
+#               (by default) writeconfig.json. Data is then exported to the
+#               specified format (e.g. pdf, svg) and written to a file.
 #
 # Author:       Stefan Dessens
 #
@@ -15,32 +14,42 @@
 import json
 import parsevisitorsfromfolder as pv
 # dynamic import of all modules in folder export/*
-# dynamic import of all modules in folder storage/*
+# dynamic import of all modules in folder readdb/*
+# dynamic import of all modules in folder postprocess/*
 
 
 def main():
+    readVisitors = pv.getVisitorsFromFolder( 'readdb' )
+    processVisitors = pv.getVisitorsFromFolder( 'postprocess' )
     exportVisitors = pv.getVisitorsFromFolder( 'export' )
-    storageVisitors = pv.getVisitorsFromFolder( 'storage' )
 
     # get contents of config file
     config = json.load( open( 'writeconfig.json', 'r' ) )
 
-    storageVisitor = storageVisitors.select( config['storage'] )
-    if storageVisitor is None:
-        raise Exception( 'unable to derive storage manager from config file' )
-    else:
-        storageManager = storageVisitor.visit( config['storage'] )
+    data = {} # map of identifier (str) -> BalanceData
 
-    for section in config['exchanges']:
-        visitor = exchangeVisitors.select( section )
-        if visitor is not None:
-            try:
-                info = visitor.visit( section )
-                storageManager.write( section['name'], info )
-            except Exception as e:
-                print str(e)
+    for section in config['import']:
+        vis = readVisitors.select( section )
+        if vis is not None:
+            data.update( vis.visit( section ) )
         else:
-            print 'no visitor could be found that accepts', section
+            print 'unable to find import visitor for section', section
+
+    for section in config['postprocess']:
+        vis = processVisitors.select( section )
+        if vis is not None:
+            data =  vis.visit( section, data )
+        else:
+            print 'unable to find postprocess visitor for section', section
+
+    for section in config['export']:
+        vis = exportVisitors.select( section )
+        if vis is not None:
+            data =  vis.visit( section, data )
+        else:
+            print 'unable to find export visitor for section', section
+
+    # todo write stuff to file
 
 if __name__ == '__main__':
     main()
