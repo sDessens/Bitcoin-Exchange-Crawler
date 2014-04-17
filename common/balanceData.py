@@ -15,27 +15,7 @@ class BalanceData:
         self._balance = values if values is not None else []
 
         # assert if the list is non sorted
-        assert( all(b >= a for a, b in zip(self._timestamps, self._timestamps[1:])) )
-        
-    """ @param data An array of BalanceData objects. In this case, the constructed object
-      is consists of interpolated data from the argument.
-      """        
-    def sum(self, data):
-        # argument is array of BalanceData
-        # enumerate all timestamps
-        timestampSet = set()
-        for x in data:
-            timestampSet = timestampSet.union( x._timestamps );
-        self._timestamps = list( timestampSet )
-        self._timestamps.sort()
-        self._balance = [0] * len( self._timestamps );
-        # for every balance data
-        for balance in data:
-            # for every timestamp
-            for i in range( len(self._timestamps) ):
-                stamp = self._timestamps[i];
-                val = balance.interpolate( stamp )
-                self._balance[i] += val;
+        assert( all(b > a for a, b in zip(self._timestamps, self._timestamps[1:])) )
 
     """
     returns a new BalanceData object
@@ -83,7 +63,7 @@ class BalanceData:
             ab = self._timestamps[ index ] - self._timestamps[ index - 1 ]
             distance = timestamp - self._timestamps[ index - 1 ]
             progress = distance / ab
-            assert( progress > 0 )
+            assert( progress >= 0 )
             assert( progress < 1 )
             return b * progress + a * ( 1.0 - progress )
 
@@ -101,3 +81,23 @@ class BalanceData:
 
     def balance(self):
         return self._balance
+
+
+##sum multiple BalanceData objects together
+# @param array of BalanceData object
+# @return the summed BalanceData object
+def sum(data):
+    timestampSet = set()
+    for bd in data:
+        timestampSet = timestampSet.union( bd._timestamps );
+
+    timestamps = list( timestampSet )
+    timestamps.sort()
+    y = []
+    for x in timestamps:
+        val = 0
+        for bd in data:
+            val = val + bd.interpolate(x)
+        y.append( val )
+
+    return BalanceData( timestamps, y )
