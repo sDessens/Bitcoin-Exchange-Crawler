@@ -3,7 +3,7 @@ import os
 
 import dropbox
 
-from balanceData import *
+import common.balanceData as balanceData
 
 ##
 #This class uses dropbox as storage medium.
@@ -99,7 +99,7 @@ class DropboxStorage:
             if  time > fromTime and time < toTime:
                 timestamps.append(time)
                 balance.append(float(values[1]))
-        return BalanceData(timestamps,balance)
+        return balanceData.BalanceData(timestamps,balance)
 
     ##The write function that adds the value to the file in dropbox
     # @param identifier a string that identifies the file it will be written to.
