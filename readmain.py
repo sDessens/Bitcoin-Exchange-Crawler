@@ -23,7 +23,7 @@ def main():
     storageVisitors = pv.getVisitorsFromFolder( 'storage' )
 
     # get contents of config file
-    config = json.load( open( 'config.json', 'r' ) )
+    config = json.load( open( 'readconfig.json', 'r' ) )
 
     storageVisitor = storageVisitors.select( config['storage'] )
     if storageVisitor is None:
