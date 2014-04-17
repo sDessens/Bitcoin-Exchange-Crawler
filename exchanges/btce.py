@@ -30,10 +30,11 @@ class BtceVisitor:
 
     def visit( self, obj ):
         api = BtceApi( obj['pubkey'], obj['privkey'] )
+        wallet = None
         try:
             wallet = api.query_private('getInfo','https://btc-e.com/tapi')
         except Exception as e:
-            raise e
+            raise
         funds = wallet['funds']
         btcTotal =0
         tovalue = "btc"
@@ -95,24 +96,34 @@ class BtceApi:
             'Sign': sign,
             'Key': self.APIKey
         }
-
-        ret = urllib2.urlopen(urllib2.Request(url, post_data, headers))
-        reply = json.loads(ret.read())
-
-        while (int(reply['success']) == 0) and (reply['error'] != 'no orders'):
-            #raise an error after 10 faulty replies
-            if not reply['success'] and retries > 2 :
-                raise Exception( 'Btce: ' + str( reply['error'] ) + ' after '+str(retries) + ' retries')
-            #return the value if it was succesfully retrieved
-            elif reply['success']:
-                return reply['return']
-            #retry if succes was 0 and retries <= 10
-            else:
+        #try to send the request and retrieve data
+        if retries < 3:
+            try:
+                ret = urllib2.urlopen(urllib2.Request(url, post_data, headers))
+                reply = json.loads(ret.read())
+            #retry if the request failed
+            except:
                 print str(retries)+ " retrying..."
-                time.sleep(1)
-                retries += 1 
-                reply = self.query_private(method,url,req,retries)
-        return reply['return']             
+                retries += 1
+                self.query_private(method,url,req,retries)
+            #raise an error if it is an invalid key
+            if (int(reply['success']) ==0):
+                if (reply['error'] == 'invalid api key') :
+                    raise Exception( 'Btce: ' + str( reply['error'] ) + ' after '+str(retries) + ' retries')
+                #return None if there are no orders
+                elif reply['error'] != 'no orders':
+                    return None
+                #retry if succes was 0 and retries <= 2
+                else:
+                    print str(retries)+ " retrying..."
+                    time.sleep(1)
+                    retries += 1 
+                    self.query_private(method,url,req,retries)
+            elif (int(reply['success']) ==1):
+                #return the value if it was succesfully retrieved
+                return reply['return']
+        else:
+            raise Exception( 'Btce: failed after '+str(retries) + ' retries')    
         
     def fillPairs(self):
         jsonret = self.query_public('https://btc-e.com/api/3/info')
@@ -131,15 +142,10 @@ class BtceApi:
         return ret['ticker']['avg']
 
 def main():
-    vis = BtceVisitor()
-    json = { 'type':'btce',
-             'name':'btce-test',
-             'pubkey':'bogus-public-key',
-             'privkey':'aa33153451345134513451345314'}
-
-    assert( vis.accept( json ) )
-
-    print vis.visit( json )
-
+    obj = {"pubkey": "mypub","privkey":"mysecret"}
+    try:
+        print BtceVisitor().visit(obj)
+    except Exception as e:
+        print e
 if __name__ == '__main__':
     main()
