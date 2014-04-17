@@ -52,17 +52,7 @@ class BterVisitor:
         return total
 
     def _buildConversionTable(self, api):
-        tickers = None
-        for _ in range( 4 ):
-            try:
-                tickers = api.query_public('tickers')
-                break
-            except Exception as e:
-                print 'network failed, retry...', e.message
-                pass #retry
-
-        if tickers is None:
-            raise( Exception( 'Bter: network query failed' ) )
+        tickers = api.query_public('tickers')
 
         markets = dict()
 
@@ -104,14 +94,26 @@ class BterApi:
         req = urllib2.urlopen( urllib2.Request( url, headers=headers ) )
         return json.loads(req.read())
 
-    def query_public(self, method ):
+    def query_public(self, method, retry = 4 ):
         uri = '/api/1/' + method
-        return self.get( uri )
+        for _ in range(retry):
+            try:
+                return self.get( uri )
+            except:
+                pass
+        raise
 
-    def query_private(self, method, params):
+
+    def query_private(self, method, params, retry = 4):
         uri = '/api/1/private/' + method
         params['nonce'] = int(time.time()*1000)
         post = urllib.urlencode( params )
         signature = hmac.new( self.priv, post, hashlib.sha512 )
         headers = dict(Sign=signature.hexdigest(), Key=self.pub)
-        return self.post( uri, params, headers )
+        for _ in range(retry):
+            try:
+                return self.post( uri, params, headers )
+            except:
+                pass
+        raise
+
