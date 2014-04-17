@@ -11,8 +11,6 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 
-import balanceData
-
 def getInstance():
     return StubVisitor()
 

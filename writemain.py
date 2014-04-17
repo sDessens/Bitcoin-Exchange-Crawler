@@ -12,7 +12,7 @@
 #-------------------------------------------------------------------------------
 
 import json
-import parsevisitorsfromfolder as pv
+import common.parsevisitorsfromfolder as pv
 # dynamic import of all modules in folder export/*
 # dynamic import of all modules in folder readdb/*
 # dynamic import of all modules in folder postprocess/*

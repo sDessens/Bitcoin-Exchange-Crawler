@@ -16,7 +16,7 @@ import time
 import hashlib
 import hmac
 
-import conversiontable
+import common.conversiontable as conversiontable
 
 
 def getInstance():

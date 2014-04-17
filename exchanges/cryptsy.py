@@ -14,7 +14,7 @@ import urllib2
 import json
 import time
 import hmac,hashlib
-import conversiontable
+import common.conversiontable as conversiontable
 
 def getInstance():
     return CryptsyVisitor()

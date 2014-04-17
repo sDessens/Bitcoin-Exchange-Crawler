@@ -1,4 +1,4 @@
-import balanceData
+import common.balanceData as balanceData
 
 def getInstance():
     return StubVisitor()

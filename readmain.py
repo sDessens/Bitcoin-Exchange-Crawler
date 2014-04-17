@@ -11,7 +11,7 @@
 #-------------------------------------------------------------------------------
 
 import json
-import parsevisitorsfromfolder as pv
+import common.parsevisitorsfromfolder as pv
 # dynamic import of all modules in folder exchanges/*
 # dynamic import of all modules in folder writedb/*
 

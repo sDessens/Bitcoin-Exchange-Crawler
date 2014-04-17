@@ -1,7 +1,7 @@
 import os
 import tempfile
 import time
-from balanceData import *
+import common.balanceData as balanceData
 
 def getInstance():
     return LocalFileStorageVisitor()
