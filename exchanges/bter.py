@@ -112,8 +112,24 @@ class BterApi:
         headers = dict(Sign=signature.hexdigest(), Key=self.pub)
         for _ in range(retry):
             try:
-                return self.post( uri, params, headers )
+                data = self.post( uri, params, headers )
+                if data['result'] == 'false':
+                    raise Exception( 'Bter: ' + data['message'] )
+                return data
             except:
                 pass
         raise
 
+def main():
+    vis = BterVisitor()
+    json = { 'type':'bter',
+             'name':'bter-test',
+             'pubkey':'bogus-public-key',
+             'privkey':'aa33153451345134513451345314'}
+
+    assert( vis.accept( json ) )
+
+    print vis.visit( json )
+
+if __name__ == '__main__':
+    main()

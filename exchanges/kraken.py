@@ -72,11 +72,15 @@ class KrakenApi:
 
 
 def main():
-    api = KrakenApi( 'bogus-public-key', '5555555555555555555555555555555555555555555555555555555555555555555555555555555555555Q==' )
-    ret = api.query_public( 'Assets', {} )
-    print ret
-    ret = api.query_private( 'TradeBalance', { 'asset' : 'XBTC' } )
-    print ret
+    vis = KrakenVisitor()
+    json = { 'type':'kraken',
+             'name':'kraken-test',
+             'pubkey':'bogus-public-key',
+             'privkey':'5555555555555555555555555555555555555555555555555555555555555555555555555555555555555Q=='}
+
+    assert( vis.accept( json ) )
+
+    print vis.visit( json )
 
 if __name__ == '__main__':
     main()
