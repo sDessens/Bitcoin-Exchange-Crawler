@@ -13,31 +13,14 @@
 #-------------------------------------------------------------------------------
 
 import json
-import visitorpattern
+import parsevisitorsfromfolder as pv
 # dynamic import of all modules in folder exchanges/*
 # dynamic import of all modules in folder storage/*
 
-def getVisitorsFromFolder( moduleName ):
-    visitors = visitorpattern.VisitorPattern()
-
-    for item in __import__(moduleName).__all__:
-        module = __import__( moduleName + '.' + item )
-        attr = getattr( module, item )
-        try:
-            visitors.addVisitor( attr.getInstance() )
-            print 'added visitor {0}/{1}'.format( moduleName, item )
-        except Exception as e:
-            if type(e) is AssertionError:
-                 print '{0}.py:'.format(item), str(e)
-            else:
-                print '{0}.py: unable to add exchange visitor.'.format( item )
-
-    return visitors
-
 
 def main():
-    exchangeVisitors = getVisitorsFromFolder( 'exchanges' )
-    storageVisitors = getVisitorsFromFolder( 'storage' )
+    exchangeVisitors = pv.getVisitorsFromFolder( 'exchanges' )
+    storageVisitors = pv.getVisitorsFromFolder( 'storage' )
 
     # get contents of config file
     config = json.load( open( 'config.json', 'r' ) )
