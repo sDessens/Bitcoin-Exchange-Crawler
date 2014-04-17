@@ -1,28 +1,9 @@
 import json
-import tempfile
 import os
-import time
 
-import dropboxReadVisitor
+import dropbox
 
 from balanceData import *
-
-def getInstance():
-    return DropboxStorageVisitor()
-
-class DropboxStorageVisitor:
-    def __init__(self):
-        pass
-
-    def accept( self, obj ):
-        try:
-            return obj['type'] == 'dropboxstorage'
-        except Exception as e:
-            return False
-
-    def visit( self, obj ):
-        storage = DropboxStorage(obj['folder'],obj['separator'], obj['app_key'], obj['app_secret'] )
-        return storage
 
 ##
 #This class uses dropbox as storage medium.
@@ -37,15 +18,12 @@ class DropboxStorageVisitor:
     
 class DropboxStorage:
     def __init__(self,datafolder,separator,app_key,app_secret):
-        """
-            @var accessTokenFile the file where the access token should be saved
-        """
         self.datafolder = datafolder
         self.separator = separator
         self.app_key = app_key
         self.app_secret = app_secret
         
-        self.flow = dropboxReadVisitor.client.DropboxOAuth2FlowNoRedirect(self.app_key, self.app_secret)
+        self.flow = dropbox.client.DropboxOAuth2FlowNoRedirect(self.app_key, self.app_secret)
         self.client= None
         self.session = {}
         
@@ -60,6 +38,7 @@ class DropboxStorage:
             with open(self.accessTokenFile, mode='w') as fp:
                 json.dump(self.session,fp)
         self.authorize()
+
     ##
     # This function authorizes it self with the dropbox server and stores the session key in self.session
     # It also adds it to the file defined in self.accessTokenFile for later use (so the use does not have to constantly
@@ -82,7 +61,8 @@ class DropboxStorage:
                 json.dump(self.session,fp)
         else:
             access_token = self.session['access_token']
-        self.client = dropboxReadVisitor.client.DropboxClient(access_token)
+        self.client = dropbox.client.DropboxClient(access_token)
+
     ## Downloads a file from dropbox including metadata
     # @param filepath string the dropbox path to the file including the filename
     #
@@ -91,6 +71,7 @@ class DropboxStorage:
             print "No client object"
             return 0 
         return self.client.get_file_and_metadata(filepath)
+
     ##Uploads a file to dropbox
     #   @param filepath string the path to the file including the filename
     #   @param uploadname the name underwhich to upload the file
@@ -104,7 +85,7 @@ class DropboxStorage:
     # @param identifier a string that identifies the file it will be written to.
     # @param fromTime the timeStamp from which the data should be returned
     # @param toTime the until what timeStamp data should be fetched
-    def read(self,identifier,fromTime,toTime):
+    def read(self,identifier,fromTime=0,toTime=2000000000):
         if self.client is None:
             print "No client object"
             return 0
@@ -143,4 +124,3 @@ class DropboxStorage:
         filepointer.close()
         if os.path.isfile('temp.csv~'):
             os.remove('temp.csv~')
-        

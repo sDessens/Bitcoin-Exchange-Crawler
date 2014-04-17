@@ -35,6 +35,8 @@ def main():
         else:
             print 'unable to find import visitor for section', section
 
+    print data.keys()
+
     for section in config['postprocess']:
         vis = processVisitors.select( section )
         if vis is not None:
