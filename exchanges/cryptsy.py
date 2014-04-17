@@ -1,3 +1,13 @@
+#-------------------------------------------------------------------------------
+# Name          cryptsy
+# Purpose:      Module allows the retreival of balances from cryptsy
+#
+# Author:       Jasper van Gelder
+#
+# Created:      16-04-2014
+# Copyright:    (c) Jasper van Gelder 2014
+# Licence:      TBD
+#-------------------------------------------------------------------------------
 import urllib
 import urllib2
 import json
@@ -30,26 +40,29 @@ class CryptsyVisitor:
             data = api.query_private('getinfo')
         except Exception as e:
             raise ("Crypty "+e)
-        ret = data['return']
-        balances = dict()
-        for (a, b) in ret['balances_available'].items():
-            if a not in balances:
-                balances[a] = 0
-            balances[a] = balances[a] + float(b)
-        if 'balances_hold' in ret:
-            for (a, b) in ret['balances_hold'].items():
+        if int(data['success']):
+            ret = data['return']
+            balances = dict()
+            for (a, b) in ret['balances_available'].items():
                 if a not in balances:
                     balances[a] = 0
                 balances[a] = balances[a] + float(b)
-        #Calculate the total
-        total = 0
-        for (key, value) in balances.items():
-            try:
-                total += self._table.convert( key,toValueKey, value );
-                #print "total is "+str(total)+" after "+key+"-"+toValueKey+" amount: "+str(value)
-            except Exception as e:
-                print e
-        return total
+            if 'balances_hold' in ret:
+                for (a, b) in ret['balances_hold'].items():
+                    if a not in balances:
+                        balances[a] = 0
+                    balances[a] = balances[a] + float(b)
+            #Calculate the total
+            total = 0
+            for (key, value) in balances.items():
+                try:
+                    total += self._table.convert( key,toValueKey, value );
+                    #print "total is "+str(total)+" after "+key+"-"+toValueKey+" amount: "+str(value)
+                except Exception as e:
+                    raise e
+            return total
+        else:
+            raise Exception('Cryptsy error: '+data['error'])
         
     def _buildConversionTable(self, api):
         #get market values
