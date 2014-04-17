@@ -59,7 +59,7 @@ class CryptsyVisitor:
                     total += self._table.convert( key,toValueKey, value );
                     #print "total is "+str(total)+" after "+key+"-"+toValueKey+" amount: "+str(value)
                 except Exception as e:
-                    raise e
+                    print e
             return total
         else:
             raise Exception('Cryptsy error: '+data['error'])
