@@ -35,8 +35,8 @@ class BterVisitor:
 
     def visit( self, obj ):
         api = BterApi( obj['pubkey'], obj['privkey'] )
-        if not self._hasConversionTable():
-            self._buildConversionTable(api)
+        if self._table is None:
+            self._table = self._buildConversionTable(api)
 
         balance = api.query_private( 'getfunds', {} )
         total = 0.0
@@ -57,12 +57,12 @@ class BterVisitor:
             try:
                 tickers = api.query_public('tickers')
                 break
-            except:
-                print 'network failed, retry...'
+            except Exception as e:
+                print 'network failed, retry...', e.message
                 pass #retry
 
         if tickers is None:
-            raise( 'Bter: network query failed' )
+            raise( Exception( 'Bter: network query failed' ) )
 
         markets = dict()
 
@@ -73,19 +73,16 @@ class BterVisitor:
             diff = abs( buy - sell ) / avg
 
             primary, secondary = k.upper().split('_')
-            markets[(primary, secondary)] = ( avg, diff )
+            markets[(primary, secondary)] = ( avg, 1.0 + diff )
 
-        self._table = conversiontable.ConversionTable( markets )
-
-    def _hasConversionTable(self):
-        return self._table is not None
+        return conversiontable.ConversionTable( markets )
 
     def _convert(self, fromStock, toStock, amount):
         try:
             result = self._table.convert(fromStock.upper(), toStock.upper(), amount)
             return result
-        except Exception as e:
-            print 'Bter: unable to convert', fromStock, 'to', toStock
+        except conversiontable.ConversionException as e:
+            print 'Bter:', e
             return 0
 
 
@@ -94,16 +91,22 @@ class BterApi:
         self.pub = str(pub)
         self.priv = str(priv)
 
-    def query(self, path, params, headers = {}):
+    def post(self, path, params, headers = {}):
         url = 'https://data.bter.com' + path
         post = urllib.urlencode( params )
         headers['user-agent'] = 'Mozilla/5.0'
         ret = urllib2.urlopen(urllib2.Request( url, post, headers ))
         return json.loads(ret.read())
 
+    def get(self, path, headers = {}):
+        url = 'https://data.bter.com' + path
+        headers['user-agent'] = 'Mozilla/5.0'
+        req = urllib2.urlopen( urllib2.Request( url, headers=headers ) )
+        return json.loads(req.read())
+
     def query_public(self, method ):
         uri = '/api/1/' + method
-        return json.loads( urllib2.urlopen( 'https://data.bter.com' + uri ).read() )
+        return self.get( uri )
 
     def query_private(self, method, params):
         uri = '/api/1/private/' + method
@@ -111,4 +114,4 @@ class BterApi:
         post = urllib.urlencode( params )
         signature = hmac.new( self.priv, post, hashlib.sha512 )
         headers = dict(Sign=signature.hexdigest(), Key=self.pub)
-        return self.query( uri, params, headers )
+        return self.post( uri, params, headers )

@@ -77,7 +77,6 @@ class ConversionTable:
             (cost, stock, rate, visited) = queue.get()
 
             if stock == secondary:
-                print 'conversion rate', primary, '->', secondary, 'rate', rate, 'over', visited
                 return rate
 
             if stock in self.connections:
