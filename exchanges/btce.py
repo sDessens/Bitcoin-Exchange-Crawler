@@ -54,7 +54,7 @@ class BtceVisitor:
         try:
             orders = api.query_private('ActiveOrders','https://btc-e.com/tapi')
         except Exception as e:
-            raise e
+            raise
         if orders is not None:
             for orderid, order in orders.iteritems():
                 orderpair = order['pair']
@@ -98,7 +98,8 @@ class BtceApi:
 
         ret = urllib2.urlopen(urllib2.Request(url, post_data, headers))
         reply = json.loads(ret.read())
-        while not reply['success']:
+
+        while (int(reply['success']) == 0) and (reply['error'] != 'no orders'):
             #raise an error after 10 faulty replies
             if not reply['success'] and retries > 2 :
                 raise Exception( 'Btce: ' + str( reply['error'] ) + ' after '+str(retries) + ' retries')

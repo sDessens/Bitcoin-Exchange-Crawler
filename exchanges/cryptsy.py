@@ -14,7 +14,7 @@ import urllib2
 import json
 import time
 import hmac,hashlib
-from conversiontable import ConversionTable
+import conversiontable
 
 def getInstance():
     return CryptsyVisitor()
@@ -39,7 +39,7 @@ class CryptsyVisitor:
         try:
             data = api.query_private('getinfo')
         except Exception as e:
-            raise Exception("Crypty "+str(e))
+            raise Exception("Crypty: "+str(e))
         if int(data['success']):
             ret = data['return']
             balances = dict()
@@ -58,8 +58,8 @@ class CryptsyVisitor:
                 try:
                     total += self._table.convert( key,toValueKey, value );
                     #print "total is "+str(total)+" after "+key+"-"+toValueKey+" amount: "+str(value)
-                except Exception as e:
-                    raise
+                except conversiontable.ConversionException:
+                    pass;
             return total
         else:
             raise Exception('Cryptsy error: '+data['error'] )
@@ -94,12 +94,12 @@ class CryptsyVisitor:
                 avg = ( bestbuyorder + bestsellorder ) / 2.0
                 diff = abs( bestbuyorder - bestsellorder ) / avg                
                 markets[(item['primarycode'],item['secondarycode'])] = (avg, diff )
-        self._table = ConversionTable( markets )
+        self._table = conversiontable.ConversionTable( markets )
         
 class CryptsyApi:
     def __init__(self, APIKey, Secret):
-        self.APIKey = APIKey
-        self.Secret = Secret
+        self.APIKey = str(APIKey)
+        self.Secret = str(Secret)
 
     def query_public(self, method ):
         ret = urllib2.urlopen(urllib2.Request(' http://pubapi.cryptsy.com/api.php?method=' + method))
