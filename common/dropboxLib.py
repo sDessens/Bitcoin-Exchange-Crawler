@@ -76,27 +76,26 @@ class DropboxStorage:
     ## Downloads a file from dropbox including metadata
     # @param filepath string the dropbox path to the file including the filename
     # @return returns a dropbox filepointer
-    def downloadFile(self,filepath):
+    def downloadFile(self,filename):
         if self.client is None:
             print "No client object"
             return 0 
-        return self.client.get_file_and_metadata(filepath)
+        return self.client.get_file_and_metadata(self.datafolder+'/'+filename)
     ## Uploads a file to dropbox through the use of a filepointer
     #   @param filepointer
     #   @param uploadname the name underwhich to upload the file
     #   @param overwrite bool if the file should be overwriten or not
     #
     def writeFilePTR(self, filepointer,uploadname,overwrite):
-        response = self.client.put_file(self.datafolder+uploadname, filepointer,overwrite)
+        response = self.client.put_file(self.datafolder+'/'+uploadname, filepointer,overwrite)
     
     ## Uploads a file to dropbox through the use of a filepath
     #   @param filepath string the path to the file including the filename
     #   @param uploadname the name underwhich to upload the file
-    #   @param overwrite bool if the file should be overwriten or not
-    #
-    def writeFile(self, filepath,uploadname,overwrite=True):
-        with open(filepath, 'rb') as fp:
-            response = self.client.put_file(self.datafolder+uploadname, fp,overwrite)
+ 
+    def writeFile(self, filepath,uploadname):
+        with open(self.datafolder+'/'+filepath, 'rb') as fp:
+            response = self.client.put_file(self.datafolder+uploadname, fp,True)
 
     ##The readBalance function that downloads the balanceData and returns a BalanceData object
     # @param identifier a string that identifies the file it will be written to.
@@ -107,10 +106,10 @@ class DropboxStorage:
         if self.client is None:
             print "No client object"
             return 0
-        filename='/'+identifier+'.'+self.extention
+        filename=identifier+'.'+self.extention
         timestamps= []
         balance=[]
-        fp = self.downloadFile(self.datafolder+filename)
+        fp = self.downloadFile(self.datafolder+'/'+filename)
         for line in fp[0]:
             values = line.split(self.separator)
             time = int(values[0])
@@ -124,7 +123,7 @@ class DropboxStorage:
     # @param value the value that should be writen
     def writeBalance(self,identifier,value):
         timestamp = int(time.time())
-        filename='/'+identifier+'.'+self.extention
+        filename=identifier+'.'+self.extention
 
         folder_metadata = self.client.metadata(self.datafolder)
         filepointer = open('temp.csv~','w+')
@@ -138,7 +137,7 @@ class DropboxStorage:
                 break
         filepointer.write(str(timestamp)+","+str(value)+"\n")
         filepointer.seek(0)
-        response = self.client.put_file(self.datafolder+filename, filepointer,True)
+        response = self.client.put_file(self.datafolder+'/'+filename, filepointer,True)
         filepointer.close()
         if os.path.isfile('temp.csv~'):
             os.remove('temp.csv~')
