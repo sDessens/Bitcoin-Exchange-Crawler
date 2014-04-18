@@ -14,7 +14,7 @@ class DropboxStorageVisitor:
 
     def accept( self, obj ):
         try:
-            return obj['type'] == 'dropboxstorage'
+            return obj['type'] == 'dropbox'
         except Exception as e:
             return False
 
