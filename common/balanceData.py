@@ -1,15 +1,22 @@
+#-------------------------------------------------------------------------------
+# Name          BalanceData
+# Purpose:      Simple module to hold the (X, Y) data from a single source.
+#
+# Author:       Stefan Dessens
+#
+# Created:      12-02-2014
+# Copyright:    (c) Stefan Dessens 2014
+# Licence:      TBD
+#-------------------------------------------------------------------------------
+
 from bisect import bisect_left
 import datetime
 import time
 
-"""
-Construct an instance of the BalanceData class
-
-@param timestamps a list of integer values representing unix timestamp
-@param values a list of float values representing the value
-
-"""
 class BalanceData:
+    ##Construct an instance of the BalanceData class
+    # @param timestamps a list of integer values representing unix timestamp
+    # @param values a list of float values representing the value
     def __init__( self, timestamps = None, values = None ):
         self._timestamps = timestamps if timestamps is not None else []
         self._balance = values if values is not None else []
@@ -17,9 +24,8 @@ class BalanceData:
         # assert if the list is non sorted
         assert( all(b > a for a, b in zip(self._timestamps, self._timestamps[1:])) )
 
-    """
-    returns a new BalanceData object
-    """
+    ##returns a new BalanceData object
+    #
     def generateDiff( self, days = 1 ):
         seconds = days * 24 * 60 * 60
         new = BalanceData()
@@ -36,12 +42,15 @@ class BalanceData:
 
         return new
 
-    """
-    returns the delta from 'timestamp' to 'timestamp + seconds'
-    """
+    ##calculate the difference Y between given points
+    # @param begin begin of sample
+    # @param end end of sample
     def diff( self, begin, end ):
         return self.interpolate( end ) - self.interpolate( begin )
 
+    ##Query the value at a certain point in time
+    # @param timestamp integer or float Unix timestamp or DateTime object
+    # @return the interpolated Y value
     def interpolate( self, timestamp ):
         if type(timestamp) is datetime.datetime:
             timestamp = float(time.mktime( timestamp.timetuple() ))
