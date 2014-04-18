@@ -1,24 +1,21 @@
 #-------------------------------------------------------------------------------
-# Name          stub
-# Purpose:      Module is stub implementation of ReadDB Visitor.
-#               Developers can use this file as an example when implementing
-#               additional information sources
+# Name          LocalFileReadBalanceVisitor
+# Purpose:      Module is localfile storage balance implementation of ReadDB Visitor.
 #
-# Author:       Stefan Dessens
+# Author:       Jasper van Gelder
 #
-# Created:      17-04-2014
-# Copyright:    (c) Stefan Dessens 2014
+# Created:      18-04-2014
+# Copyright:    (c) Jasper van Gelder 2014
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 
-import common.dropboxLib as db
-
+from common.localFileStorageLib import LocalFileStorage
 def getInstance():
-    return DropboxReadVisitor()
+    return LocalFileReadBalanceVisitor()
 
 ##
-# this is a DropboxReadVisitor. It provides a way to read a file from dropbox
-class DropboxReadVisitor:
+# this is a LocalFileReadVisitor. It provides a way to read balance from a localfile
+class LocalFileReadBalanceVisitor:
     def __init__(self):
         pass
 
@@ -26,14 +23,14 @@ class DropboxReadVisitor:
     #  @return True if this visitor accepts the given object.
     def accept( self, obj ):
         try:
-            return obj['type'] == 'dropbox'
+            return obj['type'] == 'localstoragebalance'
         except Exception as e:
             return False
 
     ## parse and return data specified in obj.
     #  @return {'identifier' : BalanceData} map or exception.
     def visit(self, obj):
-        storage = db.DropboxStorage( obj['folder'], obj['app_key'], obj['app_secret'] )
+        storage = LocalFileStorage( obj['folder'])
 
         out = {}
         for id in obj['data']:

@@ -19,20 +19,20 @@ import common.balanceData as balanceData
 #This class uses dropbox as storage medium.
 #
 # @param datafolder the dropbox folder the files should be send to
-# @param seperator the separator used for the uploaded files
 # @param app_key a the public key of you dropbox app
 # @param app_secret the secret of your dropbox app<BR>
+# \var seperator the separator used for the uploaded files
 # All params should be string values<BR>
 # Example:<BR>
 #   storage = DropboxStorage('/dropboxsubfolder','mydropboxkey','mydropboxsecret')
     
 class DropboxStorage:
-    def __init__(self,datafolder,separator,app_key,app_secret):
+    def __init__(self,datafolder,app_key,app_secret):
         self.datafolder = datafolder
-        self.separator = separator
         self.app_key = app_key
         self.app_secret = app_secret
-        
+
+        self.separator = ","
         self.flow = dropbox.client.DropboxOAuth2FlowNoRedirect(self.app_key, self.app_secret)
         self.client= None
         self.session = {}
