@@ -10,9 +10,8 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 import os
-import tempfile
 import time
-import common.balanceData as balanceData
+from common.balanceData import BalanceData
 
 ##
 #This class uses local storage as medium.
