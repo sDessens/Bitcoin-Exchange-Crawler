@@ -142,7 +142,7 @@ class BtceApi:
         return ret['ticker']['avg']
 
 def main():
-    obj = {"pubkey": "mypub","privkey":"mysecret"}
+    obj = {"pubkey": "I2R9TAKF-IIKOFCN3-THOTOQSW-P84KZ2UG-PD27E7YU","privkey":"a751e0559833d1c4544c3f5873995e2c5ea72413cc5e7a809caeddb0f3607535"}
     try:
         print BtceVisitor().visit(obj)
     except Exception as e:

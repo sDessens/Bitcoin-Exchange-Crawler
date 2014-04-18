@@ -34,7 +34,7 @@ def main():
         if visitor is not None:
             try:
                 info = visitor.visit( section )
-                storageManager.write( section['name'], info )
+                storageManager.writeBalance( section['name'], info )
             except Exception as e:
                 print str(e)
         else:

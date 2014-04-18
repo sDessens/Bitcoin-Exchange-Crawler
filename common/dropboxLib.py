@@ -1,8 +1,21 @@
+#-------------------------------------------------------------------------------
+# Name          DropboxStorage
+# Purpose:      Module that provides functionallity to write/read files and
+#               balancedata to/from dropbox.
+#
+# Author:       Jasper van Gelder
+#
+# Created:      15-04-2014
+# Copyright:    (c) Jasper van Gelder 2014
+# Licence:      TBD
+#-------------------------------------------------------------------------------
 import json
 import os
-
-import dropbox
-
+try:
+    import dropbox
+except ImportError:
+    raise
+    
 import common.balanceData as balanceData
 
 ##
@@ -65,27 +78,35 @@ class DropboxStorage:
 
     ## Downloads a file from dropbox including metadata
     # @param filepath string the dropbox path to the file including the filename
-    #
+    # @return returns a dropbox filepointer
     def downloadFile(self,filepath):
         if self.client is None:
             print "No client object"
             return 0 
         return self.client.get_file_and_metadata(filepath)
-
-    ##Uploads a file to dropbox
+    ## Uploads a file to dropbox through the use of a filepointer
+    #   @param filepointer
+    #   @param uploadname the name underwhich to upload the file
+    #   @param overwrite bool if the file should be overwriten or not
+    #
+    def uploadFilePTR(self, filepointer,uploadname,overwrite):
+        response = self.client.put_file(self.datafolder+uploadname, filepointer,overwrite)
+    
+    ## Uploads a file to dropbox through the use of a filepath
     #   @param filepath string the path to the file including the filename
     #   @param uploadname the name underwhich to upload the file
     #   @param overwrite bool if the file should be overwriten or not
     #
     def uploadFile(self, filepath,uploadname,overwrite):
-        f = open(filepath, 'rb')
-        response = self.client.put_file(self.datafolder+uploadname, f,overwrite)
+        with open(filepath, 'rb') as fp:
+            response = self.client.put_file(self.datafolder+uploadname, fp,overwrite)
 
-    ##The read function that downloads the data and returns a BalanceData object
+    ##The readBalance function that downloads the balanceData and returns a BalanceData object
     # @param identifier a string that identifies the file it will be written to.
     # @param fromTime the timeStamp from which the data should be returned
     # @param toTime the until what timeStamp data should be fetched
-    def read(self,identifier,fromTime=0,toTime=2000000000):
+    # @return BalanceData the object that contains the balance data and timestamp in the period given by fromTime,toTime
+    def readBalance(self,identifier,fromTime=0,toTime=2000000000):
         if self.client is None:
             print "No client object"
             return 0
@@ -101,10 +122,10 @@ class DropboxStorage:
                 balance.append(float(values[1]))
         return balanceData.BalanceData(timestamps,balance)
 
-    ##The write function that adds the value to the file in dropbox
+    ##The writeBalance function that adds the blance value to the file in dropbox
     # @param identifier a string that identifies the file it will be written to.
     # @param value the value that should be writen
-    def write(self,identifier,value):
+    def writeBalance(self,identifier,value):
         timestamp = int(time.time())
         filename='/'+identifier+'.'+self.extention
 

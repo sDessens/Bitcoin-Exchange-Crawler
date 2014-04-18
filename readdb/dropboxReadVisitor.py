@@ -16,8 +16,8 @@ import common.dropboxLib as db
 def getInstance():
     return DropboxReadVisitor()
 
-## this is a stub db reader. It provides an template that provides all
-#  required functionality for an db reader
+##
+# this is a DropboxReadVisitor. It provides a way to read a file from dropbox
 class DropboxReadVisitor:
     def __init__(self):
         pass
@@ -38,7 +38,7 @@ class DropboxReadVisitor:
         out = {}
         for id in obj['data']:
             try:
-                out[id] = storage.read(id)
+                out[id] = storage.readBalance(id)
             except Exception as e:
                 print str(e)
         return out
