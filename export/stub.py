@@ -32,12 +32,13 @@ class StubVisitor:
     ## run the export algorithm.
     #  this stub printing algorithm prints the identifier and final value of each
     #  BalanceData to stdout.
-    #  @param data an {'identifier' -> BalanceData} map.
+    #  @param data an {'identifier' : BalanceData} map.
     #  @param json contains implementation defined information about the export type
+    #  @param write an {'identifier' : Writedb} map.
     #  @return some sort of file array
-    def visit( self, json, data ):
+    def visit( self, json, data, writedb ):
         print 'begin of stub export visitor output'
         for k, v in data.items():
             print '  {0:15s} = {1}'.format(k, v.interpolate( v.maxTimestampAsDateTime() ) )
-        print 'end of export visitor output'
+        print 'end of stub export visitor output'
         return []

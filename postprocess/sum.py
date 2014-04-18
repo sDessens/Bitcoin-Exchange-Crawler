@@ -29,7 +29,7 @@ class SumVisitor:
             return False
 
     ## run the post-processing algorithm.
-    #  @param data an {'identifier' -> BalanceData} map.
+    #  @param data an {'identifier' : BalanceData} map.
     #  @param json contains implementation defined information about the type of processing to do.
     #  @return the post-processed data
     def visit( self, json, data ):
