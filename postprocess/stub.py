@@ -17,17 +17,14 @@ def getInstance():
     return StubVisitor()
 
 
-""" this is a stub postprocess visitor. It provides an template that provides
-all required functionality for an postprocess visitor
-"""
+##this is a stub postprocess visitor. It provides an template that provides
+# all required functionality for an postprocess visitor
 class StubVisitor:
     def __init__(self):
         pass
 
-    """
-    return True if this visitor accepts the given object.
-    False otherwise
-    """
+    ## check if visitor accepts given object
+    #
     def accept( self, json ):
         try:
             return json['type'] == 'stub'
