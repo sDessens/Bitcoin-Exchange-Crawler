@@ -16,8 +16,13 @@ import common.dropboxLib as db
 def getInstance():
     return DropboxReadVisitor()
 
+<<<<<<< Updated upstream
+## this is a stub db reader. It provides an template that provides all
+#  required functionality for an db reader
+=======
 ##
 # this is a DropboxReadVisitor. It provides a way to read a file from dropbox
+>>>>>>> Stashed changes
 class DropboxReadVisitor:
     def __init__(self):
         pass
@@ -30,8 +35,14 @@ class DropboxReadVisitor:
         except Exception as e:
             return False
 
+<<<<<<< Updated upstream
     ## parse and return data specified in obj.
     #  @return {'identifier' : BalanceData} map or exception.
+=======
+    ##parse and return data specified in obj.
+    # @param obj a dict containing atleast: folder,sperator,app_key,app_secret and data with a list of ids
+    # @return 'identifier' -> BalanceData map or exception.
+>>>>>>> Stashed changes
     def visit(self, obj):
         storage = db.DropboxStorage( obj['folder'],obj['separator'], obj['app_key'], obj['app_secret'] )
 
