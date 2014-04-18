@@ -11,18 +11,18 @@
 import common.localFileStorageLib as LocalFileStorage
 
 def getInstance():
-    return LocalFileStorageVisitor()
+    return LocalFileWriteVisitor()
 
-class LocalFileStorageVisitor:
+class LocalFileWriteVisitor:
     def __init__(self):
         pass
 
     def accept( self, obj ):
         try:
-            return obj['type'] == 'localfilestorage'
+            return obj['type'] == 'localfile'
         except Exception as e:
             return False
 
     def visit( self, obj ):
-        storage = LocalFileStorage(ob['folder'])
+        storage = LocalFileStorage.LocalFileStorage(obj['folder'])
         return storage

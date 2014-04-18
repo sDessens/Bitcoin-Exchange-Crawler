@@ -86,7 +86,7 @@ class DropboxStorage:
     #   @param uploadname the name underwhich to upload the file
     #   @param overwrite bool if the file should be overwriten or not
     #
-    def uploadFilePTR(self, filepointer,uploadname,overwrite):
+    def writeFilePTR(self, filepointer,uploadname,overwrite):
         response = self.client.put_file(self.datafolder+uploadname, filepointer,overwrite)
     
     ## Uploads a file to dropbox through the use of a filepath
@@ -94,7 +94,7 @@ class DropboxStorage:
     #   @param uploadname the name underwhich to upload the file
     #   @param overwrite bool if the file should be overwriten or not
     #
-    def uploadFile(self, filepath,uploadname,overwrite):
+    def writeFile(self, filepath,uploadname,overwrite=True):
         with open(filepath, 'rb') as fp:
             response = self.client.put_file(self.datafolder+uploadname, fp,overwrite)
 

@@ -11,12 +11,15 @@
 
 
 import visitorpattern
+import logging
 
 ##scan target folder for all modules that implement the
 # getInstance() function
 # @param moduleName name of the folder to query
 # @return visitorPattern object
 def getVisitorsFromFolder( moduleName ):
+    log = logging.getLogger('main.visitor')
+
     visitors = visitorpattern.VisitorPattern()
 
     for item in __import__(moduleName).__all__:
@@ -25,13 +28,13 @@ def getVisitorsFromFolder( moduleName ):
             attr = getattr( module, item )
             try:
                 visitors.addVisitor( attr.getInstance() )
-                print 'added visitor {0}/{1}'.format( moduleName, item )
+                log.info( 'added visitor {0}/{1}'.format( moduleName, item ) )
             except Exception as e:
                 if type(e) is AssertionError:
-                     print '{0}.py:'.format(item), str(e)
+                     log.error( '{0}.py: {1}'.format(item, str(e) ) )
                 else:
-                    print '{0}.py: unable to add exchange visitor.'.format( item )
+                    log.error( '{0}.py: unable to add exchange visitor.'.format( item ) )
         except ImportError as e:
-            print 'unable to add visitor {0}/{1} because: {2}'.format( moduleName, item, str(e) )
+            log.error( 'unable to add visitor {0}/{1} because: {2}'.format( moduleName, item, str(e) ) )
 
     return visitors

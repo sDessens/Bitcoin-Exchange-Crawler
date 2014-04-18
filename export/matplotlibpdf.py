@@ -1,11 +1,11 @@
 #-------------------------------------------------------------------------------
 # Name          stub
 # Purpose:      Module is implementation of an export visitor that exports data
-#               to PDF format using the matplotlib python library.
+#               to PDF format using the matplotlib library.
 #
 # Author:       Stefan Dessens
 #
-# Created:      17-04-2014
+# Created:      18-04-2014
 # Copyright:    (c) Stefan Dessens 2014
 # Licence:      TBD
 #-------------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import datetime
-
+import logging
 
 ## This function is required for every Visitor module
 def getInstance():
@@ -39,31 +39,25 @@ class MatplotlibVisitor:
     #  @param json contains implementation defined information about the export type
     #  @return some sort of file array
     def visit( self, json, data, writedb ):
+        log = logging.getLogger( 'main.export.matplotlib.pdf' )
+
         tmpfile = 'matplotlibpdf.tmp.pdf'
 
         plotter = MatplotlibPdfWrapper( tmpfile )
-
         for view in json['views']:
             plotter.addView( view, data )
-
         plotter.finalize()
 
-        print writedb
+        if 'write' not in json:
+            log.error( 'unable to write data because ''write'' key in json is missing.' )
+            return
 
-        try:
-            json['write']
-        except:
-            raise Exception('unable to write pdf because no key ''write'' exists in json' )
+        writeName = json['write']
+        if writeName not in writedb:
+            log.error( 'unable to write data because writer ''{0}'' '.format(writeName) )
+            return
 
-        writter = None
-        try:
-            writter = writedb[json['write']]
-        except:
-            raise Exception('could not find writter', json['write'])
-
-        writter.uploadFile( tmpfile, json['folder'], True )
-
-        return []
+        writedb[writeName].writeFile( tmpfile, json['target'], True )
 
 
 class MatplotlibPdfWrapper:
@@ -81,7 +75,9 @@ class MatplotlibPdfWrapper:
         sources = json['source']
         days = json['days'] if 'days' in json else None
 
-        print 'plotting', title, 'from sources', sources
+        log = logging.getLogger( 'main.export.matplotlib.pdf' )
+        log.info( 'plotting {0}'.format(title) )
+
         self._raw_plot( title, sources, days, data )
 
     ## save and close the plot.

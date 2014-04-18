@@ -42,12 +42,13 @@ class StubWritter:
     def __init__(self):
         pass;
 
-    ## The write function appends given value to to the data
+    ## The writeBalance function appends given value to to the data
     #  @param identifier an string that uniquely identifies the target
     #  @param value the value that should be writen
     def writeBalance(self, identifier, value):
         print 'StubStorage: write value', value, 'to', identifier
 
-    def uploadFile(self, path, uploadPath, overwrite):
-        print 'StubStorage: write file', path, 'to', uploadPath, '(overwrite =', overwrite, ')'
-        pass
+    ## The
+    def writeFile(self, path, uploadPath):
+        print 'StubStorage: write file', path, 'to', uploadPath
+

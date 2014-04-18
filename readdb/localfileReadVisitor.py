@@ -10,12 +10,15 @@
 #-------------------------------------------------------------------------------
 
 from common.localFileStorageLib import LocalFileStorage
+
+
 def getInstance():
-    return LocalFileReadBalanceVisitor()
+    return LocalFileReadVisitor()
+
 
 ##
 # this is a LocalFileReadVisitor. It provides a way to read balance from a localfile
-class LocalFileReadBalanceVisitor:
+class LocalFileReadVisitor:
     def __init__(self):
         pass
 
@@ -23,7 +26,7 @@ class LocalFileReadBalanceVisitor:
     #  @return True if this visitor accepts the given object.
     def accept( self, obj ):
         try:
-            return obj['type'] == 'localstoragebalance'
+            return obj['type'] == 'localfile'
         except Exception as e:
             return False
 

@@ -12,13 +12,21 @@
 #-------------------------------------------------------------------------------
 
 import json
+import logging
 import common.parsevisitorsfromfolder as pv
 # dynamic import of all modules in folder export/*
 # dynamic import of all modules in folder readdb/*
 # dynamic import of all modules in folder postprocess/*
 
 
+
 def main():
+    FORMAT = "%(asctime)-15s %(levelname)s %(name)s: %(message)s"
+    logging.basicConfig(format=FORMAT)
+    log = logging.getLogger('main')
+    log.setLevel(logging.INFO)
+
+
     readVisitors = pv.getVisitorsFromFolder( 'readdb' )
     writeVisitors = pv.getVisitorsFromFolder( 'writedb' )
     processVisitors = pv.getVisitorsFromFolder( 'postprocess' )
@@ -29,21 +37,23 @@ def main():
 
     balances = {} # map of {'identifier' : BalanceData}
 
+
+
     for section in config['import']:
         vis = readVisitors.select( section )
         if vis is not None:
             balances.update( vis.visit( section ) )
         else:
-            print 'unable to find import visitor for section', section
+            log.error( 'unable to find import visitor for section {0}'.format(section) )
 
     for section in config['postprocess']:
         vis = processVisitors.select( section )
         if vis is not None:
-            data =  vis.visit( section, balances )
+            balances =  vis.visit( section, balances )
         else:
-            print 'unable to find postprocess visitor for section', section
+            log.error( 'unable to find import postprocess for section {0}'.format(section) )
 
-    print 'got balances for', balances.keys()
+    log.debug( 'got balances for {0}'.format( balances.keys() ) )
 
     storageManagers = {}
     for k, section in config['write'].items():
@@ -51,7 +61,7 @@ def main():
         if vis is not None:
             storageManagers[k] = vis.visit( section )
         else:
-            print 'unable to find writedb visitor for section', section
+            log.error( 'unable to find writedb visitor for section {0}'.format(section) )
 
 
     for section in config['export']:
@@ -59,9 +69,8 @@ def main():
         if vis is not None:
             vis.visit( section, balances, storageManagers )
         else:
-            print 'unable to find export visitor for section', section
+            log.error( 'unable to find export visitor for section {0}'.format(section) )
 
-    # todo write stuff to file
 
 if __name__ == '__main__':
     main()
