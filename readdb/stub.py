@@ -14,15 +14,14 @@
 def getInstance():
     return StubVisitor()
 
-##
-# this is a stub db reader. It provides an template that provides all
-# required functionality for an db reader
+## this is a stub db reader. It provides an template that provides all
+#  required functionality for an db reader
 class StubVisitor:
     def __init__(self):
         pass
 
-    ##
-    # @return True if this visitor accepts the given object.
+    ## check if visitor accepts given object
+    #  @return true if object is accepted
     def accept( self, obj ):
         try:
             return obj['type'] == 'stub'

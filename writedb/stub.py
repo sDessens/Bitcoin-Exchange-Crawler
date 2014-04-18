@@ -1,17 +1,31 @@
+#-------------------------------------------------------------------------------
+# Name          stub
+# Purpose:      Module is stub implementation of WriteDB Visitor.
+#               Developers can use this file as an example when implementing
+#               additional write db's.
+#
+# Author:       Stefan Dessens
+#
+# Created:      17-04-2014
+# Copyright:    (c) Stefan Dessens 2014
+# Licence:      TBD
+#-------------------------------------------------------------------------------
+
 import common.balanceData as balanceData
 
-def getInstance():
-    return StubVisitor()
 
-##
-# this is a stub storage visitor. It provides an template that provides all
-# required functionality for an storage visitor
-class StubVisitor:
+def getInstance():
+    return StubWriteVisitor()
+
+
+## this is a stub write visitor. It provides an template that provides all
+#  required functionality for an storage visitor
+class StubWriteVisitor:
     def __init__(self):
         pass
 
-    ##
-    # @return True if this visitor accepts the given object.
+    ## check if visitor accepts given object
+    #  @return true if object is accepted
     def accept( self, obj ):
         try:
             return obj['type'] == 'stub'
@@ -19,24 +33,17 @@ class StubVisitor:
             return False
 
     ##
-    # @return some object with read and write functions
+    #  @return some object with read and write functions
     def visit(self, obj):
-        return StubStorage()
+        return StubWritter()
 
 
-class StubStorage:
+class StubWritter:
     def __init__(self):
         pass;
-    
-    ##The read function returns an BalanceData object uniquely identified with parameter identifier
-    # @param identifier a string that uniquely identifies the source
-    # @param fromTime An Unix timestamp that marks the begin of the data
-    # @param toTime An Unix timestamp that marks the end of the data
-    def read(self, identifier, fromTime = 0, toTime = 2000000000): # 1970 to 2033
-        return balanceData.BalanceData([100,200,300], [1,1.5,1.2])
 
-    ##The write function appends given value to to the data
-    # @param identifier an string that uniquely identifies the target
-    # @param value the value that should be writen
+    ## The write function appends given value to to the data
+    #  @param identifier an string that uniquely identifies the target
+    #  @param value the value that should be writen
     def write(self, identifier, value):
         print 'StubStorage: write value', value, 'to', identifier
