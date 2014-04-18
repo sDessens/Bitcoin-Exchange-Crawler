@@ -33,9 +33,9 @@ class LocalFileStorage:
     # @param value the value that should be writen
     def writeBalance(self, identifier, value):
         timestamp = int(time.time())
-        filename = '/'+identifier+'.csv'
+        filename = identifier+'.csv'
         try:
-            with open(self.location+filename, mode='a') as fp:
+            with open(self.location+'/'+filename, mode='a') as fp:
                 fp.write(str(timestamp) +self.separator+str(value))
         except:
             print "creating file"
@@ -76,20 +76,14 @@ class LocalFileStorage:
     ##  Writes the file to local storage
     #   @param filepointer
     #   @param uploadname the name underwhich to upload the file
-    #   @param overwrite bool if the file should be overwriten or not
-    #   \exception OSError: File exists if overwrite = False and the file already exists
-    def writeFile(self, filepointer,identifier,overwrite=True):
-        if overwrite:
-            try:
-                with open(self.location+identifier, mode='w') as fp:
-                    fp.write(filepointer.read())
-            except:
-                raise
-        else:
-    #taken from http://stackoverflow.com/a/1348073
-            try:
-                with os.open(self.location+identifier, os.O_WRONLY | os.O_CREAT | os.O_EXCL) as fd:
-                    f = os.fdopen(fd)  # f is now a standard Python file object
-                    f.write(filepointer.read())
-            except:
-                raise
+    def writeFile(self, filepointer,identifier):
+        filename = self.location+'/'+identifier
+        #create the directory if it does not exists yet
+        if not os.path.exists(os.path.dirname(filename)):
+            os.makedirs(os.path.dirname(filename))
+        try:
+            with open(filename, mode='w') as fp:
+                fp.write(filepointer.read())
+        except:
+            raise
+    
