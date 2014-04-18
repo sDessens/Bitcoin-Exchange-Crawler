@@ -34,6 +34,8 @@ class LocalFileStorage:
     def writeBalance(self, identifier, value):
         timestamp = int(time.time())
         filename = identifier+'.csv'
+        if not os.path.exists(os.path.dirname(filename)):
+            os.makedirs(os.path.dirname(filename))
         try:
             with open(self.location+'/'+filename, mode='a') as fp:
                 fp.write(str(timestamp) +self.separator+str(value))
