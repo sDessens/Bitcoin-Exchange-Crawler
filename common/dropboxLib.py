@@ -11,11 +11,8 @@
 #-------------------------------------------------------------------------------
 import json
 import os
-try:
-    import dropbox
-except ImportError:
-    raise
-    
+import dropbox
+
 import common.balanceData as balanceData
 
 ##
