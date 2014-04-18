@@ -12,6 +12,8 @@
 #-------------------------------------------------------------------------------
 
 import common.dropboxLib as db
+import logging
+log = logging.getLogger( 'main.dropbox' )
 
 def getInstance():
     return DropboxReadVisitor()
@@ -39,6 +41,7 @@ class DropboxReadVisitor:
         for id in obj['data']:
             try:
                 out[id] = storage.readBalance(id)
+                log.info( 'downloaded {0}'.format(id) )
             except Exception as e:
                 if len(str(e)):
                     print str(e)

@@ -58,7 +58,7 @@ class MatplotlibVisitor:
             log.error( 'unable to write data because writer ''{0}'' '.format(writeName) )
             return
 
-        writedb[writeName].writeFile( tmpfile, json['target'], True )
+        writedb[writeName].writeFile( tmpfile, json['target'] )
 
 
 class MatplotlibPdfWrapper:

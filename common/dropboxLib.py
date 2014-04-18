@@ -89,15 +89,14 @@ class DropboxStorage:
     #   @param uploadname the name underwhich to upload the file
     #   @param overwrite bool if the file should be overwriten or not
     #
-    def writeFilePTR(self, filepointer,uploadname,overwrite):
+    def writeFilePTR(self, filepointer,uploadname):
         response = self.client.put_file(self.datafolder+'/'+uploadname, filepointer,overwrite)
     
     ## Uploads a file to dropbox through the use of a filepath
-    #   @param filepath string the path to the file including the filename
-    #   @param uploadname the name underwhich to upload the file
- 
-    def writeFile(self, filepath,uploadname):
-        with open(self.datafolder+'/'+filepath, 'rb') as fp:
+    #   @param localpath path to the file that should be uploaded, relative to current dir
+    #   @param uploadname the name under which to upload the file
+    def writeFile(self, localpath ,uploadname):
+        with open(localpath, 'rb') as fp:
             response = self.client.put_file(self.datafolder+uploadname, fp,True)
 
     ##The readBalance function that downloads the balanceData and returns a BalanceData object
