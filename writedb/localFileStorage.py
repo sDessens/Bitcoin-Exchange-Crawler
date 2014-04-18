@@ -24,5 +24,5 @@ class LocalFileStorageVisitor:
             return False
 
     def visit( self, obj ):
-        storage = LocalFileStorage(ob['folder'],obj['separator'])
+        storage = LocalFileStorage(ob['folder'])
         return storage

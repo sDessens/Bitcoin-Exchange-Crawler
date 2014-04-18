@@ -19,4 +19,4 @@ class DropboxStorageVisitor:
             return False
 
     def visit( self, obj ):
-        return db.DropboxStorage(obj['folder'],obj['separator'], obj['app_key'], obj['app_secret'] )
+        return db.DropboxStorage(obj['folder'], obj['app_key'], obj['app_secret'] )

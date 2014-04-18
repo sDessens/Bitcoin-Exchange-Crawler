@@ -17,16 +17,16 @@ from common.balanceData import BalanceData
 #This class uses local storage as medium.
 #
 # @param location the dropbox folder the files should be send to
-# @param seperator the separator used for the uploaded files
+# \var self.seperator the separator used for the uploaded files
 # All params should be string values
 # Example:
-#   storage = LocalFileStorage('/mysubfolder',',')
+#   storage = LocalFileStorage('/mysubfolder')
 #   this will store the files in mysubfolder with values separated by ','
   
 class LocalFileStorage:
-    def __init__(self,location,separator):
+    def __init__(self,location):
         self.location = location
-        self.separator = separator
+        self.separator = ","
         
     ##The write function that adds the balance value to the file in the given folder
     # @param identifier a string that identifies the file it will be written to.

@@ -33,7 +33,7 @@ class DropboxReadVisitor:
     ## parse and return data specified in obj.
     #  @return {'identifier' : BalanceData} map or exception.
     def visit(self, obj):
-        storage = db.DropboxStorage( obj['folder'],obj['separator'], obj['app_key'], obj['app_secret'] )
+        storage = db.DropboxStorage( obj['folder'], obj['app_key'], obj['app_secret'] )
 
         out = {}
         for id in obj['data']:

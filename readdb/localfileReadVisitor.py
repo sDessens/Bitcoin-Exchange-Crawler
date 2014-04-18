@@ -30,7 +30,7 @@ class LocalFileReadBalanceVisitor:
     ## parse and return data specified in obj.
     #  @return {'identifier' : BalanceData} map or exception.
     def visit(self, obj):
-        storage = LocalFileStorage( obj['folder'],obj['separator'] )
+        storage = LocalFileStorage( obj['folder'])
 
         out = {}
         for id in obj['data']:
