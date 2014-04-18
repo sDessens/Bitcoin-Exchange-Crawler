@@ -35,5 +35,6 @@ class SumVisitor:
     def visit( self, json, data ):
         for k, v in json['data'].items():
             arr = [ data[id] for id in v if id in data ]
-            data[k] = balanceData.sum( arr )
+            if len(arr) > 0:
+                data[k] = balanceData.sum( arr )
         return data
