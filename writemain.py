@@ -20,34 +20,44 @@ import common.parsevisitorsfromfolder as pv
 
 def main():
     readVisitors = pv.getVisitorsFromFolder( 'readdb' )
+    writeVisitors = pv.getVisitorsFromFolder( 'writedb' )
     processVisitors = pv.getVisitorsFromFolder( 'postprocess' )
     exportVisitors = pv.getVisitorsFromFolder( 'export' )
 
     # get contents of config file
     config = json.load( open( 'writeconfig.json', 'r' ) )
 
-    data = {} # map of identifier (str) -> BalanceData
+    balances = {} # map of {'identifier' : BalanceData}
 
     for section in config['import']:
         vis = readVisitors.select( section )
         if vis is not None:
-            data.update( vis.visit( section ) )
+            balances.update( vis.visit( section ) )
         else:
             print 'unable to find import visitor for section', section
-
-    print data.keys()
 
     for section in config['postprocess']:
         vis = processVisitors.select( section )
         if vis is not None:
-            data =  vis.visit( section, data )
+            data =  vis.visit( section, balances )
         else:
             print 'unable to find postprocess visitor for section', section
+
+    print 'got balances for', balances.keys()
+
+    storageManagers = {}
+    for k, section in config['write'].items():
+        vis = writeVisitors.select( section )
+        if vis is not None:
+            storageManagers[k] = vis.visit( section )
+        else:
+            print 'unable to find writedb visitor for section', section
+
 
     for section in config['export']:
         vis = exportVisitors.select( section )
         if vis is not None:
-            data =  vis.visit( section, data )
+            vis.visit( section, balances, storageManagers )
         else:
             print 'unable to find export visitor for section', section
 

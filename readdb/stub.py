@@ -30,5 +30,5 @@ class StubVisitor:
 
     ##parse and return data specified in obj.
     # @return 'identifier' -> BalanceData map or exception.
-    def visit(self, obj):
+    def visit( self, obj):
         return {}
