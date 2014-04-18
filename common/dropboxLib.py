@@ -12,6 +12,8 @@
 import json
 import os
 import dropbox
+import logging
+log = logging.getLogger( 'main.dropbox' )
 
 import common.balanceData as balanceData
 
@@ -74,13 +76,14 @@ class DropboxStorage:
         self.client = dropbox.client.DropboxClient(access_token)
 
     ## Downloads a file from dropbox including metadata
-    # @param filepath string the dropbox path to the file including the filename
-    # @return returns a dropbox filepointer
-    def downloadFile(self,filename):
+    # @param fullname the path of the file
+    # @return dropbox filepointer
+    def downloadFile(self,fullname):
         if self.client is None:
             print "No client object"
-            return 0 
-        return self.client.get_file_and_metadata(self.datafolder+'/'+filename)
+            return 0
+        return self.client.get_file_and_metadata(fullname)
+
     ## Uploads a file to dropbox through the use of a filepointer
     #   @param filepointer
     #   @param uploadname the name underwhich to upload the file
@@ -107,9 +110,17 @@ class DropboxStorage:
             print "No client object"
             return 0
         filename=identifier+'.'+self.extention
+        fullname = self.datafolder+'/'+filename
+
         timestamps= []
         balance=[]
-        fp = self.downloadFile(self.datafolder+'/'+filename)
+
+        try:
+            fp = self.downloadFile(fullname)
+        except dropbox.client.ErrorResponse as e:
+            log.error( 'while downloading file {0}: {1}'.format( fullname, str(e) ) )
+            raise Exception()
+
         for line in fp[0]:
             values = line.split(self.separator)
             time = int(values[0])

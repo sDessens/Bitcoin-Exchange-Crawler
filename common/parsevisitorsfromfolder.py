@@ -12,13 +12,14 @@
 
 import visitorpattern
 import logging
+log = logging.getLogger('main.visitor')
 
 ##scan target folder for all modules that implement the
 # getInstance() function
 # @param moduleName name of the folder to query
 # @return visitorPattern object
 def getVisitorsFromFolder( moduleName ):
-    log = logging.getLogger('main.visitor')
+
 
     visitors = visitorpattern.VisitorPattern()
 

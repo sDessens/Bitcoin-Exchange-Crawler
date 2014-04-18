@@ -15,6 +15,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 import datetime
 import logging
 
+log = logging.getLogger( 'main.export.matplotlibpdf' )
+
 ## This function is required for every Visitor module
 def getInstance():
     return MatplotlibVisitor()
@@ -35,12 +37,11 @@ class MatplotlibVisitor:
 
     ## run the export algorithm.
     #  this export algorithm writes all data to pdf as specified in json.
-    #  @param data an {'identifier' : BalanceData} map.
     #  @param json contains implementation defined information about the export type
+    #  @param data an {'identifier' : BalanceData} map.
+    #  @param writedb {'identifier' : Write} map
     #  @return some sort of file array
     def visit( self, json, data, writedb ):
-        log = logging.getLogger( 'main.export.matplotlib.pdf' )
-
         tmpfile = 'matplotlibpdf.tmp.pdf'
 
         plotter = MatplotlibPdfWrapper( tmpfile )
@@ -75,7 +76,6 @@ class MatplotlibPdfWrapper:
         sources = json['source']
         days = json['days'] if 'days' in json else None
 
-        log = logging.getLogger( 'main.export.matplotlib.pdf' )
         log.info( 'plotting {0}'.format(title) )
 
         self._raw_plot( title, sources, days, data )

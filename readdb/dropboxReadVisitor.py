@@ -40,5 +40,6 @@ class DropboxReadVisitor:
             try:
                 out[id] = storage.readBalance(id)
             except Exception as e:
-                print str(e)
+                if len(str(e)):
+                    print str(e)
         return out

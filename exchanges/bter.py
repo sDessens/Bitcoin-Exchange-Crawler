@@ -16,6 +16,7 @@ import time
 import hashlib
 import hmac
 import logging
+log = logging.getLogger('main.exchanges.bter')
 
 import common.conversiontable as conversiontable
 
@@ -73,7 +74,7 @@ class BterVisitor:
             result = self._table.convert(fromStock.upper(), toStock.upper(), amount)
             return result
         except conversiontable.ConversionException as e:
-            logging.getLogger('main.exchanges.bter').info( e )
+            log.info( e )
             return 0
 
 

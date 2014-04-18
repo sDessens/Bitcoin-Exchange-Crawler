@@ -18,6 +18,7 @@ import hmac
 import base64
 import logging
 
+log = logging.getLogger( 'main.exchanges.kraken' )
 
 def getInstance():
     return KrakenVisitor()
@@ -38,7 +39,7 @@ class KrakenVisitor:
         if 'result' in ret:
             return ret['result']['tb']
         else:
-            logging.getLogger( 'main.exchange.kraken' ).error( '{0} {1}'.format(obj['name'], str( ret['error']) ) )
+            log.error( '{0} {1}'.format(obj['name'], str( ret['error']) ) )
             raise Exception(  )
 
 class KrakenApi:
