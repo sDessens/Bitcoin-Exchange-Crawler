@@ -16,6 +16,7 @@ import time
 import hashlib
 import hmac
 import base64
+import logging
 
 
 def getInstance():
@@ -37,8 +38,8 @@ class KrakenVisitor:
         if 'result' in ret:
             return ret['result']['tb']
         else:
-            raise Exception( 'Kraken: ' + str( ret['error'] ) )
-
+            logging.getLogger( 'main.exchange.kraken' ).error( '{0} {1}'.format(obj['name'], str( ret['error']) ) )
+            raise Exception(  )
 
 class KrakenApi:
     def __init__(self, pub, priv):

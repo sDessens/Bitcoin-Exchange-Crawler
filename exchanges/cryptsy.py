@@ -16,6 +16,7 @@ import time
 import hmac,hashlib
 import common.conversiontable as conversiontable
 
+
 def getInstance():
     return CryptsyVisitor()
 

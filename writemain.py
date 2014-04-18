@@ -51,7 +51,7 @@ def main():
         if vis is not None:
             balances =  vis.visit( section, balances )
         else:
-            log.error( 'unable to find import postprocess for section {0}'.format(section) )
+            log.error( 'unable to find post-process visitor for section {0}'.format(section) )
 
     log.debug( 'got balances for {0}'.format( balances.keys() ) )
 

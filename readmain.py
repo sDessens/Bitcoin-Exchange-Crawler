@@ -11,12 +11,19 @@
 #-------------------------------------------------------------------------------
 
 import json
+import logging
 import common.parsevisitorsfromfolder as pv
 # dynamic import of all modules in folder exchanges/*
 # dynamic import of all modules in folder writedb/*
 
 
 def main():
+    FORMAT = "%(asctime)-15s %(levelname)s %(name)s: %(message)s"
+    logging.basicConfig(format=FORMAT)
+    log = logging.getLogger('main')
+    log.setLevel(logging.DEBUG)
+
+
     exchangeVisitors = pv.getVisitorsFromFolder( 'exchanges' )
     storageVisitors = pv.getVisitorsFromFolder( 'writedb' )
 
@@ -36,9 +43,9 @@ def main():
                 info = visitor.visit( section )
                 storageManager.writeBalance( section['name'], info )
             except Exception as e:
-                print str(e)
+                log.error( 'an exception occured in visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
         else:
-            print 'no visitor could be found that accepts', section
+            log.error( 'no visitor could be found that accepts section {0}'.format( section ) )
 
 if __name__ == '__main__':
     main()
