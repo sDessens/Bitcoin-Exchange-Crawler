@@ -18,6 +18,7 @@ def getInstance():
     return StubWriteVisitor()
 
 
+
 ## this is a stub write visitor. It provides an template that provides all
 #  required functionality for an storage visitor
 class StubWriteVisitor:
@@ -26,16 +27,17 @@ class StubWriteVisitor:
 
     ## check if visitor accepts given object
     #  @return true if object is accepted
-    def accept( self, obj ):
+    def accept( self, json, obj ):
         try:
-            return obj['type'] == 'stub'
+            return json['type'] == 'stub'
         except Exception as e:
             return False
 
     ##
     #  @return some object with read and write functions
-    def visit(self, obj):
-        return StubWritter()
+    def visit(self, json, obj):
+        print 'StubWritter: writting an object of type', obj.__class__.__name__
+
 
 
 class StubWritter:

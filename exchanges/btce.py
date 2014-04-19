@@ -14,6 +14,7 @@ import urllib2
 import json
 import time
 import hmac,hashlib
+from common.writeable.balances import Balances
 
 def getInstance():
     return BtceVisitor()
@@ -72,7 +73,10 @@ class BtceVisitor:
                         btcTotal += amount /avg
                 else:
                     btcTotal += amount
-        return btcTotal
+
+        b = Balances()
+        b.addBalance( obj['name'], btcTotal )
+        return b
 
 class BtceApi:
     def __init__(self, APIKey, Secret):
