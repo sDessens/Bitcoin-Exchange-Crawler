@@ -33,15 +33,15 @@ class LocalFileStorage:
     # @param value the value that should be writen
     def writeBalance(self, identifier, value):
         timestamp = int(time.time())
-        filename = identifier+'.csv'
-        if not os.path.exists(os.path.dirname(filename)):
-            os.makedirs(os.path.dirname(filename))
+        filepath = self.location+'/'+identifier+'.csv'
+        if not os.path.exists(os.path.dirname(filepath)):
+            os.makedirs(os.path.dirname(filepath))
         try:
-            with open(self.location+'/'+filename, mode='a') as fp:
+            with open(filepath, mode='a') as fp:
                 fp.write(str(timestamp) +self.separator+str(value))
         except:
             print "creating file"
-            with open(self.location+filename, mode='w') as fp:
+            with open(filepath, mode='w') as fp:
                 fp.write(str(timestamp) +self.separator+str(value))
 
     ##The read function that downloads the balancedata and returns a BalanceData object
@@ -53,9 +53,9 @@ class LocalFileStorage:
         timestamps = []
         balance = []
         
-        filename = '/'+identifier+'.csv'
+        filepath = self.location+'/'+identifier+'.csv'
         try:
-            with open(self.location+filename, mode='r') as fp:
+            with open(filepath, mode='r') as fp:
                 for line in fp:
                     values = line.split(self.separator)
                     time = int(values[0])
@@ -79,12 +79,12 @@ class LocalFileStorage:
     #   @param filepointer
     #   @param uploadname the name underwhich to upload the file
     def writeFile(self, filepointer,identifier):
-        filename = self.location+'/'+identifier
+        filepath = self.location+'/'+identifier
         #create the directory if it does not exists yet
-        if not os.path.exists(os.path.dirname(filename)):
-            os.makedirs(os.path.dirname(filename))
+        if not os.path.exists(os.path.dirname(filepath)):
+            os.makedirs(os.path.dirname(filepath))
         try:
-            with open(filename, mode='w') as fp:
+            with open(filepath, mode='w') as fp:
                 fp.write(filepointer.read())
         except:
             raise
