@@ -38,11 +38,11 @@ class LocalFileStorage:
             os.makedirs(os.path.dirname(filepath))
         try:
             with open(filepath, mode='a') as fp:
-                fp.write(str(timestamp) +self.separator+str(value))
+                fp.write(str(timestamp) +self.separator+str(value)+'\n')
         except:
             print "creating file"
             with open(filepath, mode='w') as fp:
-                fp.write(str(timestamp) +self.separator+str(value))
+                fp.write(str(timestamp) +self.separator+str(value)+'\n')
 
     ##The read function that downloads the balancedata and returns a BalanceData object
     # @param identifier a string that identifies the file it will be written to.
