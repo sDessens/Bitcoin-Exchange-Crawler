@@ -5,8 +5,7 @@ import common.balanceData as balanceData
 
 import logging
 log = logging.getLogger( 'main.read.blockchain' )
-FORMAT = "%(asctime)-15s %(levelname)s %(name)s: %(message)s"
-logging.basicConfig(format=FORMAT)
+
 
 
 
@@ -47,11 +46,12 @@ class BlockchainReadAddressIntoBalanceData:
 
         return balanceData.BalanceData( stamps, values )
 
-    def _query(self, addr):
-        url = 'https://blockchain.info/address/{0}?format=json'.format(addr)
-        try:
-            req = urllib2.urlopen( urllib2.Request( url, headers={'user-agent': 'Mozilla/5.0'} ) )
-            return json.loads(req.read())
-        except Exception as e:
-            log.error( 'error querying blockchain.info: {0}'.format(str(e)) )
-            raise
+    def _query(self, addr, retry = 3):
+        for _ in range(retry):
+            url = 'https://blockchain.info/address/{0}?format=json'.format(addr)
+            try:
+                req = urllib2.urlopen( urllib2.Request( url, headers={'user-agent': 'Mozilla/5.0'} ) )
+                return json.loads(req.read())
+            except Exception as e:
+                log.error( 'error querying blockchain.info: {0}'.format(str(e)) )
+        raise
