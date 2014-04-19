@@ -75,10 +75,12 @@ class MatplotlibPdfWrapper:
         title = json['title']
         sources = json['source']
         days = json['days'] if 'days' in json else None
+        objects = dict( [ (id, data[id]) for id in sources ] )
+
 
         log.info( 'plotting {0}'.format(title) )
 
-        self._raw_plot( title, sources, days, data )
+        self._raw_plot( title, objects, days )
 
     ## save and close the plot.
     #  implementation must call this function, or a memory leak will occur.
@@ -87,17 +89,15 @@ class MatplotlibPdfWrapper:
         plt.close()
 
 
-    def _raw_plot(self, title, sources, days, data):
+    def _raw_plot(self, title, objects, days = None):
+        if len( objects ) == 0:
+            raise Exception( 'plot with zero objects???' )
+
         fig, ax = plt.subplots()
         fig.set_figheight(12)   # inches..
         fig.set_figwidth(20)
 
         ax.set_title(title, fontsize=18)
-
-        objects = dict( [ (id, data[id]) for id in sources ] )
-
-        if len( objects ) == 0:
-            raise Exception( 'plot with zero objects???' )
 
         # find the end of this plot
         maxTimestamp = max( [ val.maxTimestampAsDateTime() for key,val in objects.items() ] )
