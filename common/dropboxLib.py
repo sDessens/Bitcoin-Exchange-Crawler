@@ -13,6 +13,7 @@ import json
 import os
 import dropbox
 import logging
+import time
 log = logging.getLogger( 'main.dropbox' )
 
 import common.balanceData as balanceData
@@ -21,21 +22,16 @@ import common.balanceData as balanceData
 #This class uses dropbox as storage medium.
 #
 # @param datafolder the dropbox folder the files should be send to
-# @param app_key a the public key of you dropbox app
-# @param app_secret the secret of your dropbox app<BR>
 # \var seperator the separator used for the uploaded files
 # All params should be string values<BR>
 # Example:<BR>
-#   storage = DropboxStorage('/dropboxsubfolder','mydropboxkey','mydropboxsecret')
+#   storage = DropboxStorage('/dropboxsubfolder')
     
 class DropboxStorage:
-    def __init__(self,datafolder,app_key,app_secret):
+    def __init__(self,datafolder):
         self.datafolder = datafolder
-        self.app_key = app_key
-        self.app_secret = app_secret
 
         self.separator = ","
-        self.flow = dropbox.client.DropboxOAuth2FlowNoRedirect(self.app_key, self.app_secret)
         self.client= None
         self.session = {}
         
@@ -60,17 +56,36 @@ class DropboxStorage:
     def authorize(self):
         # Have the user sign in and authorize this token
         if not 'access_token' in self.session:
-            authorize_url = self.flow.start()
+            print '1. Go to: https://www.dropbox.com/developers/apps'
+            print '2. Create an app.'
+            print '2. Copy the App key.'
+            app_key = raw_input("Enter the App key here: ").strip()
+            print '2. Copy the App secret.'
+            app_secret = raw_input("Enter the App secret here: ").strip()
+            flow = dropbox.client.DropboxOAuth2FlowNoRedirect(app_key, app_secret)
+
+            authorize_url = flow.start()
             print '1. Go to: ' + authorize_url
             print '2. Click "Allow" (you might have to log in first)'
             print '3. Copy the authorization code.'
             code = raw_input("Enter the authorization code here: ").strip()
             
             # This will fail if the user enters an invalid authorization code
-            access_token, user_id = self.flow.finish(code)
+            access_token, user_id = flow.finish(code)
             self.session['access_token'] = access_token
-            with open(self.accessTokenFile, mode='w') as fp:
-                json.dump(self.session,fp)
+            print 'Access to dropbox can be saved for automation purpose'
+            print 'If you do save it it will be stored in '+self.accessTokenFile
+            print 'Be aware that this file gives access to your dropbox account, so better protect it!'
+            save = None
+            yes = ['y','yes']
+            inputs = yes+['no','n']
+            while save not in inputs:
+                save = raw_input('Do you want to store access to this dropbox account [y/n] ()').strip().lower()
+                if save not in inputs:
+                    print 'posible inputs '+inputs
+            if save in yes:
+                with open(self.accessTokenFile, mode='w') as fp:
+                    json.dump(self.session,fp)
         else:
             access_token = self.session['access_token']
         self.client = dropbox.client.DropboxClient(access_token)
