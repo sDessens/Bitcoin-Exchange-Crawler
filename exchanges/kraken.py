@@ -17,6 +17,8 @@ import hashlib
 import hmac
 import base64
 import logging
+from common.writeable.balances import Balances
+
 
 log = logging.getLogger( 'main.exchanges.kraken' )
 
@@ -37,7 +39,9 @@ class KrakenVisitor:
         api = KrakenApi( obj['pubkey'], obj['privkey'] )
         ret = api.query_private( 'TradeBalance', { 'asset' : 'XBTC' } )
         if 'result' in ret:
-            return ret['result']['tb']
+            b = Balances()
+            b.addBalance( obj['name'], ret['result']['tb'] )
+            return b
         else:
             log.error( '{0} {1}'.format(obj['name'], str( ret['error']) ) )
             raise Exception(  )

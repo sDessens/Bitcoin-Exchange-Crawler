@@ -31,11 +31,17 @@ class VisitorPattern:
 
     @param object obj   the object that the visitor should accept
     """
-    def select( self, obj ):
+    def select( self, *arg ):
+
         for visitor in self.__visitors__:
-            if visitor.accept( obj ):
-                return visitor
+            if len(arg) == 1:
+                if visitor.accept( arg[0] ):
+                    return visitor
+            elif len(arg) == 2:
+                if visitor.accept( arg[0], arg[1] ):
+                    return visitor
         return None
+
 
     def __len__( self ):
         return len( self.__visitors__ )

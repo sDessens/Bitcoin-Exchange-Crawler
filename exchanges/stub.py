@@ -11,35 +11,34 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 
-""" This functon is required for every Exchange Visitor module
-"""
-def getInstance():
-    """
+from common.writeable.balances import Balances
 
-    """
+
+## This functon is required for every Exchange Visitor module
+#
+def getInstance():
     return StubVisitor()
 
 
-""" this is a stub exchange visitor. It provides an template that provides all
-required functionality for an exchange visitor
-"""
+## this is a stub exchange visitor. It provides an template that provides all
+#  required functionality for an exchange visitor
 class StubVisitor:
     def __init__(self):
         pass
 
-    """
-    return True if this visitor accepts the given object.
-    False otherwise
-    """
+    ## return True if this visitor accepts the given object.
+    #  False otherwise
     def accept( self, obj ):
         try:
             return obj['type'] == 'stub'
         except Exception as e:
             return False
 
-    """
-    return this balance of this exchange, or throw an exception if an error
-    occurs.
-    """
+    ## return this balance of this exchange, or throw an exception if an error
+    #  occurs.
+    #  if an exception does not occur, implementation should always return an
+    #  object of type common.writable.balances.Balances
     def visit( self, obj ):
-        return 0
+        b = Balances()
+        b.addBalance( 'test-balance', 1.0 )
+        return b

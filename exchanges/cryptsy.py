@@ -15,6 +15,8 @@ import json
 import time
 import hmac,hashlib
 import common.conversiontable as conversiontable
+from common.writeable.balances import Balances
+
 
 
 def getInstance():
@@ -58,10 +60,12 @@ class CryptsyVisitor:
             for (key, value) in balances.items():
                 try:
                     total += self._table.convert( key,toValueKey, value );
-                    #print "total is "+str(total)+" after "+key+"-"+toValueKey+" amount: "+str(value)
                 except conversiontable.ConversionException:
                     pass;
-            return total
+
+            b = Balances()
+            b.addBalance( obj['name'], total )
+            return b
         else:
             raise Exception('Cryptsy error: '+data['error'] )
         
