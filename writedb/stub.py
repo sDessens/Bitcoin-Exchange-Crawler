@@ -2,7 +2,7 @@
 # Name          stub
 # Purpose:      Module is stub implementation of WriteDB Visitor.
 #               Developers can use this file as an example when implementing
-#               additional write db's.
+#               additional writeable objects
 #
 # Author:       Stefan Dessens
 #
@@ -11,12 +11,11 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 
-import common.balanceData as balanceData
-
+import common.writeable.singleDatapoint
+import common.writeable.files
 
 def getInstance():
     return StubWriteVisitor()
-
 
 
 ## this is a stub write visitor. It provides an template that provides all
@@ -33,24 +32,13 @@ class StubWriteVisitor:
         except Exception as e:
             return False
 
-    ##
-    #  @return some object with read and write functions
+    ## write the object to the storage specified in json
+    #  or throw exception if something goes wrong.
+    #  obj is always of type common.writeable.*
     def visit(self, json, obj):
-        print 'StubWritter: writting an object of type', obj.__class__.__name__
-
-
-
-class StubWritter:
-    def __init__(self):
-        pass;
-
-    ## The writeBalance function appends given value to to the data
-    #  @param identifier an string that uniquely identifies the target
-    #  @param value the value that should be writen
-    def writeBalance(self, identifier, value):
-        print 'StubStorage: write value', value, 'to', identifier
-
-    ## The
-    def writeFile(self, path, uploadPath):
-        print 'StubStorage: write file', path, 'to', uploadPath
-
+        if isinstance( obj, common.writeable.singleDatapoint.SingleDatapoint ):
+            print 'StubWritter: writting balances:', obj
+        elif isinstance( obj, common.writeable.files.Files ):
+            print 'stubwritter: writting files:', obj
+        else:
+            print 'stubWritter: writting unknwon object', obj.__class__.__name__, obj

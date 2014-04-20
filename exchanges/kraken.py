@@ -17,7 +17,7 @@ import hashlib
 import hmac
 import base64
 import logging
-from common.writeable.balances import Balances
+from common.writeable.singleDatapoint import SingleDatapoint
 
 
 log = logging.getLogger( 'main.exchanges.kraken' )
@@ -37,31 +37,42 @@ class KrakenVisitor:
 
     def visit( self, obj ):
         api = KrakenApi( obj['pubkey'], obj['privkey'] )
-        ret = api.query_private( 'TradeBalance', { 'asset' : 'XBTC' } )
-        if 'result' in ret:
-            b = Balances()
-            b.addBalance( obj['name'], ret['result']['tb'] )
-            return b
-        else:
-            log.error( '{0} {1}'.format(obj['name'], str( ret['error']) ) )
-            raise Exception(  )
+        b = SingleDatapoint()
+        b.addBalance( obj['name'], api.getBalance( 'BTC' ) )
+        return b
 
 class KrakenApi:
     def __init__(self, pub, priv):
         self.pub = pub
         self.priv = priv
 
-    def query(self, path, params, headers = {}):
+    def getBalance(self, key):
+        key = { 'BTC' : 'XBTC',
+                'EUR' : 'ZEUR',
+                'USD' : 'ZUSD'}[key.upper()]
+
+        json = self._query_private( 'TradeBalance', { 'asset' : key } )
+        return self._parseResponse( json )
+
+    def _parseResponse(self, json):
+        if 'result' in json:
+            return float(json['result']['tb'])
+        else:
+            log.error( '{0}'.format( str( json['error']) ) )
+            raise Exception()
+
+    def _query(self, path, params, headers = {}):
         url = 'https://api.kraken.com' + path
         post = urllib.urlencode( params )
         headers['user-agent'] = 'bot'
         ret = urllib2.urlopen(urllib2.Request( url, post, headers ))
+        print ret.read()
         return json.loads(ret.read())
 
-    def query_public(self, method, params):
-        return self.query( '/0/public/' + method, params )
+    def _query_public(self, method, params):
+        return self._query( '/0/public/' + method, params )
 
-    def query_private(self, method, params):
+    def _query_private(self, method, params):
         url = 'https://api.kraken.com/'
         path = '/0/private/' + method
 
@@ -74,19 +85,4 @@ class KrakenApi:
             'API-Sign': base64.b64encode(signature.digest())
         }
 
-        return self.query( path, params, headers )
-
-
-def main():
-    vis = KrakenVisitor()
-    json = { 'type':'kraken',
-             'name':'kraken-test',
-             'pubkey':'bogus-public-key',
-             'privkey':'5555555555555555555555555555555555555555555555555555555555555555555555555555555555555Q=='}
-
-    assert( vis.accept( json ) )
-
-    print vis.visit( json )
-
-if __name__ == '__main__':
-    main()
+        return self._query( path, params, headers )

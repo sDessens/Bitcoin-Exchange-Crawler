@@ -19,7 +19,7 @@ import logging
 log = logging.getLogger('main.exchanges.bter')
 
 import common.conversiontable as conversiontable
-from common.writeable.balances import Balances
+from common.writeable.singleDatapoint import SingleDatapoint
 
 
 def getInstance():
@@ -52,7 +52,7 @@ class BterVisitor:
             for k, v in balance['available_funds'].items():
                 total += self._convert( k, 'BTC', float(v) )
 
-        b = Balances()
+        b = SingleDatapoint()
         b.addBalance( obj['name'], total )
         return b
 

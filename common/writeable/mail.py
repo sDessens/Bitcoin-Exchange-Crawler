@@ -10,5 +10,7 @@ class Mail:
         self.body = body
 
     def addAttachment(self, attachment):
-        #todo
         pass
+
+    def __str__(self):
+        assert False, 'not implemented'

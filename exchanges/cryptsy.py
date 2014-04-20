@@ -15,7 +15,7 @@ import json
 import time
 import hmac,hashlib
 import common.conversiontable as conversiontable
-from common.writeable.balances import Balances
+from common.writeable.singleDatapoint import SingleDatapoint
 
 
 
@@ -63,7 +63,7 @@ class CryptsyVisitor:
                 except conversiontable.ConversionException:
                     pass;
 
-            b = Balances()
+            b = SingleDatapoint()
             b.addBalance( obj['name'], total )
             return b
         else:

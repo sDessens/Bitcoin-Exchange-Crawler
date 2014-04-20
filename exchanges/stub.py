@@ -11,7 +11,7 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 
-from common.writeable.balances import Balances
+from common.writeable.singleDatapoint import SingleDatapoint
 
 
 ## This functon is required for every Exchange Visitor module
@@ -39,6 +39,6 @@ class StubVisitor:
     #  if an exception does not occur, implementation should always return an
     #  object of type common.writable.balances.Balances
     def visit( self, obj ):
-        b = Balances()
+        b = SingleDatapoint()
         b.addBalance( 'test-balance', 1.0 )
         return b

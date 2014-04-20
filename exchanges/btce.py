@@ -14,7 +14,7 @@ import urllib2
 import json
 import time
 import hmac,hashlib
-from common.writeable.balances import Balances
+from common.writeable.singleDatapoint import SingleDatapoint
 
 def getInstance():
     return BtceVisitor()
@@ -74,7 +74,7 @@ class BtceVisitor:
                 else:
                     btcTotal += amount
 
-        b = Balances()
+        b = SingleDatapoint()
         b.addBalance( obj['name'], btcTotal )
         return b
 

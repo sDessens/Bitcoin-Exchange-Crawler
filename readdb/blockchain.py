@@ -2,10 +2,45 @@
 import urllib2
 import json
 import common.balanceData as balanceData
+from common.writeable.singleDatapoint import SingleDatapoint
+
 
 import logging
 log = logging.getLogger( 'main.read.blockchain' )
 
+
+def getInstance():
+    return BlockchainReadVisitor()
+
+
+class BlockchainReadVisitor():
+    def __init__(self):
+        pass
+
+    ## return True if this visitor accepts the given object.
+    #  False otherwise
+    def accept( self, json ):
+        try:
+            return json['type'] == 'blockchain'
+        except Exception as e:
+            return False
+
+    ## return this balance of this exchange, or throw an exception if an error
+    #  occurs.
+    #  if an exception does not occur, implementation should always return an
+    #  object of type common.writable.balances.Balances
+    def visit( self, json ):
+        api = BlockchainReadAddressIntoBalanceData()
+        b = SingleDatapoint()
+
+        for k, addr in json['data'].items():
+            try:
+                b.addBalance( 'k', api.query_address( addr ) )
+                print 'read', k, addr
+            except:
+                log.error( 'Exception occured when querying {0} : {1}'.format(
+                    k, addr) )
+        return b
 
 
 
@@ -13,9 +48,23 @@ class BlockchainReadAddressIntoBalanceData:
     def __init__(self):
         pass
 
-    def parse(self, addr):
-        data = self._query(addr)
+    def query_address(self, addr):
+        data = self._query( addr )
+        return self._parse( addr, data )
 
+
+    def _query(self, addr, retry = 3):
+        for _ in range(retry):
+            url = 'https://blockchain.info/address/{0}?format=json'.format(addr)
+            try:
+                req = urllib2.urlopen( urllib2.Request( url, headers={'user-agent': 'Mozilla/5.0'} ) )
+                return json.loads(req.read())
+            except Exception as e:
+                log.error( 'error querying blockchain.info: {0}'.format(str(e)) )
+        raise
+
+    ## parse json data
+    def _parse(self, addr, data):
         balance = []
         currentBalance = 0
 
@@ -45,13 +94,3 @@ class BlockchainReadAddressIntoBalanceData:
         values = [0] + [ balance[x/2][1] for x in range(len(balance)*2-1)]
 
         return balanceData.BalanceData( stamps, values )
-
-    def _query(self, addr, retry = 3):
-        for _ in range(retry):
-            url = 'https://blockchain.info/address/{0}?format=json'.format(addr)
-            try:
-                req = urllib2.urlopen( urllib2.Request( url, headers={'user-agent': 'Mozilla/5.0'} ) )
-                return json.loads(req.read())
-            except Exception as e:
-                log.error( 'error querying blockchain.info: {0}'.format(str(e)) )
-        raise
