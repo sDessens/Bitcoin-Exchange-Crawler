@@ -84,7 +84,7 @@ class DropboxStorage:
             while save not in inputs:
                 save = raw_input('Do you want to store access to this dropbox account [y/n] ()').strip().lower()
                 if save not in inputs:
-                    print 'posible inputs '+inputs
+                    print 'posible inputs '+str(inputs)
             if save in yes:
                 with open(self.accessTokenFile, mode='w') as fp:
                     json.dump(self.session,fp)
