@@ -12,6 +12,7 @@
 
 import json
 import logging
+from time import sleep
 import common.parsevisitorsfromfolder as pv
 from common.writeable.collection import Collection
 # dynamic import of all modules in folder read/*
@@ -47,7 +48,7 @@ def main():
             log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
 
     resources.report('after reading, the available resources are:')
-
+    sleep(0.1)
 
     for section in config['export']:
         visitor = exportVisitors.select( section )
@@ -60,6 +61,7 @@ def main():
             log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
 
     resources.report('after exporting, the available resources are:')
+    sleep(0.1)
 
 
     for section in config['write']:

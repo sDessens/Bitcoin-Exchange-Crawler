@@ -98,7 +98,7 @@ class BalanceData:
 def sum(data):
     timestampSet = set()
     for bd in data:
-        timestampSet = timestampSet.union( bd._timestamps );
+        timestampSet = timestampSet.union( bd._timestamps )
 
     timestamps = list( timestampSet )
     timestamps.sort()
