@@ -114,7 +114,7 @@ class DropboxStorage:
     #   @param uploadname the name under which to upload the file
     def writeFile(self, localpath ,uploadname):
         with open(localpath, 'rb') as fp:
-            response = self.client.put_file(self.datafolder+uploadname, fp,True)
+            response = self.client.put_file(self.datafolder+'/'+uploadname, fp,True)
 
     ##The readBalance function that downloads the balanceData and returns a BalanceData object
     # @param identifier a string that identifies the file it will be written to.
@@ -153,7 +153,7 @@ class DropboxStorage:
         filename=identifier+'.'+self.extention
 
         folder_metadata = self.client.metadata(self.datafolder)
-        filepointer = open('temp.csv~','w+')
+        filepointer = open('temp.csv~','wb+')
         filepaths = []
         #if the file already exists download it else create it
         for entry in folder_metadata['contents']:
