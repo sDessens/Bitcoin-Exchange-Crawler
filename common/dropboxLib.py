@@ -11,6 +11,7 @@
 #-------------------------------------------------------------------------------
 
 import time
+import tempfile
 import json
 import os
 import dropbox
@@ -151,7 +152,8 @@ class DropboxStorage:
         filename=identifier+'.'+self.extention
 
         folder_metadata = self.client.metadata(self.datafolder)
-        filepointer = open('temp.csv~','wb+')
+        temp,temppath = tempfile.mkstemp()
+        filepointer = open(temppath,mode='wb+')
         filepaths = []
         #if the file already exists download it else create it
         try:
@@ -169,5 +171,3 @@ class DropboxStorage:
             raise Exception()
 
         filepointer.close()
-        if os.path.isfile('temp.csv~'):
-            os.remove('temp.csv~')
