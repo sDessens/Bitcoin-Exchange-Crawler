@@ -104,10 +104,8 @@ class DropboxStorage:
     ## Uploads a file to dropbox through the use of a filepointer
     #   @param filepointer
     #   @param uploadname the name underwhich to upload the file
-    #   @param overwrite bool if the file should be overwriten or not
-    #
     def writeFilePTR(self, filepointer,uploadname):
-        response = self.client.put_file(self.datafolder+'/'+uploadname, filepointer,overwrite)
+        response = self.client.put_file(self.datafolder+'/'+uploadname, filepointer,True)
     
     ## Uploads a file to dropbox through the use of a filepath
     #   @param localpath path to the file that should be uploaded, relative to current dir
@@ -156,15 +154,20 @@ class DropboxStorage:
         filepointer = open('temp.csv~','wb+')
         filepaths = []
         #if the file already exists download it else create it
-        for entry in folder_metadata['contents']:
-            if entry['path'].find(filename) != -1:
-                print entry['path']
-                restdata, metadata = self.downloadFile(entry['path'])
-                filepointer.write(restdata.read())
-                break
+        try:
+            restdata, metadata = self.downloadFile(self.datafolder+'/'+filename)
+            filepointer.write(restdata.read())
+        except:
+            pass
         filepointer.write(str(timestamp)+","+str(value)+"\n")
         filepointer.seek(0)
-        response = self.client.put_file(self.datafolder+'/'+filename, filepointer,True)
+        
+        try:
+            response = self.client.put_file(self.datafolder+'/'+filename, filepointer,True)
+        except dropbox.client.ErrorResponse as e:
+            log.error( 'while downloading file {0}: {1}'.format( fullname, str(e) ) )
+            raise Exception()
+
         filepointer.close()
         if os.path.isfile('temp.csv~'):
             os.remove('temp.csv~')
