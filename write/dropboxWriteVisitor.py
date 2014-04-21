@@ -25,7 +25,7 @@ class DropboxStorageVisitor:
 
     def visit( self, json, obj ):
         #storage = db.DropboxStorage(json['folder'], json['app_key'], json['app_secret'] )
-        storage = db.DropboxStorage('/mercurytradingsystems','x989ou22sjzmped','x6aqsrhk47jp5r3')
+        storage = db.DropboxStorage('/mercurytradingsystems')
         storage.writeBalance('test-troep',23123213)
         return
 
