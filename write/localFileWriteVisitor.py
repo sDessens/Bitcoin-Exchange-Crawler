@@ -9,8 +9,11 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 import common.localFileStorageLib as LocalFileStorage
-import common.writeable.partialBalance
-import common.writeable.file
+from common.writeable.partialBalance import PartialBalance
+from common.writeable.file import File
+import logging
+log = logging.getLogger( 'main.write.localfile' )
+
 
 def getInstance():
     return LocalFileWriteVisitor()
@@ -26,13 +29,18 @@ class LocalFileWriteVisitor:
         except Exception as e:
             return False
 
-    def visit( self, json, obj ):
+    def visit( self, json, resources ):
         storage = LocalFileStorage.LocalFileStorage(json['folder'])
 
-        if isinstance( obj, common.writeable.file.File ):
-            for k, v in obj.items():
-                storage.writeFile( k, v )
-        elif isinstance( obj, common.writeable.partialBalance.PartialBalance ):
-            for k, v in obj.items():
-                print k, v
-                storage.writeBalance( k, v )
+        for key in json['data']:
+            if key not in resources:
+                log.error( 'attempting to write resource {0}, but no such resource exists'.format(key) )
+                continue
+            resource = resources[key]
+            if isinstance( resource, PartialBalance ):
+                storage.writeBalance(key, resource.value)
+            elif isinstance( resource, File ):
+                storage.writeFile( resource.filename, key )
+            else:
+                log.error( 'attempting to write resource {0}, but is of unsupported type {1}'
+                           .format( key, resource.__class__.__name__ ) )

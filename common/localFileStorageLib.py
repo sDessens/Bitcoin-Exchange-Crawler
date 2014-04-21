@@ -10,6 +10,7 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 import os
+import shutil
 import time
 from common.balanceData import BalanceData
 
@@ -66,26 +67,13 @@ class LocalFileStorage:
         except Exception as e:
             print e
             print "No data for this section found"
-    ##  Reads a file from local storage
-    #   @param identifier the name of the file
-    #   @return returns the data from file
-    def readFile(self, identifier):
-        try:
-            with open(self.location+'/'+identifier, mode='r') as fp:
-                return fp.read()
-        except:
-            raise
+
     ##  Writes the file to local storage
-    #   @param filepointer
-    #   @param uploadname the name underwhich to upload the file
-    def writeFile(self, filepointer,identifier):
-        filepath = self.location+'/'+identifier
-        #create the directory if it does not exists yet
-        if not os.path.exists(os.path.dirname(filepath)):
-            os.makedirs(os.path.dirname(filepath))
-        try:
-            with open(filepath, mode='w') as fp:
-                fp.write(filepointer.read())
-        except:
-            raise
-    
+    #   @param filepath a path to a local file
+    #   @param uploadfilepath a path to the target destination of the file
+    def writeFile(self, filepath, uploadfilepath):
+        uploadfilepath = self.location + os.sep + uploadfilepath
+        dirname = os.path.dirname(uploadfilepath)
+        if not os.path.exists( dirname ):
+            os.makedirs(dirname)
+        shutil.copyfile( filepath, uploadfilepath )
