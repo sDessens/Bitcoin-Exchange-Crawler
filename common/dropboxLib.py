@@ -151,22 +151,34 @@ class DropboxStorage:
         timestamp = int(time.time())
         filename=identifier+'.'+self.extention
         fullname = self.datafolder+'/'+filename
-        
-        _,temppath = tempfile.mkstemp()
-        filepointer = open(temppath,mode='wb+')
-        #if the file already exists download it else create it
-        try:
-            restdata, metadata = self.downloadFile(fullname)
-            filepointer.write(restdata.read())
-        except:
-            pass
-        filepointer.write(str(timestamp)+","+str(value)+"\n")
-        filepointer.seek(0)
-        
-        try:
-            response = self.client.put_file(fullname, filepointer,True)
-        except dropbox.client.ErrorResponse as e:
-            log.error( 'while downloading file {0}: {1}'.format( fullname, str(e) ) )
-            raise Exception()
 
-        filepointer.close()
+        overwrite = True
+
+        tempid,temppath = tempfile.mkstemp()
+
+        try:
+            with open(temppath,mode='wb+') as filepointer:
+                #if the file already exists download it else create it
+                try:
+                    restdata, metadata = self.downloadFile(fullname)
+                    filepointer.write(restdata.read())
+                except:
+                    # it is possible that the exception is thrown because the
+                    # file does not exist. I this case, set overwrite to false
+                    # and continue
+                    overwrite = False
+
+                filepointer.write(str(timestamp)+","+str(value)+"\n")
+                filepointer.seek(0)
+
+                try:
+                    response = self.client.put_file(fullname, filepointer, overwrite)
+                except dropbox.client.ErrorResponse as e:
+                    log.error( 'while uploading file {0}: {1}'.format( fullname, str(e) ) )
+                    raise Exception()
+        except:
+            raise
+        finally:
+            os.close( tempid )
+            os.remove( temppath )
+
