@@ -17,8 +17,8 @@ import hashlib
 import hmac
 import base64
 import logging
-from common.writeable.singleDatapoint import SingleDatapoint
-
+from common.writeable.partialBalance import PartialBalance
+from common.writeable.collection import Collection
 
 log = logging.getLogger( 'main.exchanges.kraken' )
 
@@ -29,17 +29,17 @@ class KrakenVisitor:
     def __init__(self):
         pass
 
-    def accept( self, obj ):
+    def accept( self, json ):
         try:
-            return obj['type'] == 'kraken'
+            return json['type'] == 'kraken'
         except Exception as e:
             return False
 
-    def visit( self, obj ):
-        api = KrakenApi( obj['pubkey'], obj['privkey'] )
-        b = SingleDatapoint()
-        b.addBalance( obj['name'], api.getBalance( 'BTC' ) )
-        return b
+    def visit( self, json ):
+        api = KrakenApi( json['pubkey'], json['privkey'] )
+        out = Collection()
+        out[json['name']] = PartialBalance( api.getBalance( 'BTC' ) )
+        return out
 
 class KrakenApi:
     def __init__(self, pub, priv):
@@ -66,7 +66,6 @@ class KrakenApi:
         post = urllib.urlencode( params )
         headers['user-agent'] = 'bot'
         ret = urllib2.urlopen(urllib2.Request( url, post, headers ))
-        print ret.read()
         return json.loads(ret.read())
 
     def _query_public(self, method, params):

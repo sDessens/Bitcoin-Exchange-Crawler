@@ -12,6 +12,8 @@
 #-------------------------------------------------------------------------------
 
 import common.dropboxLib as db
+from common.writeable.fullBalance import FullBalance
+from common.writeable.collection import Collection
 import logging
 log = logging.getLogger( 'main.dropbox' )
 
@@ -26,21 +28,21 @@ class DropboxReadVisitor:
 
     ## check if given object is accepted by visitor
     #  @return True if this visitor accepts the given object.
-    def accept( self, obj ):
+    def accept( self, json ):
         try:
-            return obj['type'] == 'dropbox'
+            return json['type'] == 'dropbox'
         except Exception as e:
             return False
 
     ## parse and return data specified in obj.
     #  @return {'identifier' : BalanceData} map or exception.
-    def visit(self, obj):
-        storage = db.DropboxStorage( obj['folder'], obj['app_key'], obj['app_secret'] )
+    def visit(self, json):
+        storage = db.DropboxStorage( json['folder'] )
+        out = Collection()
 
-        out = {}
-        for id in obj['data']:
+        for id in json['data']:
             try:
-                out[id] = storage.readBalance(id)
+                out[id] = FullBalance( storage.readBalance(id) )
                 log.info( 'downloaded {0}'.format(id) )
             except Exception as e:
                 if len(str(e)):

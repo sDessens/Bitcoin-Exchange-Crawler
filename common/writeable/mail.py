@@ -1,4 +1,6 @@
-class Mail:
+from common.writeable.collection import Resource
+
+class Mail(Resource):
     def __init__(self, subject):
         self.setSubject( 'untitled mail' )
         self.setBody( 'test body' )

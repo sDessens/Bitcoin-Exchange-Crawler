@@ -35,10 +35,10 @@ class VisitorPattern:
 
         for visitor in self.__visitors__:
             if len(arg) == 1:
-                if visitor.accept( arg[0] ):
+                if visitor.accept(arg[0]):
                     return visitor
             elif len(arg) == 2:
-                if visitor.accept( arg[0], arg[1] ):
+                if visitor.accept(arg[0]):
                     return visitor
         return None
 

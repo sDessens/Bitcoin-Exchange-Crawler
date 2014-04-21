@@ -14,7 +14,8 @@ import urllib2
 import json
 import time
 import hmac,hashlib
-from common.writeable.singleDatapoint import SingleDatapoint
+from common.writeable.partialBalance import PartialBalance
+from common.writeable.collection import Collection
 
 def getInstance():
     return BtceVisitor()
@@ -23,14 +24,14 @@ class BtceVisitor:
     def __init__(self):
         pass
 
-    def accept( self, obj ):
+    def accept(self, json):
         try:
-            return obj['type'] == 'btce'
+            return json['type'] == 'btce'
         except Exception as e:
             return False
 
-    def visit( self, obj ):
-        api = BtceApi( obj['pubkey'], obj['privkey'] )
+    def visit( self, json ):
+        api = BtceApi( json['pubkey'], json['privkey'] )
         wallet = None
         try:
             wallet = api.query_private('getInfo','https://btc-e.com/tapi')
@@ -74,9 +75,9 @@ class BtceVisitor:
                 else:
                     btcTotal += amount
 
-        b = SingleDatapoint()
-        b.addBalance( obj['name'], btcTotal )
-        return b
+        out = Collection()
+        out[json['name']] = btcTotal
+        return out
 
 class BtceApi:
     def __init__(self, APIKey, Secret):

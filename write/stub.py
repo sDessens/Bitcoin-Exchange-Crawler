@@ -11,8 +11,8 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 
-import common.writeable.singleDatapoint
-import common.writeable.files
+import common.writeable.partialBalance
+import common.writeable.file
 
 def getInstance():
     return StubWriteVisitor()
@@ -36,9 +36,9 @@ class StubWriteVisitor:
     #  or throw exception if something goes wrong.
     #  obj is always of type common.writeable.*
     def visit(self, json, obj):
-        if isinstance( obj, common.writeable.singleDatapoint.SingleDatapoint ):
+        if isinstance( obj, common.writeable.partialBalance.PartialBalance ):
             print 'StubWritter: writting balances:', obj
-        elif isinstance( obj, common.writeable.files.Files ):
+        elif isinstance( obj, common.writeable.file.File ):
             print 'stubwritter: writting files:', obj
         else:
             print 'stubWritter: writting unknwon object', obj.__class__.__name__, obj

@@ -10,11 +10,13 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 
+from common.writeable.file import File
+from common.writeable.fullBalance import FullBalance
+
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import datetime
 import logging
-
 log = logging.getLogger( 'main.export.matplotlibpdf' )
 
 ## This function is required for every Visitor module
@@ -29,6 +31,7 @@ class MatplotlibVisitor:
 
     ## check if visitor accepts given object
     #  @return true if object is accepted
+    #  may not return exceptions
     def accept( self, json ):
         try:
             return json['type'] == 'matplotlibpdf'
@@ -36,30 +39,21 @@ class MatplotlibVisitor:
             return False
 
     ## run the export algorithm.
-    #  this export algorithm writes all data to pdf as specified in json.
+    #  this stub printing algorithm prints the identifier and final value of each
+    #  BalanceData to stdout.
     #  @param json contains implementation defined information about the export type
-    #  @param data an {'identifier' : BalanceData} map.
-    #  @param writedb {'identifier' : Write} map
-    #  @return some sort of file array
-    def visit( self, json, data, writedb ):
+    #  @param resources contains array of common.writable.*
+    #  may return exception
+    def visit( self, json, resources ):
         tmpfile = 'matplotlibpdf.tmp.pdf'
 
         plotter = MatplotlibPdfWrapper( tmpfile )
         for view in json['views']:
-            plotter.addView( view, data )
+            plotter.addView( view, resources )
         plotter.finalize()
 
-        if 'write' not in json:
-            log.error( 'unable to write data because ''write'' key in json is missing.' )
-            return
-
-        writeName = json['write']
-        if writeName not in writedb:
-            log.error( 'unable to write data because writer ''{0}'' '.format(writeName) )
-            return
-
-        writedb[writeName].writeFile( tmpfile, json['target'] )
-
+        resources[ json['target'] ] = File( tmpfile )
+        return resources
 
 class MatplotlibPdfWrapper:
     ## create new matplotlib wrapper. This is a convinient class
@@ -69,16 +63,25 @@ class MatplotlibPdfWrapper:
 
     ## add a view to the existing pdf page
     #  @param json block of data that contains options.
-    #  @param data an {'identifier' : BalanceData} map.
+    #  @param resources array of common.writable.*
     #  @return nothing, but mutates internal state
-    def addView(self, json, data):
+    def addView(self, json, resources):
         title = json['title']
         sources = json['source']
         days = json['days'] if 'days' in json else None
-        objects = dict( [ (id, data[id]) for id in sources ] )
-
 
         log.info( 'plotting {0}'.format(title) )
+
+        objects = []
+        for obj in objects:
+            if isinstance( obj, FullBalance ):
+                if obj.key in sources:
+                    objects.append( obj )
+
+        if len(objects) != len(sources):
+            log.error( 'unable to find data for {0}'.format( set( [ o.key for o in objects ] ) ^ set( sources ) ) )
+
+
 
         self._raw_plot( title, objects, days )
 
@@ -88,10 +91,14 @@ class MatplotlibPdfWrapper:
         self._pdf.close()
         plt.close()
 
-
+    ## plot the specified data
+    #  @param the title of the plot
+    #  @param objects an array of common.writable.FullBalance
+    #  @param days (optional) the Y width of the plot in days
     def _raw_plot(self, title, objects, days = None):
-        if len( objects ) == 0:
-            raise Exception( 'plot with zero objects???' )
+        if len(objects) == 0:
+            log.error( 'skipping plot titled {0} because there are no objects to plot...'.format( title ) )
+            return
 
         fig, ax = plt.subplots()
         fig.set_figheight(12)   # inches..
@@ -100,14 +107,15 @@ class MatplotlibPdfWrapper:
         ax.set_title(title, fontsize=18)
 
         # find the end of this plot
-        maxTimestamp = max( [ val.maxTimestampAsDateTime() for key,val in objects.items() ] )
+        maxTimestamp = max( [ balance.balanceData.maxTimestampAsDateTime() for balance in objects ] )
 
-        for key, val in objects.items():
-            ax.plot( val.timestampsAsDateTime(), val.balance(), label=key )
-            ax.annotate( ' ' + key, xy=( maxTimestamp, val.interpolate( maxTimestamp ) ) )
+        for obj in objects:
+            assert isinstance( obj, FullBalance )
+            ax.plot( obj.value.timestampsAsDateTime(), obj.value.balance(), label=obj.key )
+            ax.annotate( ' ' + obj.key, xy=( maxTimestamp, obj.value.interpolate( maxTimestamp ) ) )
 
         ax.grid(True)
-        if days is not None:
+        if days is not None and len(objects):
             ax.set_xlim( [ maxTimestamp - datetime.timedelta(days=days) ], maxTimestamp )
 
         self._pdf.savefig( bbox_inches='tight', dpi=160 )

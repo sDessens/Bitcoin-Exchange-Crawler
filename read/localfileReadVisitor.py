@@ -10,6 +10,8 @@
 #-------------------------------------------------------------------------------
 
 from common.localFileStorageLib import LocalFileStorage
+from common.writeable.fullBalance import FullBalance
+from common.writeable.collection import Collection
 
 
 def getInstance():
@@ -24,21 +26,22 @@ class LocalFileReadVisitor:
 
     ## check if given object is accepted by visitor
     #  @return True if this visitor accepts the given object.
-    def accept( self, obj ):
+    def accept( self, json ):
         try:
-            return obj['type'] == 'localfile'
+            return json['type'] == 'localfile'
         except Exception as e:
             return False
 
     ## parse and return data specified in obj.
-    #  @return {'identifier' : BalanceData} map or exception.
-    def visit(self, obj):
-        storage = LocalFileStorage( obj['folder'])
+    #  @return common.writable.collection
+    #  may throw an exception
+    def visit(self, json):
+        storage = LocalFileStorage( json['folder'] )
+        out = Collection()
 
-        out = {}
-        for id in obj['data']:
+        for id in json['data']:
             try:
-                out[id] = storage.readBalance(id)
+                out[id] = FullBalance( storage.readBalance(id) )
             except Exception as e:
                 print str(e)
         return out

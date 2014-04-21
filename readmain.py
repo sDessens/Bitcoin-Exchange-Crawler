@@ -13,52 +13,53 @@
 import json
 import logging
 import common.parsevisitorsfromfolder as pv
+from common.writeable.collection import Collection
 # dynamic import of all modules in folder exchanges/*
 # dynamic import of all modules in folder writedb/*
 
 
 def main():
-    FORMAT = "%(asctime)-15s %(levelname)s %(name)s: %(message)s"
+    #FORMAT = "%(asctime)-15s %(levelname)s %(name)s: %(message)s"
+    FORMAT = "%(levelname)s\t%(name)s: %(message)s"
     logging.basicConfig(format=FORMAT)
     log = logging.getLogger('main')
     log.setLevel(logging.DEBUG)
 
 
-    exchangeVisitors = pv.getVisitorsFromFolder( 'exchanges' )
-    storageVisitors = pv.getVisitorsFromFolder( 'writedb' )
+    readVisitors = pv.getVisitorsFromFolder( 'read' )
+    exportVisitors = pv.getVisitorsFromFolder( 'export' )
+    writeVisitors = pv.getVisitorsFromFolder( 'write' )
+
+    resources = Collection()
 
     # get contents of config file
     config = json.load( open( 'readconfig.json', 'r' ) )
 
-    storageSection = config['storage']
+    for section in config['read']:
+        visitor = readVisitors.select( section )
+        if visitor is None:
+            log.error( 'no read visitor could be found for section {0}'.format( section ) )
+            continue
+        try:
+            resources.update( visitor.visit( section ) )
+        except Exception as e:
+            log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
 
-    for section in config['exchanges']:
-        visitor = exchangeVisitors.select( section )
-        if visitor is not None:
-            try:
-                balance = visitor.visit( section )
-                try:
-                    visitor = storageVisitors.select( storageSection, balance )
-                    if visitor is not None:
-                        try:
-                            visitor.visit( storageSection, balance )
-                        except Exception as e:
-                            raise
-                            log.error( 'an exception occured when visiting {0}: {1}'.format(
-                                visitor.__class__.__name__, str(e) ) )
-                    else:
-                        log.error( 'unable to find write visitor for class {0}, section {1}'
-                                   .format( balance.__class__.__name__, storageSection )  )
-                except Exception as e:
-                    raise
-                    log.error( 'an exception occurred when searching for write visitor of section {0}: {1}'
-                               .format( storageSection, str(e) ) )
+    resources.report('after reading, the available resources are:')
 
-            except Exception as e:
-                raise
-                log.error( 'an exception occurred in visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
-        else:
-            log.error( 'no visitor could be found that accepts section {0}'.format( section ) )
+
+    for section in config['export']:
+        visitor = exportVisitors.select( section )
+        if visitor is None:
+            log.error( 'no export visitor could be found for section {0}'.format( section ) )
+            continue
+        try:
+            resources.update( visitor.visit( section, resources ) )
+        except Exception as e:
+            log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
+
+    resources.report('after exporting, the available resources are:')
+
 
 if __name__ == '__main__':
     main()

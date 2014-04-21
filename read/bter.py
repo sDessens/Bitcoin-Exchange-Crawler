@@ -19,7 +19,8 @@ import logging
 log = logging.getLogger('main.exchanges.bter')
 
 import common.conversiontable as conversiontable
-from common.writeable.singleDatapoint import SingleDatapoint
+from common.writeable.partialBalance import PartialBalance
+from common.writeable.collection import Collection
 
 
 def getInstance():
@@ -30,14 +31,14 @@ class BterVisitor:
         self._table = None
         pass
 
-    def accept( self, obj ):
+    def accept(self, json):
         try:
-            return obj['type'] == 'bter'
+            return json['type'] == 'bter'
         except Exception as e:
             return False
 
-    def visit( self, obj ):
-        api = BterApi( obj['pubkey'], obj['privkey'] )
+    def visit( self, json ):
+        api = BterApi( json['pubkey'], json['privkey'] )
         if self._table is None:
             self._table = self._buildConversionTable(api)
 
@@ -52,9 +53,9 @@ class BterVisitor:
             for k, v in balance['available_funds'].items():
                 total += self._convert( k, 'BTC', float(v) )
 
-        b = SingleDatapoint()
-        b.addBalance( obj['name'], total )
-        return b
+        out = Collection()
+        out[json['name']] = PartialBalance( total )
+        return out
 
     def _buildConversionTable(self, api):
         tickers = api.query_public('tickers')
@@ -132,7 +133,7 @@ def main():
              'pubkey':'bogus-public-key',
              'privkey':'aa33153451345134513451345314'}
 
-    assert( vis.accept( json ) )
+    assert( vis.accept(json) )
 
     print vis.visit( json )
 

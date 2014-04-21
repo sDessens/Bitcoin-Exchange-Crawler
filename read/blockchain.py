@@ -2,7 +2,8 @@
 import urllib2
 import json
 import common.balanceData as balanceData
-from common.writeable.singleDatapoint import SingleDatapoint
+from common.writeable.fullBalance import FullBalance
+from common.writeable.collection import Collection
 
 
 import logging
@@ -31,16 +32,14 @@ class BlockchainReadVisitor():
     #  object of type common.writable.balances.Balances
     def visit( self, json ):
         api = BlockchainReadAddressIntoBalanceData()
-        b = SingleDatapoint()
+        out = Collection()
 
         for k, addr in json['data'].items():
             try:
-                b.addBalance( 'k', api.query_address( addr ) )
-                print 'read', k, addr
-            except:
-                log.error( 'Exception occured when querying {0} : {1}'.format(
-                    k, addr) )
-        return b
+                out[k] = FullBalance( api.query_address( addr ) )
+            except Exception as e:
+                log.error( 'Exception occured when querying {0} : {1}'.format( k, addr) )
+        return out
 
 
 
@@ -84,7 +83,7 @@ class BlockchainReadAddressIntoBalanceData:
             balance.append( (time, currentBalance) )
 
         if len( balance ) == 0:
-            raise Exception( 'empty blockchain balance' )
+            raise Exception( 'Address is empty' )
 
         balance.sort()
 

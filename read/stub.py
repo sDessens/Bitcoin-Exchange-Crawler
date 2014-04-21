@@ -12,23 +12,25 @@
 #-------------------------------------------------------------------------------
 
 def getInstance():
-    return StubVisitor()
+    return StubReadVisitor()
 
 ## this is a stub db reader. It provides an template that provides all
 #  required functionality for an db reader
-class StubVisitor:
+class StubReadVisitor:
     def __init__(self):
         pass
 
-    ## check if visitor accepts given object
+    ## check if visitor accepts given object.
     #  @return true if object is accepted
-    def accept( self, obj ):
+    #  May not throw exceptions.
+    def accept( self, json ):
         try:
-            return obj['type'] == 'stub'
+            return json['type'] == 'stub'
         except Exception as e:
             return False
 
-    ##parse and return data specified in obj.
-    # @return 'identifier' -> BalanceData map or exception.
-    def visit( self, obj):
-        return {}
+    ## parse and return data specified in json.
+    #  @return common.writable.collection
+    #  may throw an exception
+    def visit( self, json ):
+        return []

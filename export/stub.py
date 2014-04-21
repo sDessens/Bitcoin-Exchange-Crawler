@@ -23,6 +23,7 @@ class StubVisitor:
 
     ## check if visitor accepts given object
     #  @return true if object is accepted
+    #  may not return exceptions
     def accept( self, json ):
         try:
             return json['type'] == 'stub'
@@ -32,13 +33,16 @@ class StubVisitor:
     ## run the export algorithm.
     #  this stub printing algorithm prints the identifier and final value of each
     #  BalanceData to stdout.
-    #  @param data an {'identifier' : BalanceData} map.
     #  @param json contains implementation defined information about the export type
-    #  @param write an {'identifier' : Writedb} map.
-    #  @return some sort of file array
-    def visit( self, json, data, writedb ):
+    #  @param resources contains array of common.writable.*
+    #  @return the full, post-processed, list of resources
+    #  may return exception
+    def visit( self, json, resources ):
         print 'begin of stub export visitor output'
-        for k, v in data.items():
-            print '  {0:15s} = {1}'.format(k, v.interpolate( v.maxTimestampAsDateTime() ) )
+        for resource in resources:
+            print '   ', str(resource)
         print 'end of stub export visitor output'
-        return []
+
+        # this stub visitor doesn't actually add resources.
+        # if you're writing your own export visitor, take a look at how sum.py handles stuff
+        return resources

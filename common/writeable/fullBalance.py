@@ -1,13 +1,8 @@
-class FullBalance:
-    def __init__(self):
-        self._d = {}
+from common.writeable.collection import Resource
 
-    def addBalance(self, key, value):
-        assert key not in self._d
-        self._d[key] = value
-
-    def items(self):
-        return self._d.items()
+class FullBalance(Resource):
+    def __init__(self, balanceData ):
+        self.value = balanceData
 
     def __str__(self):
-        assert False, "not implemented"
+        return 'FullBalance({0})'.format(hex(id(self.value)))

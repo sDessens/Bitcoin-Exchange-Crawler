@@ -15,7 +15,8 @@ import json
 import time
 import hmac,hashlib
 import common.conversiontable as conversiontable
-from common.writeable.singleDatapoint import SingleDatapoint
+from common.writeable.partialBalance import PartialBalance
+from common.writeable.collection import Collection
 
 
 
@@ -27,14 +28,14 @@ class CryptsyVisitor:
         self._table = None
         pass
 
-    def accept( self, obj ):
+    def accept( self, json ):
         try:
-            return obj['type'] == 'cryptsy'
+            return json['type'] == 'cryptsy'
         except Exception as e:
             return False
 
-    def visit( self, obj,toValueKey='BTC' ):
-        api = CryptsyApi( obj['pubkey'], obj['privkey'] )
+    def visit( self, json, toValueKey='BTC' ):
+        api = CryptsyApi( json['pubkey'], json['privkey'] )
         #create the currency conversion table
         if not self._table:
             self._buildConversionTable(api)
@@ -63,9 +64,9 @@ class CryptsyVisitor:
                 except conversiontable.ConversionException:
                     pass;
 
-            b = SingleDatapoint()
-            b.addBalance( obj['name'], total )
-            return b
+            out = Collection()
+            out[json['name']] = PartialBalance( total )
+            return out
         else:
             raise Exception('Cryptsy error: '+data['error'] )
         
