@@ -152,9 +152,8 @@ class DropboxStorage:
         filename=identifier+'.'+self.extention
         fullname = self.datafolder+'/'+filename
         
-        temp,temppath = tempfile.mkstemp()
+        _,temppath = tempfile.mkstemp()
         filepointer = open(temppath,mode='wb+')
-        filepaths = []
         #if the file already exists download it else create it
         try:
             restdata, metadata = self.downloadFile(fullname)
