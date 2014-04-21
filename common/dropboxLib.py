@@ -150,14 +150,14 @@ class DropboxStorage:
     def writeBalance(self,identifier,value):
         timestamp = int(time.time())
         filename=identifier+'.'+self.extention
-
-        folder_metadata = self.client.metadata(self.datafolder)
+        fullname = self.datafolder+'/'+filename
+        
         temp,temppath = tempfile.mkstemp()
         filepointer = open(temppath,mode='wb+')
         filepaths = []
         #if the file already exists download it else create it
         try:
-            restdata, metadata = self.downloadFile(self.datafolder+'/'+filename)
+            restdata, metadata = self.downloadFile(fullname)
             filepointer.write(restdata.read())
         except:
             pass
@@ -165,7 +165,7 @@ class DropboxStorage:
         filepointer.seek(0)
         
         try:
-            response = self.client.put_file(self.datafolder+'/'+filename, filepointer,True)
+            response = self.client.put_file(fullname, filepointer,True)
         except dropbox.client.ErrorResponse as e:
             log.error( 'while downloading file {0}: {1}'.format( fullname, str(e) ) )
             raise Exception()
