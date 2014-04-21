@@ -20,11 +20,9 @@ class LocalFileWriteVisitor:
     def __init__(self):
         pass
 
-    def accept( self, json, obj ):
+    def accept( self, json ):
         try:
-            return (json['type'] == 'localfile') and\
-                    any([ isinstance(obj, common.writeable.file.File),
-                          isinstance(obj, common.writeable.partialBalance.PartialBalance) ])
+            return json['type'] == 'localfile'
         except Exception as e:
             return False
 

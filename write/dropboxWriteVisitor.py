@@ -4,8 +4,11 @@ import os
 import time
 
 import common.dropboxLib as db
-import common.writeable.partialBalance
-import common.writeable.file
+from common.writeable.partialBalance import PartialBalance
+from common.writeable.file import File
+
+import logging
+log = logging.getLogger( 'main.write.dropbox' )
 
 
 def getInstance():
@@ -15,24 +18,24 @@ class DropboxStorageVisitor:
     def __init__(self):
         pass
 
-    def accept( self, json, obj ):
+    def accept( self, json ):
         try:
-            return (json['type'] == 'dropbox') and\
-                    any([ isinstance(obj, common.writeable.file.File),
-                          isinstance(obj, common.writeable.partialBalance.PartialBalance) ])
+            return json['type'] == 'dropbox'
         except Exception as e:
             return False
 
-    def visit( self, json, obj ):
-        #storage = db.DropboxStorage(json['folder'], json['app_key'], json['app_secret'] )
-        storage = db.DropboxStorage('/mercurytradingsystems')
-        storage.writeBalance('test-troep',23123213)
-        return
+    def visit( self, json, resources ):
+        storage = db.DropboxStorage(json['folder'])
 
-        if isinstance( obj, common.writeable.file.File ):
-            for k, v in obj.items():
-                storage.writeFile( k, v )
-        elif isinstance( obj, common.writeable.partialBalance.PartialBalance ):
-            for k, v in obj.items():
-                print k, v
-                storage.writeBalance( k, v )
+        for key in json['data']:
+            if key not in resources:
+                log.error( 'attempting to write resource {0}, but no such resource exists'.format(key) )
+                continue
+            resource = resources[key]
+            if isinstance( resource, PartialBalance ):
+                storage.writeBalance(key, resource.value)
+            elif isinstance( resource, File ):
+                storage.writeFile( resource.filename, key )
+            else:
+                log.error( 'attempting to write resource {0}, but is of unsupported type {1}'
+                           .format( key, resource.__class__.__name__ ) )

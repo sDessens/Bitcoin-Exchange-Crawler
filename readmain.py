@@ -14,8 +14,9 @@ import json
 import logging
 import common.parsevisitorsfromfolder as pv
 from common.writeable.collection import Collection
-# dynamic import of all modules in folder exchanges/*
-# dynamic import of all modules in folder writedb/*
+# dynamic import of all modules in folder read/*
+# dynamic import of all modules in folder export/*
+# dynamic import of all modules in folder write/*
 
 
 def main():
@@ -59,6 +60,18 @@ def main():
             log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
 
     resources.report('after exporting, the available resources are:')
+
+
+    for section in config['write']:
+        visitor = writeVisitors.select( section )
+        if visitor is None:
+            log.error( 'no export visitor could be found for section {0}'.format( section ) )
+            continue
+        try:
+            visitor.visit( section, resources )
+        except Exception as e:
+            log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
+
 
 
 if __name__ == '__main__':
