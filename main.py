@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
-# Name          read
-# Purpose:      read data from various exchanges, specified in (by default)
-#               readconfig.json. data is then written to db.
+# Name          main
+# Purpose:      Read, process, and write various objects, as specified in an
+#               json config file.
 #
 # Author:       Stefan Dessens
 #
@@ -34,7 +34,7 @@ def main():
     resources = Collection()
 
     # get contents of config file
-    config = json.load( open( 'readconfig.json', 'r' ) )
+    config = json.load( open( 'config.json', 'r' ) )
 
     for section in config['read']:
         visitor = readVisitors.select( section )
