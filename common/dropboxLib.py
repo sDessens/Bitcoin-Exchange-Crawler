@@ -166,6 +166,7 @@ class DropboxStorage:
                     # it is possible that the exception is thrown because the
                     # file does not exist. I this case, set overwrite to false
                     # and continue
+                    log.warn( 'Exception thrown while downloading {0}.'.format(filename))
                     overwrite = False
 
                 filepointer.write(str(timestamp)+","+str(value)+"\n")
