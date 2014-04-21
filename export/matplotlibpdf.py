@@ -73,15 +73,17 @@ class MatplotlibPdfWrapper:
         log.info( 'plotting {0}'.format(title) )
 
         objects = []
-        for obj in objects:
-            if isinstance( obj, FullBalance ):
-                if obj.key in sources:
-                    objects.append( obj )
 
-        if len(objects) != len(sources):
-            log.error( 'unable to find data for {0}'.format( set( [ o.key for o in objects ] ) ^ set( sources ) ) )
-
-
+        for key in json['source']:
+            if key not in resources:
+                log.error( 'attempting to plot resource {0}, but no such resource exists'.format(key) )
+                continue
+            resource = resources[key]
+            if isinstance( resource, FullBalance ):
+                objects.append( (key, resource.value) )
+            else:
+                log.error( 'attempting to plot resource {0}, but is of unsupported type {1}'
+                           .format( key, resource.__class__.__name__ ) )
 
         self._raw_plot( title, objects, days )
 
@@ -93,7 +95,7 @@ class MatplotlibPdfWrapper:
 
     ## plot the specified data
     #  @param the title of the plot
-    #  @param objects an array of common.writable.FullBalance
+    #  @param objects an array of ( name, BalanceData )
     #  @param days (optional) the Y width of the plot in days
     def _raw_plot(self, title, objects, days = None):
         if len(objects) == 0:
@@ -107,12 +109,11 @@ class MatplotlibPdfWrapper:
         ax.set_title(title, fontsize=18)
 
         # find the end of this plot
-        maxTimestamp = max( [ balance.balanceData.maxTimestampAsDateTime() for balance in objects ] )
+        maxTimestamp = max( [ balance.maxTimestampAsDateTime() for key, balance in objects ] )
 
-        for obj in objects:
-            assert isinstance( obj, FullBalance )
-            ax.plot( obj.value.timestampsAsDateTime(), obj.value.balance(), label=obj.key )
-            ax.annotate( ' ' + obj.key, xy=( maxTimestamp, obj.value.interpolate( maxTimestamp ) ) )
+        for key, balance in objects:
+            ax.plot( balance.timestampsAsDateTime(), balance.balance(), label=key )
+            ax.annotate( ' ' + key, xy=( maxTimestamp, balance.interpolate( maxTimestamp ) ) )
 
         ax.grid(True)
         if days is not None and len(objects):
