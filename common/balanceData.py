@@ -91,6 +91,9 @@ class BalanceData:
     def balance(self):
         return self._balance
 
+    def __len__(self):
+        return len( self._balance )
+
 
 ##sum multiple BalanceData objects together
 # @param array of BalanceData object
