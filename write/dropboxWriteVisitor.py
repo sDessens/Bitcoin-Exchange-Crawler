@@ -1,3 +1,15 @@
+#-------------------------------------------------------------------------------
+# Name          DropboxWriteVisitor
+# Purpose:      Module allows writting stuff to dropbox based database system
+#
+# Author:       Stefan Dessens
+#
+# Created:      21-04-2014
+# Copyright:    (c) Stefan Dessens
+# Licence:      TBD
+#-------------------------------------------------------------------------------
+
+
 import json
 import tempfile
 import os
