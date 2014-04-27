@@ -15,6 +15,7 @@ import logging
 from time import sleep
 import common.parsevisitorsfromfolder as pv
 from common.writeable.collection import Collection
+import argparse
 # dynamic import of all modules in folder read/*
 # dynamic import of all modules in folder export/*
 # dynamic import of all modules in folder write/*
@@ -28,6 +29,10 @@ def main():
     log.setLevel(logging.DEBUG)
 
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument( "-c", "--config-file", help='123', default='config.json', type=str )
+    arguments = parser.parse_args()
+
     readVisitors = pv.getVisitorsFromFolder( 'read' )
     exportVisitors = pv.getVisitorsFromFolder( 'export' )
     writeVisitors = pv.getVisitorsFromFolder( 'write' )
@@ -35,7 +40,7 @@ def main():
     resources = Collection()
 
     # get contents of config file
-    config = json.load( open( 'config.json', 'r' ) )
+    config = json.load( open( arguments.config_file, 'r' ) )
 
     for section in config['read']:
         visitor = readVisitors.select( section )
