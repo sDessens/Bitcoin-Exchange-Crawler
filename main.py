@@ -23,15 +23,16 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument( "-c", "--config-file", help='123', default='config-plot.json', type=str )
-    parser.add_argument( "-l", "--log-level", help="Set logging level. 10=debug, 20=info, 30=warn, 40=error",
+    parser.add_argument( "-c", "--config-file", help='Set config file path',
+                         default='config-plot.json', type=str )
+    parser.add_argument( "-l", "--log-level", help="Set log level. 10=debug 20=info 30=warn 40=error",
                          default=10, type=int)
     arguments = parser.parse_args()
 
     FORMAT = "%(levelname)s\t%(name)s: %(message)s"
     logging.basicConfig(format=FORMAT)
     log = logging.getLogger('main')
-    log.setLevel(parser.log_level)
+    log.setLevel(arguments.log_level)
 
 
     readVisitors = pv.getVisitorsFromFolder( 'read' )
