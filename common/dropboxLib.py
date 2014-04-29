@@ -131,12 +131,15 @@ class DropboxStorage:
         balance=[]
 
         try:
-            fp = self.downloadFile(fullname)
+            fp, metadata = self.downloadFile(fullname)
         except dropbox.client.ErrorResponse as e:
             log.error( 'while downloading file {0}: {1}'.format( fullname, str(e) ) )
             raise Exception()
 
-        for line in fp[0]:
+        data = fp.read()
+        lines = [ line for line in data.split('\n') if len( line ) ]
+
+        for line in lines:
             values = line.split(self.separator)
             time = int(values[0])
             if  time > fromTime and time < toTime:

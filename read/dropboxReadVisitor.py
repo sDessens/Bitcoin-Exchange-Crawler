@@ -14,8 +14,9 @@
 import common.dropboxLib as db
 from common.writeable.fullBalance import FullBalance
 from common.writeable.collection import Collection
+from multiprocessing import Pool
 import logging
-log = logging.getLogger( 'main.dropbox' )
+log = logging.getLogger( 'main.read.dropbox' )
 
 def getInstance():
     return DropboxReadVisitor()
@@ -40,8 +41,22 @@ class DropboxReadVisitor:
     def visit(self, json):
         storage = db.DropboxStorage( json['folder'] )
         out = Collection()
+        pool = Pool(processes=len(json['data']))
+
+        instances = []
+
+        for id in json['data']:
+            log.info( 'kicking thread to read {0}'.format( id ) )
+            instances.append( DropboxReadAsync( id, storage, pool ) )
+
+        for instance in instances:
+            try:
+                out[instance.name] = FullBalance( instance.get() )
+            except Exception as e:
+                log.error( 'an exception has occured when reading {0}'.format( instance.name ) )
 
 
+        """ single threaded version
         for id in json['data']:
             try:
                 out[id] = FullBalance( storage.readBalance(id) )
@@ -49,4 +64,18 @@ class DropboxReadVisitor:
             except Exception as e:
                 if len(str(e)):
                     print str(e)
+        """
+
         return out
+
+def f( instance, name ):
+    return instance.readBalance(name)
+
+class DropboxReadAsync():
+    def __init__(self, name, dropboxStorageInstance, pool):
+        self.name = name
+        self.async = pool.apply_async( func=f, args=(dropboxStorageInstance, name) )
+
+    def get(self):
+        self.async.wait()
+        return self.async.get()
