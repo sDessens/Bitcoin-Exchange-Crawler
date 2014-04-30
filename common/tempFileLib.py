@@ -1,3 +1,15 @@
+#-------------------------------------------------------------------------------
+# Name          tempFileLib
+# Purpose:      create temporary files that will be cleared upon application
+#               exit.
+#
+# Author:       Stefan Dessens
+#
+# Created:      30-04-2014
+# Copyright:    (c) Stefan Dessens 2014
+# Licence:      TBD
+#-------------------------------------------------------------------------------
+
 import tempfile
 import os
 import atexit
