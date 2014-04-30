@@ -13,7 +13,7 @@
 from common.writeable.file import File
 from common.writeable.fullBalance import FullBalance
 import common.balanceData
-
+import common.tempFileLib
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import datetime
@@ -46,7 +46,7 @@ class MatplotlibVisitor:
     #  @param resources contains array of common.writable.*
     #  may return exception
     def visit( self, json, resources ):
-        tmpfile = 'matplotlibpdf.tmp.pdf'
+        tmpfile = common.tempFileLib.generateTempFile(True)
 
         plotter = MatplotlibPdfWrapper( tmpfile )
         for view in json['views']:

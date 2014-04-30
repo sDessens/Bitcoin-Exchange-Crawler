@@ -10,10 +10,8 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 
-import time
-import tempfile
+import common.tempFileLib
 import json
-import os
 import dropbox
 import logging
 import time
@@ -157,32 +155,27 @@ class DropboxStorage:
 
         overwrite = True
 
-        tempid,temppath = tempfile.mkstemp()
+        temppath = common.tempFileLib.generateTempFile(True)
 
-        try:
-            with open(temppath,mode='wb+') as filepointer:
-                #if the file already exists download it else create it
-                try:
-                    restdata, metadata = self.downloadFile(fullname)
-                    filepointer.write(restdata.read())
-                except:
-                    # it is possible that the exception is thrown because the
-                    # file does not exist. I this case, set overwrite to false
-                    # and continue
-                    log.warn( 'Exception thrown while downloading {0}.'.format(filename))
-                    overwrite = False
+        with open(temppath, mode='wb+') as filepointer:
+            #if the file already exists download it else create it
+            try:
+                restdata, metadata = self.downloadFile(fullname)
+                filepointer.write(restdata.read())
+            except:
+                # there can be an exception thrown because of 2 reasons:
+                # The file does not exists yet.
+                # Something went terribly wrong.
+                # in both cases, we probably want to NOT overwrite the (possibly) already existing file.
+                log.warn( 'Exception thrown while downloading {0}.'.format(filename))
+                overwrite = False
 
-                filepointer.write(str(timestamp)+","+str(value)+"\n")
-                filepointer.seek(0)
+            filepointer.write(str(timestamp)+","+str(value)+"\n")
+            filepointer.seek(0)
 
-                try:
-                    response = self.client.put_file(fullname, filepointer, overwrite)
-                except dropbox.client.ErrorResponse as e:
-                    log.error( 'while uploading file {0}: {1}'.format( fullname, str(e) ) )
-                    raise Exception()
-        except:
-            raise
-        finally:
-            os.close( tempid )
-            os.remove( temppath )
+            try:
+                response = self.client.put_file(fullname, filepointer, overwrite)
+            except dropbox.client.ErrorResponse as e:
+                log.error( 'while uploading file {0}: {1}'.format( fullname, str(e) ) )
+                raise Exception()
 
