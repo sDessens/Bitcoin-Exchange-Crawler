@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 # Name          stub
-# Purpose:      Module is implementation of an export visitor that exports data
+# Purpose:      Module is implementation of an process visitor that exports data
 #               to PDF format using the matplotlib library.
 #
 # Author:       Stefan Dessens
@@ -18,14 +18,14 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import datetime
 import logging
-log = logging.getLogger( 'main.export.matplotlibpdf' )
+log = logging.getLogger( 'main.process.matplotlibpdf' )
 
 ## This function is required for every Visitor module
 def getInstance():
     return MatplotlibVisitor()
 
-## this is a stub Export visitor. It provides an template that provides
-#  all required functionality for an Export visitor
+## this is a stub Process visitor. It provides an template that provides
+#  all required functionality for an Process visitor
 class MatplotlibVisitor:
     def __init__(self):
         pass
@@ -39,10 +39,10 @@ class MatplotlibVisitor:
         except Exception as e:
             return False
 
-    ## run the export algorithm.
+    ## run the process algorithm.
     #  this stub printing algorithm prints the identifier and final value of each
     #  BalanceData to stdout.
-    #  @param json contains implementation defined information about the export type
+    #  @param json contains implementation defined information about the process type
     #  @param resources contains array of common.writable.*
     #  may return exception
     def visit( self, json, resources ):

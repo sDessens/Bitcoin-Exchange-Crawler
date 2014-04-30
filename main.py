@@ -18,7 +18,7 @@ from common.writeable.collection import Collection
 import common.tempFileLib
 import argparse
 # dynamic import of all modules in folder read/*
-# dynamic import of all modules in folder export/*
+# dynamic import of all modules in folder process/*
 # dynamic import of all modules in folder write/*
 
 
@@ -37,7 +37,7 @@ def main():
 
 
     readVisitors = pv.getVisitorsFromFolder( 'read' )
-    exportVisitors = pv.getVisitorsFromFolder( 'export' )
+    processVisitors = pv.getVisitorsFromFolder( 'process' )
     writeVisitors = pv.getVisitorsFromFolder( 'write' )
 
     resources = Collection()
@@ -58,24 +58,24 @@ def main():
     resources.report('after reading, the available resources are:')
     sleep(0.1)
 
-    for section in config['export']:
-        visitor = exportVisitors.select( section )
+    for section in config['process']:
+        visitor = processVisitors.select( section )
         if visitor is None:
-            log.error( 'no export visitor could be found for section {0}'.format( section ) )
+            log.error( 'no process visitor could be found for section {0}'.format( section ) )
             continue
         try:
             resources.update( visitor.visit( section, resources ) )
         except Exception as e:
             log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
 
-    resources.report('after exporting, the available resources are:')
+    resources.report('after processing, the available resources are:')
     sleep(0.1)
 
 
     for section in config['write']:
         visitor = writeVisitors.select( section )
         if visitor is None:
-            log.error( 'no export visitor could be found for section {0}'.format( section ) )
+            log.error( 'no process visitor could be found for section {0}'.format( section ) )
             continue
         try:
             visitor.visit( section, resources )

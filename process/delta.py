@@ -13,7 +13,7 @@ import common.balanceData as balanceData
 from common.writeable.fullBalance import FullBalance
 import traceback
 import logging
-log = logging.getLogger( 'main.export.delta' )
+log = logging.getLogger( 'main.process.delta' )
 
 
 ## This function is required for every Visitor module
@@ -34,7 +34,7 @@ class DeltaVisitor:
             return False
 
     ## run the delta algorithm.
-    #  @param json contains implementation defined information about the export type
+    #  @param json contains implementation defined information about the process type
     #  @param resources contains array of common.writable.*
     #  @return the full, post-processed, list of resources
     #  may return exception

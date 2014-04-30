@@ -1,8 +1,8 @@
 #-------------------------------------------------------------------------------
 # Name          stub
-# Purpose:      Module is stub implementation of Export Visitor.
+# Purpose:      Module is stub implementation of Process Visitor.
 #               Developers can use this file as an example when implementing
-#               additional exporters
+#               additional processing visitors
 #
 # Author:       Stefan Dessens
 #
@@ -15,8 +15,8 @@
 def getInstance():
     return StubVisitor()
 
-## this is a stub Export visitor. It provides an template that provides
-#  all required functionality for an Export visitor
+## this is a stub Process visitor. It provides an template that provides
+#  all required functionality for an Process visitor
 class StubVisitor:
     def __init__(self):
         pass
@@ -30,19 +30,19 @@ class StubVisitor:
         except Exception as e:
             return False
 
-    ## run the export algorithm.
+    ## run the process algorithm.
     #  this stub printing algorithm prints the identifier and final value of each
     #  BalanceData to stdout.
-    #  @param json contains implementation defined information about the export type
+    #  @param json contains implementation defined information about the process type
     #  @param resources contains array of common.writable.*
     #  @return the full, post-processed, list of resources
     #  may return exception
     def visit( self, json, resources ):
-        print 'begin of stub export visitor output'
+        print 'begin of stub process visitor output'
         for resource in resources:
             print '   ', str(resource)
-        print 'end of stub export visitor output'
+        print 'end of stub process visitor output'
 
         # this stub visitor doesn't actually add resources.
-        # if you're writing your own export visitor, take a look at how sum.py handles stuff
+        # if you're writing your own process visitor, take a look at how sum.py handles stuff
         return resources

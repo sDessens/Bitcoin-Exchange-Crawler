@@ -14,7 +14,7 @@ import common.balanceData as balanceData
 from common.writeable.fullBalance import FullBalance
 
 import logging
-log = logging.getLogger( 'main.export.sum' )
+log = logging.getLogger( 'main.process.sum' )
 
 def getInstance():
     return SumVisitor()
@@ -33,10 +33,10 @@ class SumVisitor:
         except Exception as e:
             return False
 
-    ## run the export algorithm.
+    ## run the process algorithm.
     #  this stub printing algorithm prints the identifier and final value of each
     #  BalanceData to stdout.
-    #  @param json contains implementation defined information about the export type
+    #  @param json contains implementation defined information about the process type
     #  @param resources contains array of common.writable.*
     #  @return the full, post-processed, list of resources
     #  may return exception
