@@ -11,7 +11,7 @@
 #-------------------------------------------------------------------------------
 
 import common.balanceData as balanceData
-from common.writeable.fullBalance import FullBalance
+from common.resources.fullBalance import FullBalance
 
 import logging
 log = logging.getLogger( 'main.process.sum' )

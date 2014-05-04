@@ -1,4 +1,4 @@
-from common.writeable.collection import Resource
+from common.resources.collection import Resource
 
 class File(Resource):
     def __init__(self, filename):

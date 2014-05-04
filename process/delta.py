@@ -10,7 +10,7 @@
 #-------------------------------------------------------------------------------
 
 import common.balanceData as balanceData
-from common.writeable.fullBalance import FullBalance
+from common.resources.fullBalance import FullBalance
 import traceback
 import logging
 log = logging.getLogger( 'main.process.delta' )

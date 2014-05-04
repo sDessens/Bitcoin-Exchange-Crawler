@@ -9,8 +9,8 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 import common.localFileStorageLib as LocalFileStorage
-from common.writeable.partialBalance import PartialBalance
-from common.writeable.file import File
+from common.resources.partialBalance import PartialBalance
+from common.resources.file import File
 import logging
 log = logging.getLogger( 'main.write.localfile' )
 

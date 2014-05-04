@@ -96,6 +96,7 @@ class DropboxStorage:
     # @return dropbox filepointer
     def downloadFile(self,fullname):
         if self.client is None:
+            log.
             print "No client object"
             return 0
         return self.client.get_file_and_metadata(fullname)

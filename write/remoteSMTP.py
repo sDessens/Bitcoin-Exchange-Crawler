@@ -11,7 +11,7 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 
-from common.writeable.mail import Mail
+from common.resources.mail import Mail
 import smtplib
 import logging
 log = logging.getLogger( 'main.write.remoteSMTP' )

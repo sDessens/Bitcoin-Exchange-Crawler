@@ -1,5 +1,5 @@
 import common.balanceData
-from common.writeable.collection import Resource
+from common.resources.collection import Resource
 
 class PartialBalance(Resource):
     def __init__(self, value):

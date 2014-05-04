@@ -14,8 +14,8 @@ import urllib2
 import json
 import time
 import hmac,hashlib
-from common.writeable.partialBalance import PartialBalance
-from common.writeable.collection import Collection
+from common.resources.partialBalance import PartialBalance
+from common.resources.collection import Collection
 
 def getInstance():
     return BtceVisitor()

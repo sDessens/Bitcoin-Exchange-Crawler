@@ -10,8 +10,8 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 
-from common.writeable.file import File
-from common.writeable.fullBalance import FullBalance
+from common.resources.file import File
+from common.resources.fullBalance import FullBalance
 import common.balanceData
 import common.tempFileLib
 import matplotlib.pyplot as plt

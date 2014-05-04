@@ -19,8 +19,8 @@ import logging
 log = logging.getLogger('main.exchanges.bter')
 
 import common.conversiontable as conversiontable
-from common.writeable.partialBalance import PartialBalance
-from common.writeable.collection import Collection
+from common.resources.partialBalance import PartialBalance
+from common.resources.collection import Collection
 
 
 def getInstance():

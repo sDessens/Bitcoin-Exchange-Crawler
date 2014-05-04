@@ -1,4 +1,4 @@
-from common.writeable.collection import Resource
+from common.resources.collection import Resource
 
 class FullBalance(Resource):
     def __init__(self, balanceData ):

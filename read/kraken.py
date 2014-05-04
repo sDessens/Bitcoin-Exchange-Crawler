@@ -17,8 +17,8 @@ import hashlib
 import hmac
 import base64
 import logging
-from common.writeable.partialBalance import PartialBalance
-from common.writeable.collection import Collection
+from common.resources.partialBalance import PartialBalance
+from common.resources.collection import Collection
 
 log = logging.getLogger( 'main.exchanges.kraken' )
 

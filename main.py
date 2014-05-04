@@ -14,7 +14,7 @@ import json
 import logging
 from time import sleep
 import common.parsevisitorsfromfolder as pv
-from common.writeable.collection import Collection
+from common.resources.collection import Collection
 import argparse
 # dynamic import of all modules in folder read/*
 # dynamic import of all modules in folder process/*

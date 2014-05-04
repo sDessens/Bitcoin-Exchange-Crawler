@@ -2,7 +2,7 @@
 # Name          stub
 # Purpose:      Module is stub implementation of WriteDB Visitor.
 #               Developers can use this file as an example when implementing
-#               additional writeable objects
+#               additional resources objects
 #
 # Author:       Stefan Dessens
 #
@@ -11,10 +11,10 @@
 # Licence:      TBD
 #-------------------------------------------------------------------------------
 
-from common.writeable.partialBalance import PartialBalance
-from common.writeable.fullBalance import FullBalance
-from common.writeable.file import File
-from common.writeable.mail import Mail
+from common.resources.partialBalance import PartialBalance
+from common.resources.fullBalance import FullBalance
+from common.resources.file import File
+from common.resources.mail import Mail
 
 import logging
 log = logging.getLogger( 'main.write.stub' )

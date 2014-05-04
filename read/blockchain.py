@@ -15,8 +15,8 @@
 import urllib2
 import json
 import common.balanceData as balanceData
-from common.writeable.fullBalance import FullBalance
-from common.writeable.collection import Collection
+from common.resources.fullBalance import FullBalance
+from common.resources.collection import Collection
 
 
 import logging

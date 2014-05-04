@@ -15,8 +15,8 @@ import json
 import time
 import hmac,hashlib
 import common.conversiontable as conversiontable
-from common.writeable.partialBalance import PartialBalance
-from common.writeable.collection import Collection
+from common.resources.partialBalance import PartialBalance
+from common.resources.collection import Collection
 
 
 

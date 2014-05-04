@@ -12,8 +12,8 @@
 #-------------------------------------------------------------------------------
 
 import common.dropboxLib as db
-from common.writeable.fullBalance import FullBalance
-from common.writeable.collection import Collection
+from common.resources.fullBalance import FullBalance
+from common.resources.collection import Collection
 from multiprocessing import Pool
 import logging
 log = logging.getLogger( 'main.read.dropbox' )
