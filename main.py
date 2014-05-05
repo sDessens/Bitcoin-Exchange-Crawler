@@ -24,7 +24,7 @@ import argparse
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument( "-c", "--config-file", help='Set config file path',
-                         default='config-plot.json', type=str )
+                         default='config.json', type=str )
     parser.add_argument( "-l", "--log-level", help="Set log level. 10=debug 20=info 30=warn 40=error",
                          default=10, type=int)
     arguments = parser.parse_args()
