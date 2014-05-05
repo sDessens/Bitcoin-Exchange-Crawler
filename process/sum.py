@@ -60,7 +60,7 @@ class SumVisitor:
                 if isinstance( res, FullBalance ):
                     arr.append( res.value )
                 else:
-                    print 'resource named', input, 'of incorrect type'
+                    log.error( 'resource named {0} is of incorrect type'.format(input))
 
         if len(arr) == 0:
             raise Exception( 'No resources of {0} found'.format(inputs) )

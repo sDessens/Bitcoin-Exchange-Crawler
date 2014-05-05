@@ -13,6 +13,9 @@ import os
 import shutil
 import time
 from common.balanceData import BalanceData
+import logging
+log = logging.getLogger( 'main.dropbox' )
+
 
 ##
 #This class uses local storage as medium.
@@ -41,7 +44,7 @@ class LocalFileStorage:
             with open(filepath, mode='a') as fp:
                 fp.write(str(timestamp) +self.separator+str(value)+'\n')
         except:
-            print "creating file"
+            log.info('creating file {0}'.format(filepath))
             with open(filepath, mode='w') as fp:
                 fp.write(str(timestamp) +self.separator+str(value)+'\n')
 
@@ -65,8 +68,7 @@ class LocalFileStorage:
                         balance.append(float(values[1]))
                 return BalanceData(timestamps,balance)
         except Exception as e:
-            print e
-            print "No data for this section found"
+            log.error( 'identifier {0} contains no data'.format(identifier) )
 
     ##  Writes the file to local storage
     #   @param filepath a path to a local file

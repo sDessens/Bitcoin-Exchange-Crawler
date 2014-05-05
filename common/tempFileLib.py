@@ -29,10 +29,8 @@ def generateTempFile( autodelete ):
 
 
 def freeResources():
-    print 'clearing temp files'
     while len( __files ):
         oh, path = __files.pop()
-        print '  del', path
         os.close( oh )
         os.remove( path )
 

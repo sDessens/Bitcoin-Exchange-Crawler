@@ -12,6 +12,8 @@
 from common.localFileStorageLib import LocalFileStorage
 from common.resources.fullBalance import FullBalance
 from common.resources.collection import Collection
+import logging
+log = logging.getLogger( 'main.read.dropbox' )
 
 
 def getInstance():
@@ -43,5 +45,5 @@ class LocalFileReadVisitor:
             try:
                 out[id] = FullBalance( storage.readBalance(id) )
             except Exception as e:
-                print str(e)
+                log.error(str(e))
         return out

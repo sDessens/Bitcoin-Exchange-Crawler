@@ -16,6 +16,9 @@ import time
 import hmac,hashlib
 from common.resources.partialBalance import PartialBalance
 from common.resources.collection import Collection
+import logging
+log = logging.getLogger( 'main.read.btce' )
+
 
 def getInstance():
     return BtceVisitor()
@@ -108,7 +111,7 @@ class BtceApi:
                 reply = json.loads(ret.read())
             #retry if the request failed
             except:
-                print str(retries)+ " retrying..."
+                log.error( 'retrying... ({0})'.format(str(retries)) )
                 retries += 1
                 self.query_private(method,url,req,retries)
             #raise an error if it is an invalid key
@@ -120,7 +123,7 @@ class BtceApi:
                     return None
                 #retry if succes was 0 and retries <= 2
                 else:
-                    print str(retries)+ " retrying..."
+                    log.error( 'retrying... ({0})'.format(str(retries)) )
                     time.sleep(1)
                     retries += 1 
                     self.query_private(method,url,req,retries)

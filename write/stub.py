@@ -49,4 +49,3 @@ class StubWriteVisitor:
                 continue
             resource = resources[key]
             log.debug( 'writing resource {0} : {1}'.format( key, str(resource) ) )
-            print

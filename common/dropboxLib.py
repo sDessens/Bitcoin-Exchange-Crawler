@@ -13,8 +13,8 @@
 import common.tempFileLib
 import json
 import dropbox
-import logging
 import time
+import logging
 log = logging.getLogger( 'main.dropbox' )
 
 import common.balanceData as balanceData
@@ -95,10 +95,7 @@ class DropboxStorage:
     # @param fullname the path of the file
     # @return dropbox filepointer
     def downloadFile(self,fullname):
-        if self.client is None:
-            log.
-            print "No client object"
-            return 0
+        assert( self.client )
         return self.client.get_file_and_metadata(fullname)
 
     ## Uploads a file to dropbox through the use of a filepointer
@@ -120,9 +117,7 @@ class DropboxStorage:
     # @param toTime the until what timeStamp data should be fetched
     # @return BalanceData the object that contains the balance data and timestamp in the period given by fromTime,toTime
     def readBalance(self,identifier,fromTime=0,toTime=2000000000):
-        if self.client is None:
-            print "No client object"
-            return 0
+        assert( self.client )
         filename=identifier+'.'+self.extention
         fullname = self.datafolder+'/'+filename
 
