@@ -17,14 +17,15 @@ class Collection( dict ):
 
         if isinstance( selector, str ):
             for k, v in self.items():
-                if self._matches( k, selector ):
+                if isinstance( v, mustBeType ) and self._matches( k, selector ):
                     out.append((k, v))
         else:
             for k, v in self.items():
-                for sel in selector:
-                    if self._matches( k, sel ):
-                        out.append((k, v))
-                        break
+                if isinstance( v, mustBeType ):
+                    for sel in selector:
+                        if self._matches( k, sel ):
+                            out.append((k, v))
+                            break
 
         return out
 
