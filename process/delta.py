@@ -1,13 +1,5 @@
-#-------------------------------------------------------------------------------
-# Name          delta
-# Purpose:      Calculates the derrivative of any FullBalance resource
-#
-# Author:       Stefan Dessens
-#
-# Created:      17-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Calculates the derivative of any FullBalance resource
+
 
 import common.balanceData as balanceData
 from common.resources.fullBalance import FullBalance

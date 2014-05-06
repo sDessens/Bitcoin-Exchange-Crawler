@@ -1,13 +1,4 @@
-#-------------------------------------------------------------------------------
-# Name          VisitorPattern
-# Purpose:      Module that wraps the Visitor design pattern
-#
-# Author:       Stefan Dessens
-#
-# Created:      15-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module that wraps the Visitor design pattern
 
 
 class VisitorPattern:

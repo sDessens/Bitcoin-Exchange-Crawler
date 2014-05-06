@@ -1,13 +1,5 @@
-#-------------------------------------------------------------------------------
-# Name          randomBalance
-# Purpose:      Generate random-walk based FullBalance objects.
-#
-# Author:       Stefan Dessens
-#
-# Created:      22-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# this module can be used to Generate random-walk based FullBalance resource.
+
 
 
 from common.resources.collection import Collection

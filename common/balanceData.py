@@ -1,13 +1,5 @@
-#-------------------------------------------------------------------------------
-# Name          BalanceData
-# Purpose:      Simple module to hold the (X, Y) data from a single source.
-#
-# Author:       Stefan Dessens
-#
-# Created:      12-02-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Simple class to hold the (X, Y) data from a single source.
+
 
 from bisect import bisect_left
 import datetime
@@ -34,7 +26,7 @@ class BalanceData:
         while timestamp > self._timestamps[0]:
             diff = self.diff( timestamp - seconds, timestamp ) / days
             new._timestamps.append( timestamp )
-            new._balance.append( diff );
+            new._balance.append( diff )
             timestamp -= 3600
 
         new._timestamps.reverse()

@@ -1,14 +1,6 @@
-#-------------------------------------------------------------------------------
-# Name          DropboxStorage
-# Purpose:      Module that provides functionallity to write/read files and
-#               balancedata to/from dropbox.
-#
-# Author:       Jasper van Gelder
-#
-# Created:      15-04-2014
-# Copyright:    (c) Jasper van Gelder 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+#-Module that provides functionallity to write/read files and
+# balancedata to/from dropbox.
+
 
 import common.tempFileLib
 import json

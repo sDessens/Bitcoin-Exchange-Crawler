@@ -1,13 +1,6 @@
-#-------------------------------------------------------------------------------
-# Name          LocalFileStorageVisitor
-# Purpose:      Module is Local File Storage implementation of WriteDB Visitor.
+# this module allows to write various resource to the local file system
 
-# Author:       Jasper van Gelder
-#
-# Created:      17-04-2014
-# Copyright:    (c) Jasper van Gelder 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+
 import common.localFileStorageLib as LocalFileStorage
 from common.resources.partialBalance import PartialBalance
 from common.resources.file import File

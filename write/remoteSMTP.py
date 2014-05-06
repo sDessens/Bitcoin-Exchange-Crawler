@@ -1,15 +1,7 @@
-#-------------------------------------------------------------------------------
-# Name          remote SMTP
-# Purpose:      This module implements SMTP to send reports via mail. the
-#               'remote' parts refers to the fact this implementation uses
-#               remote SMTP servers such as google's one.
-#
-# Author:       Stefan Dessens
-#
-# Created:      27-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# This module implements SMTP to send reports via mail. the
+# 'remote' parts refers to the fact this implementation uses
+# remote SMTP servers such as google's one.
+
 
 from common.resources.mail import Mail
 import smtplib

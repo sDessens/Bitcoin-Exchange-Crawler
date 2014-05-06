@@ -1,14 +1,5 @@
-#-------------------------------------------------------------------------------
-# Name          blockchain
-# Purpose:      Module allows the importing an blockchain balance history to
-#               an FullBalance object.
-#
-# Author:       Stefan Dessens
-#
-# Created:      21-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module allows the importing an blockchain balance history to
+# an FullBalance resource.
 
 
 

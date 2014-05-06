@@ -1,13 +1,4 @@
-#-------------------------------------------------------------------------------
-# Name          kraken
-# Purpose:      Module allows the retrieval of balances from Kraken
-#
-# Author:       Stefan Dessens
-#
-# Created:      15-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module allows the retrieval of balances from Kraken
 
 import json
 import urllib

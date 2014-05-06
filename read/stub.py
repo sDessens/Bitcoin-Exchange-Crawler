@@ -1,15 +1,7 @@
-#-------------------------------------------------------------------------------
-# Name          stub
-# Purpose:      Module is stub implementation of ReadDB Visitor.
-#               Developers can use this file as an example when implementing
-#               additional information sources
-#
-# Author:       Stefan Dessens
-#
-# Created:      17-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module is stub implementation of read Visitor.
+# Developers can use this file as an example when implementing
+# additional read visitors.
+
 
 def getInstance():
     return StubReadVisitor()

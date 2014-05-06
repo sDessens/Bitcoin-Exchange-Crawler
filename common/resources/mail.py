@@ -1,3 +1,6 @@
+# this module implements an resource that is used to pass reports
+# between different visitors.
+
 from common.resources.collection import Resource
 
 class Mail(Resource):

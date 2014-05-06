@@ -1,14 +1,6 @@
-#-------------------------------------------------------------------------------
-# Name          stub
-# Purpose:      Module is implementation of an process visitor that exports data
-#               to PDF format using the matplotlib library.
-#
-# Author:       Stefan Dessens
-#
-# Created:      18-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module implements an  process visitor that exports data
+# to PDF format using the matplotlib library.
+
 
 from common.resources.file import File
 from common.resources.fullBalance import FullBalance

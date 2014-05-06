@@ -1,4 +1,7 @@
-import common.balanceData
+# this module implements an resource that holds a single balance.
+# visitors that read balanced from an exchange return this type of resource.
+
+
 from common.resources.collection import Resource
 
 class PartialBalance(Resource):

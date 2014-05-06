@@ -1,13 +1,5 @@
-#-------------------------------------------------------------------------------
-# Name          LocalFileReadBalanceVisitor
-# Purpose:      Module is localfile storage balance implementation of ReadDB Visitor.
-#
-# Author:       Jasper van Gelder
-#
-# Created:      18-04-2014
-# Copyright:    (c) Jasper van Gelder 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# this module can be used to write various resource to the local file system.
+
 
 from common.localFileStorageLib import LocalFileStorage
 from common.resources.fullBalance import FullBalance

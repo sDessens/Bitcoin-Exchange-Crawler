@@ -1,14 +1,6 @@
-#-------------------------------------------------------------------------------
-# Name          sum
-# Purpose:      module is post process visitor that allows summing multiple
-#               BalanceData objects together.
-#
-# Author:       Stefan Dessens
-#
-# Created:      17-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# module implements process visitor that allows summing multiple
+# FullBalance resources together.
+
 
 import common.balanceData as balanceData
 from common.resources.fullBalance import FullBalance

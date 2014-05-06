@@ -1,13 +1,5 @@
-#-------------------------------------------------------------------------------
-# Name          parseVisitorsFromFolder
-# Purpose:      Module that allows dynamic loading of libraries from a folder
-#
-# Author:       Stefan Dessens
-#
-# Created:      17-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module that allows dynamic loading of libraries from a folder
+
 
 
 import visitorpattern

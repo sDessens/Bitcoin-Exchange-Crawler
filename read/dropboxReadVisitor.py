@@ -1,15 +1,7 @@
-#-------------------------------------------------------------------------------
-# Name          stub
-# Purpose:      Module is stub implementation of ReadDB Visitor.
-#               Developers can use this file as an example when implementing
-#               additional information sources
-#
-# Author:       Stefan Dessens
-#
-# Created:      17-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module is stub implementation of Read Visitor.
+# Developers can use this file as an example when implementing
+# additional information sources
+
 
 import common.dropboxLib as db
 from common.resources.fullBalance import FullBalance

@@ -1,13 +1,5 @@
-#-------------------------------------------------------------------------------
-# Name          Bter
-# Purpose:      Module allows query of balances from Bter
-#
-# Author:       Stefan Dessens
-#
-# Created:      16-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module allows query of balances from Bter
+
 
 import json
 import urllib

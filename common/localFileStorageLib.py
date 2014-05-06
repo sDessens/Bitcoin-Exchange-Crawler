@@ -1,14 +1,7 @@
-#-------------------------------------------------------------------------------
-# Name          LocalFileStorage
-# Purpose:      Module that provides functionallity to write/read files and
-#               balancedata to/from local file storage.
-#
-# Author:       Jasper van Gelder
-#
-# Created:      17-04-2014
-# Copyright:    (c) Jasper van Gelder 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module that provides functionallity to write/read files and
+# balancedata to/from local file storage.
+
+
 import os
 import shutil
 import time

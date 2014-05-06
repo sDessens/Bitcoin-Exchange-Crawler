@@ -1,15 +1,7 @@
-#-------------------------------------------------------------------------------
-# Name          stub
-# Purpose:      Module is stub implementation of Process Visitor.
-#               Developers can use this file as an example when implementing
-#               additional processing visitors
-#
-# Author:       Stefan Dessens
-#
-# Created:      17-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module is stub implementation of Process Visitor.
+# Developers can use this file as an example when implementing
+# their own visitors.
+
 
 ## This function is required for every Visitor module
 def getInstance():

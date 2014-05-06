@@ -1,13 +1,5 @@
-#-------------------------------------------------------------------------------
-# Name          btce
-# Purpose:      Module allows the retrieval of balances from BTC-e
-#
-# Author:       Jasper van Gelder
-#
-# Created:      15-04-2014
-# Copyright:    (c) Jasper van Gelder 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module allows the retrieval of balances from BTC-e
+
 
 import urllib
 import urllib2

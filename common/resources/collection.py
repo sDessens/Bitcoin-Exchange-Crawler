@@ -1,3 +1,9 @@
+# this module defined the base class of all resoures,
+# and an 'resource manager' class.
+
+
+
+
 # baseclass of all resource
 class Resource:
     pass

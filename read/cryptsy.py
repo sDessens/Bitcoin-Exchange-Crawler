@@ -1,13 +1,5 @@
-#-------------------------------------------------------------------------------
-# Name          cryptsy
-# Purpose:      Module allows the retrieval of balances from cryptsy
-#
-# Author:       Jasper van Gelder
-#
-# Created:      16-04-2014
-# Copyright:    (c) Jasper van Gelder 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module allows the retrieval of balances from cryptsy
+
 
 import urllib
 import urllib2

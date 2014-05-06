@@ -1,15 +1,7 @@
-#-------------------------------------------------------------------------------
-# Name          stub
-# Purpose:      Module is stub implementation of WriteDB Visitor.
-#               Developers can use this file as an example when implementing
-#               additional resources objects
-#
-# Author:       Stefan Dessens
-#
-# Created:      17-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
+# Module is stub implementation of write Visitor.
+# Developers can use this file as an template when implementing
+# additional write visitors.
+
 
 from common.resources.partialBalance import PartialBalance
 from common.resources.fullBalance import FullBalance
