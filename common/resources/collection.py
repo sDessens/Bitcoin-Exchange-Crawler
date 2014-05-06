@@ -19,7 +19,7 @@ class Collection( dict ):
     #  @param mustBeType (optional) select only resources of that type.
     #  @return an (key, resource) array of matched items. May return empty array if nothing matched.
     def selectMany(self, selector, mustBeType=Resource):
-        assert( isinstance( mustBeType, Resource) )
+        assert( issubclass( mustBeType, Resource) )
         out = []
 
         if isinstance( selector, str ):
