@@ -154,7 +154,7 @@ class TableData:
 class HmtlReportGenerator:
     def __init__(self,tmpFile, cssFilePath,title):
         self.timeformat= '%d/%m/%Y %H:%M:%S'
-        self.Html_file = open('myreport.html',"w")
+        self.Html_file = open(tmpFile,"w")
         self.Html_file.write("""
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
