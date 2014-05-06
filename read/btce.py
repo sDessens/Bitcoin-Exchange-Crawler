@@ -1,6 +1,5 @@
 # Module allows the retrieval of balances from BTC-e
 
-
 import urllib
 import urllib2
 import json
@@ -10,7 +9,6 @@ from common.resources.partialBalance import PartialBalance
 from common.resources.collection import Collection
 import logging
 log = logging.getLogger( 'main.read.btce' )
-
 
 def getInstance():
     return BtceVisitor()
@@ -118,7 +116,8 @@ class BtceApi:
                     log.error( 'retrying... ({0})'.format(str(retries)) )
                     time.sleep(1)
                     retries += 1 
-                    self.query_private(method,url,req,retries)
+                    retvalue = self.query_private(method,url,req,retries)
+                    return retvalue
             elif (int(reply['success']) ==1):
                 #return the value if it was succesfully retrieved
                 return reply['return']
@@ -142,7 +141,7 @@ class BtceApi:
         return ret['ticker']['avg']
 
 def main():
-    obj = {"pubkey": "I2R9TAKF-IIKOFCN3-THOTOQSW-P84KZ2UG-PD27E7YU","privkey":"a751e0559833d1c4544c3f5873995e2c5ea72413cc5e7a809caeddb0f3607535"}
+    obj = {"pubkey": "mypubkey","privkey":"myprivate key"}
     try:
         print BtceVisitor().visit(obj)
     except Exception as e:
