@@ -8,6 +8,7 @@ from common.resources.fullBalance import FullBalance
 from common.resources.collection import Collection
 from multiprocessing import Pool
 import logging
+import traceback
 log = logging.getLogger( 'main.read.dropbox' )
 
 def getInstance():
@@ -33,30 +34,31 @@ class DropboxReadVisitor:
     def visit(self, json):
         storage = db.DropboxStorage( json['folder'] )
         out = Collection()
-        pool = Pool(processes=len(json['data']))
 
-        instances = []
+        if True: # multithreaded switch
+            pool = Pool(processes=len(json['data']))
 
-        for id in json['data']:
-            log.info( 'kicking thread to read {0}'.format( id ) )
-            instances.append( DropboxReadAsync( id, storage, pool ) )
+            instances = []
 
-        for instance in instances:
-            try:
-                out[instance.name] = FullBalance( instance.get() )
-            except Exception as e:
-                log.error( 'an exception has occured when reading {0}'.format( instance.name ) )
+            for id in json['data']:
+                log.info( 'kicking thread to read {0}'.format( id ) )
+                instances.append( DropboxReadAsync( id, storage, pool ) )
 
-
-        """ single threaded version
-        for id in json['data']:
-            try:
-                out[id] = FullBalance( storage.readBalance(id) )
-                log.info( 'downloaded {0}'.format(id) )
-            except Exception as e:
-                if len(str(e)):
-                    print str(e)
-        """
+            for instance in instances:
+                try:
+                    out[instance.name] = FullBalance( instance.get() )
+                except Exception as e:
+                    log.error( 'an exception has occured when reading {0}'.format( instance.name ) )
+                    log.debug( str(e) )
+                    log.debug( traceback.format_exc() )
+        else:
+            for id in json['data']:
+                try:
+                    out[id] = FullBalance( storage.readBalance(id) )
+                    log.info( 'downloaded {0}'.format(id) )
+                except Exception as e:
+                    if len(str(e)):
+                        print str(e)
 
         return out
 
