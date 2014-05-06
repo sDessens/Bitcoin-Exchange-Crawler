@@ -71,6 +71,7 @@ class MatplotlibPdfWrapper:
     #  @return nothing, but mutates internal state
     def addView(self, json, resources):
         title = json['title']
+        type = json['type'] if 'type' in json else 'line'
         sources = json['source']
         days = json['days'] if 'days' in json else None
 
@@ -78,24 +79,21 @@ class MatplotlibPdfWrapper:
 
         objects = []
 
-        for key in json['source']:
-            if key not in resources:
+        for key in sources:
+            res = resources.selectOne(key)
+            if key is None:
                 log.error( 'attempting to plot resource {0}, but no such resource exists'.format(key) )
-                continue
-            resource = resources[key]
-            if isinstance( resource, FullBalance ):
-                objects.append( (key, resource.value) )
+            elif isinstance( res, FullBalance ):
+                objects.append( (key, res.value) )
             else:
                 log.error( 'attempting to plot resource {0}, but is of unsupported type {1}'
-                           .format( key, resource.__class__.__name__ ) )
-
-        type = json['type'] if 'type' in json else 'default'
+                           .format( key, res.__class__.__name__ ) )
 
         if len(objects) == 0:
             log.error( 'skipping plot titled {0} because there are no objects to plot...'.format( title ) )
             return
 
-        if type == 'default':
+        if type == 'line':
             self._raw_plot_line( title, objects, days )
         elif type == 'stacked':
             self._raw_plot_stacked( title, objects, days )

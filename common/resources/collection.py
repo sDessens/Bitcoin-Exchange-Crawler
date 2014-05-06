@@ -12,7 +12,7 @@ class Collection( dict ):
     #  otherwise, interprent argument as array of strings, add resource in OR fashion.
     #  @param mustBeType (optional) select only resources of that type.
     #  @return an (key, resource) array of matched items. May return empty array if nothing matched.
-    def select(self, selector, mustBeType=Resource):
+    def selectMany(self, selector, mustBeType=Resource):
         out = []
 
         if isinstance( selector, str ):
@@ -28,6 +28,19 @@ class Collection( dict ):
                             break
 
         return out
+
+    ## select one resource
+    #  @param selector string
+    #  @param mustBeType (optional) the type of the resouce
+    #  @return the resource, of none if it did not exist of is of incorrect type
+    def selectOne(self, selector, mustBeType=Resource):
+        try:
+            res = self.__getitem__(selector)
+            if isinstance(res, mustBeType):
+                return res
+        except Exception as e:
+            pass
+        return None
 
     def _matches(self, id, selector):
         if id == selector:
