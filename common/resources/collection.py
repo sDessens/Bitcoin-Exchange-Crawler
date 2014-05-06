@@ -19,6 +19,7 @@ class Collection( dict ):
     #  @param mustBeType (optional) select only resources of that type.
     #  @return an (key, resource) array of matched items. May return empty array if nothing matched.
     def selectMany(self, selector, mustBeType=Resource):
+        assert( isinstance( mustBeType, Resource) )
         out = []
 
         if isinstance( selector, str ):
@@ -40,6 +41,7 @@ class Collection( dict ):
     #  @param mustBeType (optional) the type of the resouce
     #  @return the resource, of none if it did not exist of is of incorrect type
     def selectOne(self, selector, mustBeType=Resource):
+        assert( isinstance( mustBeType, Resource) )
         try:
             res = self.__getitem__(selector)
             if isinstance(res, mustBeType):
