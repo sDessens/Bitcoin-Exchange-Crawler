@@ -69,7 +69,7 @@ class BtceVisitor:
                     btcTotal += amount
 
         out = Collection()
-        out[json['name']] = btcTotal
+        out[json['out']] = btcTotal
         return out
 
 class BtceApi:

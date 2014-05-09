@@ -71,7 +71,7 @@ class HtmlReportVisitor:
         
         htmlgenerator.finalize()
         
-        resources[ json['target'] ] = File( tmpfile )
+        resources[ json['out'] ] = File( tmpfile )
         return resources
 ## Class that contains the data for the tables
 #  This class contains functions to generate the data for the html table

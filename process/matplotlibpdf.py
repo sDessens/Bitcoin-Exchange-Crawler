@@ -50,7 +50,7 @@ class MatplotlibVisitor:
                 log.debug( traceback.format_exc() )
         plotter.finalize()
 
-        resources[ json['target'] ] = File( tmpfile )
+        resources[ json['out'] ] = File( tmpfile )
         return resources
 
 class MatplotlibPdfWrapper:

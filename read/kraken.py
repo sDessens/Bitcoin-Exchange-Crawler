@@ -29,7 +29,7 @@ class KrakenVisitor:
     def visit( self, json ):
         api = KrakenApi( json['pubkey'], json['privkey'] )
         out = Collection()
-        out[json['name']] = PartialBalance( api.getBalance( 'BTC' ) )
+        out[json['out']] = PartialBalance( api.getBalance( 'BTC' ) )
         return out
 
 class KrakenApi:

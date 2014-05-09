@@ -57,7 +57,7 @@ class CryptsyVisitor:
                     pass;
 
             out = Collection()
-            out[json['name']] = PartialBalance( total )
+            out[json['out']] = PartialBalance( total )
             return out
         else:
             raise Exception('Cryptsy error: '+data['error'] )
@@ -121,7 +121,7 @@ class CryptsyApi:
 def main():
     vis = CryptsyVisitor()
     json = { 'type':'cryptsy',
-             'name':'cryptsy-test',
+             'out':'cryptsy-test',
              'pubkey':'bogus-public-key',
              'privkey':'aa33153451345134513451345314'}
 
