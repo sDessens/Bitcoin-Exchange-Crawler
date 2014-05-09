@@ -74,7 +74,7 @@ def main():
     for section in config['write']:
         visitor = writeVisitors.select( section )
         if visitor is None:
-            log.error( 'no process visitor could be found for section {0}'.format( section ) )
+            log.error( 'no write visitor could be found for section {0}'.format( section ) )
             continue
         try:
             visitor.visit( section, resources )
