@@ -30,10 +30,7 @@ class StubVisitor:
     #  @return the full, post-processed, list of resources
     #  may return exception
     def visit( self, json, resources ):
-        print 'begin of stub process visitor output'
-        for resource in resources:
-            print '   ', str(resource)
-        print 'end of stub process visitor output'
+        resources.report( 'stub process visitor report' )
 
         # this stub visitor doesn't actually add resources.
         # if you're writing your own process visitor, take a look at how sum.py handles stuff

@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import datetime
 import logging
+import traceback
 log = logging.getLogger( 'main.process.matplotlibpdf' )
 
 ## This function is required for every Visitor module
@@ -45,10 +46,11 @@ class MatplotlibVisitor:
             try:
                 plotter.addView( view, resources )
             except Exception as e:
-                log.error( str(e) )
+                log.error( "an exception occured during plotting" )
+                log.debug( traceback.format_exc() )
         plotter.finalize()
 
-        resources[ json['target'] ] = File( tmpfile )
+        resources[ json['out'] ] = File( tmpfile )
         return resources
 
 class MatplotlibPdfWrapper:

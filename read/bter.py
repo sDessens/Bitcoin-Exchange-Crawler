@@ -46,7 +46,7 @@ class BterVisitor:
                 total += self._convert( k, 'BTC', float(v) )
 
         out = Collection()
-        out[json['name']] = PartialBalance( total )
+        out[json['out']] = PartialBalance( total )
         return out
 
     def _buildConversionTable(self, api):
@@ -121,7 +121,7 @@ class BterApi:
 def main():
     vis = BterVisitor()
     json = { 'type':'bter',
-             'name':'bter-test',
+             'out':'bter-test',
              'pubkey':'bogus-public-key',
              'privkey':'aa33153451345134513451345314'}
 
