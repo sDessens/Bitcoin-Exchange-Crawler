@@ -8,6 +8,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import premailer
+import traceback
 import logging
 log = logging.getLogger( 'main.write.SMTP' )
 
@@ -50,6 +51,7 @@ class SMTPVisitor:
                     client.sendmail( resource, to )
                 except Exception as e:
                     log.error( str(e) )
+                    log.debug( traceback.format_exc() )
             except:
                 log.error( 'unable to find resource {0}'.format(key) )
 
@@ -70,7 +72,7 @@ class SMTPClient:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = mail.subject
         msg['From'] = self.sender
-        msg['To'] = to
+        msg['To'] = ", ".join(to)
 
         msg.attach( MIMEText(mail.body, 'html') )
         self.smtp.sendmail( self.sender, to, msg.as_string() )
