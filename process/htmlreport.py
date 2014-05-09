@@ -3,7 +3,7 @@
 from common.resources.fullBalance import FullBalance
 from common.balanceData import BalanceData
 from common.resources.file import File
-import common.tempFileLib
+from common.resources.report import Report
 
 from time import time
 from datetime import datetime
@@ -35,14 +35,15 @@ class HtmlReportVisitor:
     #  @param json contains implementation defined information about the process type
     #  @param resources contains array of common.resources.fullBalance.FullBalance
     def visit( self, json, resources ):
-        tmpfile = common.tempFileLib.generateTempFile(True)
+        out = Report( json['subject'] )
+
         if 'cssfile' in json:
             css = json['cssfile']
         else:
-            css = 'htmlExample.css'
+            css = 'default report.css'
         #time variable to use the same time everywhere
         thetime = time()
-        htmlgenerator = HmtlReportGenerator( tmpfile,css,json['subject'])
+        htmlgenerator = HmtlReportGenerator( open(css, 'r').read(), json['subject'] )
         #process the tables that should be added
         for table in json['tables']:
             #create tabledata with the given period
@@ -70,8 +71,9 @@ class HtmlReportVisitor:
             htmlgenerator.addTable(tabledata,table['title'],table.get('diffcolors'))
         
         htmlgenerator.finalize()
-        
-        resources[ json['out'] ] = File( tmpfile )
+
+        out.setBody( htmlgenerator.body )
+        resources[ json['out'] ] = out
         return resources
 ## Class that contains the data for the tables
 #  This class contains functions to generate the data for the html table
@@ -152,23 +154,25 @@ class TableData:
 #  @param cssFilePath path to the css file that should be used
 #  @param title the title that should be used for the report.
 class HmtlReportGenerator:
-    def __init__(self,tmpFile, cssFilePath,title):
-        self.timeformat= '%d/%m/%Y %H:%M:%S'
-        self.Html_file = open(tmpFile,"w")
-        self.Html_file.write("""
+    def __init__(self, css, title):
+        self.body = ""
+        self.addCustomHTML("""
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
-        <link rel="stylesheet" type="text/css" href=" """+cssFilePath+""" ">
-        <title>"""+title+"""</title>
         <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+        <style media="screen" type="text/css">
+        """+css+"""
+        </style>
+        <title>"""+title+"""</title>
     </head>
     <body><div id="main">""")
+        
     ## This function adds any data you want in your html file
     # @param htmldata the data you whish to insert
     def addCustomHTML(self,htmldata):
-        self.Html_file.write(htmldata)
+        self.body += htmldata
 
     ## \brief This function builds a html table from a mulitdimensional array
     # \param tablename the text that should be above the table
@@ -176,7 +180,7 @@ class HmtlReportGenerator:
     # \param diffcolors whether you want to use colors in the table to indicate reduction from the previous period
     def addTable(self,tabledata,tablename,diffcolors=False):
         tableheaders=""
-        self.Html_file.write("""
+        self.addCustomHTML("""
         <div id='"""+tablename+"""' class="entry">
             <table>
             <caption><b>"""+tablename+"""</b></caption>
@@ -184,7 +188,7 @@ class HmtlReportGenerator:
         #Add the headers to the table
         for header in tabledata[0]:
             tableheaders+="<th scope='col'>"+header+"</th>"
-        self.Html_file.write(tableheaders+"""</tr></thead>
+        self.addCustomHTML(tableheaders+"""</tr></thead>
         <tbody>""")
         #Add the values
         #skip the first key since we already asigned it
@@ -205,17 +209,16 @@ class HmtlReportGenerator:
                         row +="<td class='normalcell'>" + str(value) + "</td>"
                 else:
                     row +="<td class='normalcell'>" + str(value) + "</td>"
-            self.Html_file.write(row + "</tr>")
+            self.addCustomHTML(row + "</tr>")
 
-        self.Html_file.write("""
+        self.addCustomHTML("""
         </tbody></table></div>""")
     ## This function closes the html tags and file
     def finalize(self):
-        self.Html_file.write("""
+        self.addCustomHTML("""
         </div>
     </body>
 </html>""")
-        self.Html_file.close()
 
 
 

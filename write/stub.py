@@ -6,7 +6,7 @@
 from common.resources.partialBalance import PartialBalance
 from common.resources.fullBalance import FullBalance
 from common.resources.file import File
-from common.resources.mail import Mail
+from common.resources.report import Report
 
 import logging
 log = logging.getLogger( 'main.write.stub' )

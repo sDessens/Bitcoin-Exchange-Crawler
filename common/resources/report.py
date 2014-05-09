@@ -3,7 +3,7 @@
 
 from common.resources.collection import Resource
 
-class Mail(Resource):
+class Report(Resource):
     def __init__(self, subject):
         self.setSubject( subject )
         self.setBody( 'default mail body' )
@@ -18,4 +18,4 @@ class Mail(Resource):
         pass
 
     def __str__(self):
-        assert False, 'not implemented'
+        return 'Report({0}, {1})'.format(self.subject, hex(id(self)))
