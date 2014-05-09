@@ -9,16 +9,16 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import premailer
 import logging
-log = logging.getLogger( 'main.write.remoteSMTP' )
+log = logging.getLogger( 'main.write.SMTP' )
 
 
 def getInstance():
-    return RemoteSMTPVisitor()
+    return SMTPVisitor()
 
 
 ## this is a stub write visitor. It provides an template that provides all
 #  required functionality for an storage visitor
-class RemoteSMTPVisitor:
+class SMTPVisitor:
     def __init__(self):
         pass
 
@@ -26,7 +26,7 @@ class RemoteSMTPVisitor:
     #  @return true if object is accepted
     def accept( self, json ):
         try:
-            return json['type'] == 'remotesmtp'
+            return json['type'] == 'smtp'
         except Exception as e:
             return False
 
