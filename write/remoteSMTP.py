@@ -5,6 +5,7 @@
 
 from common.resources.mail import Mail
 import smtplib
+import premailer
 import logging
 log = logging.getLogger( 'main.write.remoteSMTP' )
 
@@ -63,4 +64,4 @@ class SMTPClient:
         assert( isinstance(mail, Mail) )
         self.smtp.sendmail( self.sender,
                             to,
-                            "Subject: {0}\n\n{1}".format( mail.subject, mail.body ) )
+                            "Subject: {0}\n\n{1}".format( mail.subject, premailer.transform(mail.body) ) )
