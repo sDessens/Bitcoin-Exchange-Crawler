@@ -151,7 +151,7 @@ class TableData:
         #sum all values
         for row in range(1,len(self.__table)):
             total = sum([float(i) for i in self.__table[row][1:]])            
-            self.__table[row].append(total)
+            self.__table[row].append("%6.3f"%total)
     ## This function adds a totalRow below the last row    
     def addTotalRow(self):
         self.__table.append(['Period Total'])
