@@ -12,7 +12,6 @@
 
 import json
 import logging
-from time import sleep
 import common.parsevisitorsfromfolder as pv
 from common.resources.collection import Collection
 import argparse
