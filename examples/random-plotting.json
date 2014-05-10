@@ -1,0 +1,46 @@
+{
+  "read" : [
+    {
+      "type" : "random",
+      "days" : 100,
+      "data" : [ "r1", "r2", "r3" ]
+    }
+  ],
+  "process" : [ 
+    {
+      "type" : "sum",
+      "data" : {
+        "summed" : [ "r1", "r2", "r3" ]
+      }
+    },
+    {
+      "type" : "matplotlibpdf",
+      "out" : "random-plotting.pdf",
+      "views" : 
+      [
+        {
+          "title" : "first view 31 days",
+          "source" : [ "r1", "r2", "r3", "summed" ],
+          "days" : 31
+        },
+        {
+          "title" : "second view",
+          "source" : [ "r1", "r2", "r3", "summed" ]
+        },
+        {
+          "type" : "stacked",
+          "title" : "stacked 31 days",
+          "source" : [ "r1", "r2", "r3" ],
+          "days" : 31
+        }
+      ]
+    }
+  ],
+  "write" : [ 
+    {
+      "type" : "localfile",
+      "folder" : "examples/",
+      "data" : [ "random-plotting.pdf" ]
+    }
+  ]
+}
