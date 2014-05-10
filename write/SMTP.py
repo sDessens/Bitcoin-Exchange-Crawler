@@ -74,11 +74,5 @@ class SMTPClient:
         msg['From'] = self.sender
         msg['To'] = ", ".join(to)
 
-        msg.attach( MIMEText(mail.body, 'html') )
+        msg.attach( MIMEText( premailer.transform(mail.body), 'html') )
         self.smtp.sendmail( self.sender, to, msg.as_string() )
-
-        """
-        self.smtp.sendmail( self.sender,
-                            to,
-                            "Subject: {0}\n\n{1}".format( mail.subject, premailer.transform(mail.body) ) )
-        """
