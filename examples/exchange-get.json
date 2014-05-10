@@ -3,14 +3,14 @@
 		{
 			"type" : "kraken",
 			"out" : "kraken",
-			"pubkey" : "bxfGp/lQrLII3mh/a8W1OcfefE5brJ6764q8RH71LXxc1gdHhyhYHz/0",
-			"privkey" : "hhKAhY/Vjd40ghKTvHfQqnU4s91XrC/Lt+fLSyO9kga0TF49cHx8UyIPJiTCm8V2r/5WZ3VwYXLld90kQQhoiA=="
+			"pubkey" : "...",
+			"privkey" : "..."
 		},
 		{
 			"type" : "cryptsy",
 			"out" : "cryptsy",
-			"pubkey" : "41d6ccac1c9232d381a92ced731b0420b9193790",
-			"privkey" : "a2b40c0f282220262ba635ae1d3b9b99414033102dd1d1d6fadbaafee61a5e22814c8a94d4ebead2"
+			"pubkey" : "...",
+			"privkey" : "..."
 		}
 	],
 	"process" : [],

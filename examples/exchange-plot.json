@@ -1,0 +1,43 @@
+{
+  "read" : [
+    {
+      "type" : "localfile",
+      "folder" : "examples/",
+      "data" : ["kraken", "cryptsy"]
+    }
+  ],
+  "process" : [
+    {
+      "type" : "sum",
+      "data" : {
+        "total" : [ "kraken", "cryptsy" ]
+      }
+    },
+    {
+      "type" : "matplotlibpdf",
+      "out" : "exchanges plot.pdf",
+      "views" : 
+      [
+        {
+          "title" : "cryptsy",
+          "source" : [ "cryptsy" ]
+        },
+        {
+          "title" : "kraken",
+          "source" : [ "kraken" ]
+        },
+        {
+          "title" : "total",
+          "source" : [ "cryptsy", "kraken", "total" ]
+        }
+      ]
+    }
+  ],
+  "write" : [
+    {
+      "type" : "localfile",
+      "folder" : "examples/",
+      "data" : ["exchanges plot.pdf"]
+    }
+  ]
+}
