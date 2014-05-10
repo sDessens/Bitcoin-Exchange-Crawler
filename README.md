@@ -11,13 +11,11 @@ Please see our [documentation](index).
 # Examples
 
 ### Example PDF report
-[random plotted pdf](/sdessens/bitcoin-exchange-crawler/wiki/images/random-plotting.pdf)
+[random plotted pdf](/../../wiki/images/random-plotting.pdf)
 
 ### Example HTML report
 
-![htmlreport.png](/sdessens/bitcoin-exchange-crawler/wiki/images/htmlreport.png)
-
-![Alt text](/../../wiki/images/htmlreport.png?raw=true)
+![screenshot of report](/../../wiki/images/htmlreport.png?raw=true)
 
 # License
 
