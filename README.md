@@ -6,7 +6,7 @@ This work is developed by Stefan Dessens and Jasper van Gelder after we created 
 
 Currently, the following exchanges are supported: `BTC-e`, `Cryptsy`, `Bter`, `Kraken`.
 
-Please see our [documentation](index).
+Please see our [documentation](/../../wiki).
 
 # Examples
 
