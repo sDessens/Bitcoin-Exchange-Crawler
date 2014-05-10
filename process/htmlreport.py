@@ -4,8 +4,10 @@ from common.resources.fullBalance import FullBalance
 from common.balanceData import BalanceData
 from common.resources.file import File
 from common.resources.report import Report
+import common.parsevisitorsfromfolder as pv
 
 from time import time
+from os import pathsep
 from datetime import datetime
 import logging
 log = logging.getLogger( 'main.process.htmlreport' )
@@ -44,6 +46,25 @@ class HtmlReportVisitor:
         #time variable to use the same time everywhere
         thetime = time()
         htmlgenerator = HmtlReportGenerator( open(css, 'r').read(), json['subject'] )
+        #process the kpis
+        if json.get('kpis'):
+            kpiVisitors = pv.getVisitorsFromFolder( 'kpis' )
+            #create the multidimensional list later to be used to create the table
+            kpilist = [["KPI","","Value"]]
+            for kpi in json['kpis']:
+                visitor = kpiVisitors.select( kpi)
+                if visitor is None:
+                    log.error( 'no read visitor could be found for kpi {0}'.format( kpi ) )
+                    continue
+                try:
+                    #visit the kpi and fetch the value
+                    indicator, kpivalue = visitor.visit( kpi,resources )
+                    name = kpi['name']
+                    kpilist.append([name,indicator,"%6.3f"%kpivalue]) 
+                except Exception as e:
+                    log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )      
+            htmlgenerator.addTable(kpilist,"KPI table")
+                
         #process the tables that should be added
         for table in json['tables']:
             #create tabledata with the given period
@@ -69,7 +90,7 @@ class HtmlReportVisitor:
                 tabledata.addDiffTotalColumn()
             log.info('adding tabledata to htmltable')
             htmlgenerator.addTable(tabledata,table['title'],table.get('diffcolors'))
-        
+            
         htmlgenerator.finalize()
 
         out.setBody( htmlgenerator.body )
