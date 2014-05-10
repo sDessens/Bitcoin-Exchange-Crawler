@@ -58,7 +58,7 @@ class DropboxReadVisitor:
                     log.info( 'downloaded {0}'.format(id) )
                 except Exception as e:
                     if len(str(e)):
-                        print str(e)
+                        log.error( str(e) )
 
         return out
 

@@ -1,7 +1,8 @@
 # this module defined the base class of all resoures,
 # and an 'resource manager' class.
 
-
+import logging
+log = logging.getLogger("main.resource")
 
 
 # baseclass of all resource
@@ -57,9 +58,9 @@ class Collection( dict ):
 
     def report(self, msg = None):
         if msg is not None:
-            print msg
+            log.debug(msg)
 
         for id in set( [ v.__class__ for k, v in set( self.items() ) ] ):
             for k, v in self.items():
                 if v.__class__ == id:
-                    print '    {0:15s} => {1}'.format( k, str(v) )
+                    log.debug( '    {0:15s} => {1}'.format( k, str(v) ) )
