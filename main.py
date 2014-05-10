@@ -55,7 +55,6 @@ def main():
             log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
 
     resources.report('after reading, the available resources are:')
-    sleep(0.1)
 
     for section in config['process']:
         visitor = processVisitors.select( section )
@@ -68,8 +67,6 @@ def main():
             log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
 
     resources.report('after processing, the available resources are:')
-    sleep(0.1)
-
 
     for section in config['write']:
         visitor = writeVisitors.select( section )
