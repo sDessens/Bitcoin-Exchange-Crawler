@@ -17,7 +17,7 @@ Please see our [documentation](index).
 
 ![htmlreport.png](/sdessens/bitcoin-exchange-crawler/wiki/images/htmlreport.png)
 
-![Alt text](/wiki/images/htmlreport.png?raw=true "Optional Title")
+![Alt text](/../../wiki/images/htmlreport.png?raw=true)
 
 # License
 
