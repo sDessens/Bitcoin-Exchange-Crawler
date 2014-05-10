@@ -34,12 +34,14 @@ class SMTPVisitor:
     def visit(self, json, resources):
         server = json['server']
         port = json['port'] if 'port' in json else 587
+        consec = json['connection-security']
+        authtype = json['auth-type']
         username = json['username']
         password = json['password'] if 'password' in json else ''
         to = json['to']
         data = json['data']
-
-        client = SMTPClient( server, port, username, password )
+        
+        client = SMTPClient( server, port, username, password,consec,authtype )
 
         for key in data:
             try:
@@ -57,15 +59,25 @@ class SMTPVisitor:
 
 
 class SMTPClient:
-    def __init__(self, server, port, username, password):
+    def __init__(self, server, port, username, password,connsec,authtype):
         self.sender = username
 
-        if server != 'localhost':
+        if connsec == "starttls":
             self.smtp = smtplib.SMTP( server, port )
             self.smtp.starttls()
-            self.smtp.login( username, password )
+        elif connsec == "ssltls":
+            self.smtp = smtplib.SMTP_SSL( server, port )
+        elif connsec == "none":
+            self.smtp = smtplib.SMTP( server,port )
         else:
-            self.smtp = smtplib.SMTP( 'localhost' )
+            #no method selected defaulting to starttls for security reasons
+            self.smtp = smtplib.SMTP( server, port )
+            self.smtp.starttls()
+        if authtype == "ntlm":
+            pass
+        elif authtype  == "plain":
+            self.smtp.login( username, password ) 
+            
 
     def sendmail(self, mail, to):
         assert( isinstance(mail, Report) )
