@@ -88,9 +88,6 @@ class MatplotlibHelper:
         else:
             days = int(days)
 
-
-        # find the end of this plot
-        maxTimestamp = object.maxTimestampAsDateTime()
         now = datetime.datetime.utcnow()
         now = now.replace(hour=23, minute=59, second=0, microsecond=0  )
 
