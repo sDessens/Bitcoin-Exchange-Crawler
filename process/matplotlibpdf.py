@@ -66,7 +66,7 @@ class MatplotlibPdfWrapper:
     #  @return nothing, but mutates internal state
     def addView(self, json, resources):
         title = json['title'] if 'title' in json else ''
-        type = json['type'] if 'type' in json else 'line'
+        type = json['plot'] if 'plot' in json else 'line'
         sources = json['source']
         days = json['days'] if 'days' in json else None
         width = json['width']/96.0 if 'width' in json else 20
