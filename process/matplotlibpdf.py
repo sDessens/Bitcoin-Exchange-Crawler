@@ -60,13 +60,14 @@ class MatplotlibPdfWrapper:
     #  to create a pdf page with multiple pages.
     def __init__(self, filename = 'all.pdf' ):
         self._pdf = PdfPages( filename )
+        self._helper = MatplotlibHelper()
 
     ## add a view to the existing pdf page
     #  @param json block of data that contains options.
     #  @param resources array of common.writable.*
     #  @return nothing, but mutates internal state
     def addView(self, json, resources):
-        title = json['title']
+        title = json['title'] if 'title' in json else ''
         type = json['type'] if 'type' in json else 'line'
         sources = json['source']
         days = json['days'] if 'days' in json else None
@@ -89,14 +90,17 @@ class MatplotlibPdfWrapper:
             log.error( 'skipping plot titled {0} because there are no objects to plot...'.format( title ) )
             return
 
-        if type == 'line':
-            self._raw_plot_line( title, objects, days )
-        elif type == 'stacked':
-            self._raw_plot_stacked( title, objects, days )
-        elif type == 'diffbar':
-            self._raw_plot_diff( title, objects, days )
-        else:
+        ret = self._helper.plot( type, objects, days )
+        if ret is None:
             log.error( 'unknown plot type {0}'.format(type) )
+            return
+        fig, ax = ret
+
+        fig.set_figheight(12)   # inches..
+        fig.set_figwidth(20)
+        if len(title):
+            ax.set_title(title, fontsize=18)
+        self._pdf.savefig( bbox_inches='tight', dpi=160 )
 
     ## save and close the plot.
     #  implementation must call this function, or a memory leak will occur.
@@ -104,16 +108,35 @@ class MatplotlibPdfWrapper:
         self._pdf.close()
         plt.close()
 
-    ## plot the specified data
-    #  @param the title of the plot
-    #  @param objects an array of (name, BalanceData)
-    #  @param days (optional) the Y width of the plot in days
-    def _raw_plot_line(self, title, objects, days = None):
-        fig, ax = plt.subplots()
-        fig.set_figheight(12)   # inches..
-        fig.set_figwidth(20)
 
-        ax.set_title(title, fontsize=18)
+
+## this class defined various raw plotting functions.
+#  the size and title should be set by the caller.
+#  the plot should also be saved by the caller.
+class MatplotlibHelper:
+    def __init__(self):
+        pass;
+
+    ## plot 'type' graph
+    #  returns fig, ax. Or None if no 'type' is not valid.
+    #  @param type the type of the plot (str)
+    #  @param objects array of (name, balanceData)
+    #  @param days the amount of days to plot
+    def plot(self, type, objects, days=None):
+        assert( all( [ isinstance(x[1], common.balanceData.BalanceData) for x in objects ] ) )
+
+        if type == 'line':
+            return self._raw_plot_line( objects, days )
+        if type == 'stacked':
+            return self._raw_plot_stacked( objects, days )
+        if type == 'diffbar':
+            return self._raw_plot_diffbar( objects, days )
+        else:
+            return None
+
+    ## plot bog-standard line graph
+    def _raw_plot_line(self, objects, days ):
+        fig, ax = plt.subplots()
 
         # find the end of this plot
         maxTimestamp = max( [ balance.maxTimestampAsDateTime() for key, balance in objects ] )
@@ -126,14 +149,11 @@ class MatplotlibPdfWrapper:
         if days is not None and len(objects):
             ax.set_xlim( [ maxTimestamp - datetime.timedelta(days=days) ], maxTimestamp )
 
-        self._pdf.savefig( bbox_inches='tight', dpi=160 )
+        return fig, ax
 
-    def _raw_plot_stacked(self, title, objects, days = None):
+    ## plo stacked line chart
+    def _raw_plot_stacked(self, objects, days):
         fig, ax = plt.subplots()
-        fig.set_figheight(12)   # inches..
-        fig.set_figwidth(20)
-
-        ax.set_title(title, fontsize=18)
 
         # generate a sum of all balances. This neatly generated all unique X points
         summed = common.balanceData.sum( [ o for k, o in objects ] )
@@ -152,23 +172,24 @@ class MatplotlibPdfWrapper:
 
         ax.stackplot( summed.timestampsAsDateTime(), ceilings, baseline="zero" )
 
-
         ax.grid(True)
         if days is not None and len(objects):
             ax.set_xlim( [ maxTimestamp - datetime.timedelta(days=days) ], maxTimestamp )
 
-        self._pdf.savefig( bbox_inches='tight', dpi=160 )
+        return fig, ax
 
-    def _raw_plot_diff(self, title, objects, days=7):
-        days = int(days)
-
+    ## plot bar chart based on the diff of the first input object.
+    def _raw_plot_diffbar(self, objects, days):
         fig, ax = plt.subplots()
-        fig.set_figheight(12)   # inches..
-        fig.set_figwidth(20)
-
-        ax.set_title(title, fontsize=18)
 
         object = objects[0][1]
+
+        if days is None:
+            days = (datetime.datetime.utcnow() - object.minTimestampAsDateTime()).days + 1
+            print datetime.datetime.utcnow() - object.minTimestampAsDateTime()
+        else:
+            days = int(days)
+
 
         # find the end of this plot
         maxTimestamp = object.maxTimestampAsDateTime()
@@ -188,9 +209,8 @@ class MatplotlibPdfWrapper:
 
         ax.grid(True)
 
-        ax.xaxis.set_major_formatter( ticker.FuncFormatter( dates.DateFormatter( "%a %d" ) ) )
-
-        self._pdf.savefig( bbox_inches='tight', dpi=160 )
-
+        if days < 30:
+            ax.xaxis.set_major_formatter( ticker.FuncFormatter( dates.DateFormatter( "%a %d" ) ) )
 
 
+        return fig, ax
