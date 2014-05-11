@@ -7,6 +7,8 @@ from common.resources.fullBalance import FullBalance
 import common.balanceData
 import common.tempFileLib
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import matplotlib.dates as dates
 from matplotlib.backends.backend_pdf import PdfPages
 import datetime
 import logging
@@ -91,6 +93,8 @@ class MatplotlibPdfWrapper:
             self._raw_plot_line( title, objects, days )
         elif type == 'stacked':
             self._raw_plot_stacked( title, objects, days )
+        elif type == 'diffbar':
+            self._raw_plot_diff( title, objects, days )
         else:
             log.error( 'unknown plot type {0}'.format(type) )
 
@@ -138,22 +142,6 @@ class MatplotlibPdfWrapper:
         # find the end of this plot
         maxTimestamp = summed.maxTimestampAsDateTime()
 
-        alpha = 1.0
-
-        """
-        floor = [0]*len(summed)
-        for key, balance in objects:
-            ceiling = [  floor[i] + balance.interpolate(X[i]) for i in range(len(floor)) ]
-            plt.fill_between( summed.timestampsAsDateTime(),
-                              floor, ceiling,
-                              alpha=alpha, )
-            ax.plot( summed.timestampsAsDateTime(), ceiling, color='k' )
-            alpha = alpha / 1.3
-            ax.annotate( ' ' + key, xy=( maxTimestamp, (floor[-1] + ceiling[-1]) / 2.0 ) )
-            floor = ceiling
-        """
-
-
         ceilings = []
         floor = 0
         for key, balance in objects:
@@ -162,7 +150,7 @@ class MatplotlibPdfWrapper:
             ceilings.append(ceiling)
             floor = floor + ceiling[-1]
 
-        plt.stackplot( summed.timestampsAsDateTime(), ceilings, baseline="zero" )
+        ax.stackplot( summed.timestampsAsDateTime(), ceilings, baseline="zero" )
 
 
         ax.grid(True)
@@ -170,5 +158,39 @@ class MatplotlibPdfWrapper:
             ax.set_xlim( [ maxTimestamp - datetime.timedelta(days=days) ], maxTimestamp )
 
         self._pdf.savefig( bbox_inches='tight', dpi=160 )
+
+    def _raw_plot_diff(self, title, objects, days=7):
+        days = int(days)
+
+        fig, ax = plt.subplots()
+        fig.set_figheight(12)   # inches..
+        fig.set_figwidth(20)
+
+        ax.set_title(title, fontsize=18)
+
+        object = objects[0][1]
+
+        # find the end of this plot
+        maxTimestamp = object.maxTimestampAsDateTime()
+        now = datetime.datetime.utcnow()
+        now = now.replace(hour=23, minute=59, second=0, microsecond=0  )
+
+        X = [ now - datetime.timedelta( days=i ) for i in range(days) ]
+        X.reverse()
+        assert isinstance(object, common.balanceData.BalanceData )
+        Y = [ object.diff( x - datetime.timedelta(days=1) , x ) for x in X ]
+
+        # offset X by 1 day to line the labels correctly..
+        X = [ x - datetime.timedelta(days=1) for x in X ]
+        barlist = ax.bar( X, Y, align='center', ecolor='k' )
+        for k, v in enumerate(barlist):
+            v.set_facecolor( 'g' if Y[k] >= 0 else 'r' )
+
+        ax.grid(True)
+
+        ax.xaxis.set_major_formatter( ticker.FuncFormatter( dates.DateFormatter( "%a %d" ) ) )
+
+        self._pdf.savefig( bbox_inches='tight', dpi=160 )
+
 
 
