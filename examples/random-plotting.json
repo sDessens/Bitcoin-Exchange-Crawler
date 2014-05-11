@@ -28,7 +28,7 @@
 					"source" : [ "r1", "r2", "r3", "summed" ]
 				},
 				{
-					"type" : "stacked",
+					"plot" : "stacked",
 					"title" : "stacked 31 days",
 					"source" : [ "r1", "r2", "r3" ],
 					"days" : 31

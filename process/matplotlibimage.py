@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 import logging
 import traceback
-log = logging.getLogger( 'main.process.matplotlibpdf' )
+log = logging.getLogger( 'main.process.matplotlibimage' )
 
 ## This function is required for every Visitor module
 def getInstance():
@@ -28,7 +28,7 @@ class MatplotlibVisitor:
     #  may not return exceptions
     def accept( self, json ):
         try:
-            return json['type'] == 'matplotlibpdf'
+            return json['type'] == 'matplotlibimage'
         except Exception as e:
             return False
 
@@ -41,36 +41,38 @@ class MatplotlibVisitor:
     def visit( self, json, resources ):
         tmpfile = common.tempFileLib.generateTempFile(True)
 
-        plotter = MatplotlibPdfWrapper( tmpfile )
-        for view in json['views']:
-            try:
-                plotter.addView( view, resources )
-            except Exception as e:
-                log.error( "an exception occured during plotting" )
-                log.debug( traceback.format_exc() )
-        plotter.finalize()
+        extension = json['format']
+        plotter = MatplotlibImageWrapper( extension, tmpfile )
 
-        resources[ json['out'] ] = File( tmpfile )
+        try:
+            plotter.plot( json, resources )
+            resources[ json['out'] ] = File( tmpfile )
+        except Exception as e:
+            log.error( "an exception occured during plotting" )
+            log.debug( traceback.format_exc() )
+
         return resources
 
-class MatplotlibPdfWrapper:
+class MatplotlibImageWrapper:
     ## create new matplotlib wrapper. This is a convinient class
     #  to create a pdf page with multiple pages.
-    def __init__(self, filename = 'all.pdf' ):
-        self._pdf = PdfPages( filename )
+    def __init__(self, extension, filename ):
+        self._ext = extension
+        self._filename = filename
         self._helper = MatplotlibHelper()
 
     ## add a view to the existing pdf page
     #  @param json block of data that contains options.
     #  @param resources array of common.writable.*
     #  @return nothing, but mutates internal state
-    def addView(self, json, resources):
+    def plot(self, json, resources):
         title = json['title'] if 'title' in json else ''
         type = json['plot'] if 'plot' in json else 'line'
         sources = json['source']
         days = json['days'] if 'days' in json else None
         width = json['width']/96.0 if 'width' in json else 20
         height = json['height']/96.0 if 'height' in json else 12
+
 
         log.info( 'plotting {0}'.format(title) )
 
@@ -100,11 +102,5 @@ class MatplotlibPdfWrapper:
         fig.set_figwidth(width)
         if len(title):
             ax.set_title(title, fontsize=18)
-        self._pdf.savefig( bbox_inches='tight', dpi=160 )
 
-    ## save and close the plot.
-    #  implementation must call this function, or a memory leak will occur.
-    def finalize(self):
-        self._pdf.close()
-        plt.close()
-
+        plt.savefig( self._filename, bbox_inches='tight', format=self._ext )
