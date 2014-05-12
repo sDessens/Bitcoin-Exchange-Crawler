@@ -95,12 +95,15 @@ class MatplotlibHelper:
         X.reverse()
         assert isinstance(object, common.balanceData.BalanceData )
         Y = [ object.diff( x - datetime.timedelta(days=1) , x ) for x in X ]
+        avg = sum(Y) / len(Y)
 
         # offset X by 1 day to line the labels correctly..
         X = [ x - datetime.timedelta(days=1) for x in X ]
         barlist = ax.bar( X, Y, align='center', ecolor='k' )
         for k, v in enumerate(barlist):
             v.set_facecolor( 'g' if Y[k] >= 0 else 'r' )
+
+        ax.plot( [min(X), max(X)], [avg, avg], 'k', alpha=.5 )
 
         ax.grid(True)
 
