@@ -30,6 +30,8 @@ class MatplotlibHelper:
             return self._raw_plot_stacked( objects, days )
         if type == 'diffbar':
             return self._raw_plot_diffbar( objects, days )
+        if type == 'diffbar2':
+            return self._raw_plot_per_exchange_diffbar( objects, days )
         else:
             return None
 
@@ -109,5 +111,30 @@ class MatplotlibHelper:
 
         if days < 30:
             ax.xaxis.set_major_formatter( ticker.FuncFormatter( dates.DateFormatter( "%a %d" ) ) )
+
+        return fig, ax
+
+
+    ## plot bar chart based on the diff over the last <period> of the input objects
+    def _raw_plot_per_exchange_diffbar(self, objects, days):
+        fig, ax = plt.subplots()
+
+        now = datetime.datetime.utcnow()
+        now = now.replace(hour=23, minute=59, second=0, microsecond=0  )
+
+        if days is None:
+            days = 7
+
+        begin = now + datetime.timedelta(days=-days)
+
+        Y = [ obj[1].diff( begin, now ) for obj in objects ]
+        X = range(len(Y))
+        ax.bar( X, Y, align='center', ecolor='k' )
+
+        ax.set_xticks( range(len(Y)) )
+        ax.set_xticklabels( [ o[0] for o in objects ] )
+
+
+        ax.grid(True)
 
         return fig, ax
