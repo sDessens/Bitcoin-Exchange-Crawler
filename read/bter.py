@@ -58,6 +58,9 @@ class BterVisitor:
             buy = float(v['buy'])
             sell = float(v['sell'])
             avg = ( buy + sell ) / 2.0
+            if avg == 0:
+                log.warning( 'could not determine exchange rate of {}'.format(k) )
+                continue
             diff = abs( buy - sell ) / avg
 
             primary, secondary = k.upper().split('_')

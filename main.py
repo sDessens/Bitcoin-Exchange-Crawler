@@ -14,6 +14,7 @@ import json
 import logging
 import common.parsevisitorsfromfolder as pv
 from common.resources.collection import Collection
+import traceback
 import argparse
 # dynamic import of all modules in folder read/*
 # dynamic import of all modules in folder process/*
@@ -52,6 +53,7 @@ def main():
             resources.update( visitor.visit( section ) )
         except Exception as e:
             log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
+            log.debug( traceback.format_exc() );
 
     resources.report('after reading, the available resources are:')
 
@@ -64,6 +66,7 @@ def main():
             resources.update( visitor.visit( section, resources ) )
         except Exception as e:
             log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
+            log.debug( traceback.format_exc() );
 
     resources.report('after processing, the available resources are:')
 
@@ -76,6 +79,7 @@ def main():
             visitor.visit( section, resources )
         except Exception as e:
             log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
+            log.debug( traceback.format_exc() );
 
 
 
