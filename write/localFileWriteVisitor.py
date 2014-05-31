@@ -26,6 +26,7 @@ class LocalFileWriteVisitor:
         storage = LocalFileStorage.LocalFileStorage(json['folder'])
 
         for key in json['data']:
+            log.info( 'writing {0}'.format(key) )
             if key not in resources:
                 log.error( 'attempting to write resource {0}, but no such resource exists'.format(key) )
                 continue
