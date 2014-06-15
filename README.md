@@ -13,6 +13,9 @@ Please see our [documentation](/../../wiki).
 ### Example PDF report
 [random plotted pdf](/../../wiki/images/random-plotting.pdf)
 
+### Example image
+![bar chart](/../../wiki/images/bar-totals-7.png)
+
 ### Example HTML report
 
 ![screenshot of report](/../../wiki/images/htmlreport.png?raw=true)

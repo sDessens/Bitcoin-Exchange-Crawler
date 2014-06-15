@@ -14,6 +14,7 @@ import json
 import logging
 import common.parsevisitorsfromfolder as pv
 from common.resources.collection import Collection
+import traceback
 import argparse
 import traceback
 # dynamic import of all modules in folder read/*
@@ -80,7 +81,6 @@ def main():
         except Exception as e:
             log.error( 'an exception occurred when visiting {0}: {1}'.format( visitor.__class__.__name__, str(e) ) )
             log.debug(traceback.format_exc())
-
 
 if __name__ == '__main__':
     main()

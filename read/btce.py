@@ -69,7 +69,7 @@ class BtceVisitor:
                     btcTotal += amount
 
         out = Collection()
-        out[json['out']] = btcTotal
+        out[json['out']] = PartialBalance(btcTotal)
         return out
 
 class BtceApi:
@@ -109,10 +109,11 @@ class BtceApi:
                 if (reply['error'] == 'invalid api key') :
                     raise Exception( 'Btce: ' + str( reply['error'] ) + ' after '+str(retries) + ' retries')
                 #return None if there are no orders
-                elif reply['error'] != 'no orders':
+                elif reply['error'] == 'no orders':
                     return None
                 #retry if succes was 0 and retries <= 2
                 else:
+                    log.error(reply['error'])
                     log.error( 'retrying... ({0})'.format(str(retries)) )
                     time.sleep(1)
                     retries += 1 
