@@ -66,30 +66,31 @@ class HtmlReportVisitor:
             htmlgenerator.addTable(kpilist,"KPI table")
                 
         #process the tables that should be added
-        for table in json['tables']:
-            #create tabledata with the given period
-            tabledata = TableData(float(table['period']),int(table['count']),thetime)
-           
-            #add the source to the tabledata
-            log.info('adding sources to table')
-            balanceCollection = resources.selectMany(table['sources'],FullBalance)
-            #if no resources are found skip to the next table
-            if len(balanceCollection) <1:
-                log.warn('No resources found to add to table')
-                continue
-            for key, resource in balanceCollection:
-                tabledata.addValueRow(resource.value,key,table.get('type'))
-            
-            tabledata.sort()
-            #add the total row and column if the options are set
-            if table.get('totalrow'):
-                log.info('adding total row to table')
-                tabledata.addTotalRow()
-            if table.get('totalcolumn'):
-                log.info('adding total column to table')
-                tabledata.addDiffTotalColumn()
-            log.info('adding tabledata to htmltable')
-            htmlgenerator.addTable(tabledata,table['title'],table.get('diffcolors'))
+        if json.get('tables'):
+            for table in json['tables']:
+                #create tabledata with the given period
+                tabledata = TableData(float(table['period']),int(table['count']),thetime)
+
+                #add the source to the tabledata
+                log.info('adding sources to table')
+                balanceCollection = resources.selectMany(table['sources'],FullBalance)
+                #if no resources are found skip to the next table
+                if len(balanceCollection) <1:
+                    log.warn('No resources found to add to table')
+                    continue
+                for key, resource in balanceCollection:
+                    tabledata.addValueRow(resource.value,key,table.get('type'))
+
+                tabledata.sort()
+                #add the total row and column if the options are set
+                if table.get('totalrow'):
+                    log.info('adding total row to table')
+                    tabledata.addTotalRow()
+                if table.get('totalcolumn'):
+                    log.info('adding total column to table')
+                    tabledata.addDiffTotalColumn()
+                log.info('adding tabledata to htmltable')
+                htmlgenerator.addTable(tabledata,table['title'],table.get('diffcolors'))
             
         htmlgenerator.finalize()
 
