@@ -108,7 +108,7 @@ class TableData:
         self._period= period
         self._periodcount = periodcount
         self.__table =[]
-        self._thetime = thetime
+        self._thetime = thetime + (period - (thetime % period))
         #add headers to the tables
         self.__table.append(['Source'])
         #determine the header format to be used
