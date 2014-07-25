@@ -4,6 +4,8 @@
 import common.localFileStorageLib as LocalFileStorage
 from common.resources.partialBalance import PartialBalance
 from common.resources.file import File
+from common.resources.report import Report
+from common.tempFileLib import *
 import logging
 log = logging.getLogger( 'main.write.localfile' )
 
@@ -35,6 +37,11 @@ class LocalFileWriteVisitor:
                 storage.writeBalance(key, resource.value)
             elif isinstance( resource, File ):
                 storage.writeFile( resource.filename, key )
+            elif isinstance( resource, Report ):
+                filepath = generateTempFile(True)
+                with open(filepath, mode='w') as fp:
+                    fp.write(resource.body)
+                storage.writeFile( filepath, key )
             else:
                 log.error( 'attempting to write resource {0}, but is of unsupported type {1}'
                            .format( key, resource.__class__.__name__ ) )
