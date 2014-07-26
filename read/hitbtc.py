@@ -13,9 +13,9 @@ from common.conversiontable import ConversionTable
 log = logging.getLogger( 'main.exchanges.hitbtc' )
 
 def getInstance():
-    return MintpalVisitor()
+    return HitbtcVisitor()
 
-class MintpalVisitor:
+class HitbtcVisitor:
     def __init__(self):
         pass
 
@@ -26,7 +26,7 @@ class MintpalVisitor:
             return False
 
     def visit( self, json ):
-        api = MintpalApi( json['pubkey'], json['privkey'] )
+        api = HitbtcApi( json['pubkey'], json['privkey'] )
         out = Collection()
 
         wallet = api.getWallet()
@@ -37,7 +37,7 @@ class MintpalVisitor:
         out[json['out']] = PartialBalance( total )
         return out
 
-class MintpalApi:
+class HitbtcApi:
     def __init__(self, pub, priv):
         self.pub = str(pub)
         self.priv = str(priv)
