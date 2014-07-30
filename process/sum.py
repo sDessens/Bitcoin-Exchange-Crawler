@@ -53,6 +53,9 @@ class SumVisitor:
                     arr.append( res.value )
                 else:
                     log.error( 'resource named {0} is of incorrect type'.format(input))
+            else:
+                log.error('resource {0} does not exist'.format(input))
+
 
         if len(arr) == 0:
             raise Exception( 'No resources of {0} found'.format(inputs) )
