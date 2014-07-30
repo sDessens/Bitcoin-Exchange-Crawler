@@ -52,7 +52,7 @@ class BalanceData:
         if timestamp > self._timestamps[-1]:
             return self._balance[-1]
 
-        index = bisect_left(self._timestamps,timestamp,0,len( self._timestamps ))
+        index = bisect_left(self._timestamps, timestamp, 0, len(self._timestamps))
 
         if timestamp == self._timestamps[index]:
             # perfect match
@@ -63,7 +63,7 @@ class BalanceData:
             b = self._balance[index]
             ab = self._timestamps[ index ] - self._timestamps[ index - 1 ]
             distance = timestamp - self._timestamps[ index - 1 ]
-            progress = distance / ab
+            progress = float(distance) / ab
             assert( progress >= 0 )
             assert( progress < 1 )
             return b * progress + a * ( 1.0 - progress )
@@ -102,6 +102,29 @@ def sum(data):
         val = 0
         for bd in data:
             val = val + bd.interpolate(x)
+        y.append( val )
+
+    return BalanceData( timestamps, y )
+
+
+##multiply multiple BalanceData objects together
+# @param array of BalanceData object
+# @return the summed BalanceData object
+def multiply(data):
+    timestampSet = set()
+    for bd in data:
+        timestampSet = timestampSet.union( bd._timestamps )
+
+    for bd in data:
+        timestampSet = set(filter(lambda x: (x >= bd._timestamps[0]) and (x <= bd._timestamps[-1]) ,timestampSet))
+
+    timestamps = list( timestampSet )
+    timestamps.sort()
+    y = []
+    for x in timestamps:
+        val = 1
+        for bd in data:
+            val = val * bd.interpolate(x)
         y.append( val )
 
     return BalanceData( timestamps, y )
