@@ -35,6 +35,7 @@ class PriceHistoryReadVisitor:
             parts = line.split(',')
             a = parts[0].partition(' ')[0] + ' UTC' # skip time, useless since it is always 00:00:00, append Timezone
             stamp = timegm(time.strptime(a, '%Y-%m-%d %Z'))
+            stamp += 24 * 60 * 60
             price = parts[3]
             arr.append((int(stamp), float(price)))
 
