@@ -6,13 +6,13 @@ import common.balanceData as balanceData
 from common.resources.fullBalance import FullBalance
 
 import logging
-log = logging.getLogger( 'main.process.sum' )
+log = logging.getLogger( 'main.process.multiply' )
 
 def getInstance():
-    return SumVisitor()
+    return MultiplyVisitor()
 
-## SumVisitor is an class that allows summing of multiple BalanceData objects.
-class SumVisitor:
+## MultiplyVisitor is an class that allows multiplying multiple BalanceData objects.
+class MultiplyVisitor:
     def __init__(self):
         pass
 
@@ -21,7 +21,7 @@ class SumVisitor:
     #  may not return exceptions
     def accept( self, json ):
         try:
-            return json['type'] == 'sum'
+            return json['type'] == 'multiply'
         except Exception as e:
             return False
 
@@ -56,8 +56,7 @@ class SumVisitor:
             else:
                 log.error('resource {0} does not exist'.format(input))
 
-
         if len(arr) == 0:
             raise Exception( 'No resources of {0} found'.format(inputs) )
 
-        return FullBalance( balanceData.sum( arr ) )
+        return FullBalance( balanceData.multiply( arr ) )
