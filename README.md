@@ -4,7 +4,8 @@ The Bitcoin exchange crawler is a toolkit written in Python 2.7 that allows you 
 
 This work is developed by Stefan Dessens and Jasper van Gelder after we created a successful trading bot, but found out there are no existing tools that allows us to keep track of our earnings. To help the community we are now releasing our work as open source.
 
-Currently, the following exchanges are supported: `BTC-e`, `Cryptsy`, `Bter`, `Kraken`, `Mintpal`.
+Currently, the following exchanges are supported: `BTC China`, `BTC-e`, `Cryptsy`, `Bter`, `CEX.IO`, `HitBTC`, `Kraken`, `Mintpal`.
+
 
 Please see our [documentation](/../../wiki).
 
