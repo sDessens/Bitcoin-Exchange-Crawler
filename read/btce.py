@@ -25,51 +25,15 @@ class BtceVisitor:
 
     def visit( self, json ):
         api = BtceApi( json['pubkey'], json['privkey'] )
-        wallet = None
-        try:
-            wallet = api.query_private('getInfo','https://btc-e.com/tapi')
-        except Exception as e:
-            raise
-        funds = wallet['funds']
-        btcTotal =0
         tovalue = "btc"
-        #calculate funds
-        if wallet is not None:
-            for key, value in funds.iteritems():
-                if value != 0 :
-                    if key != tovalue:
-                        pair = api.getPair(key,tovalue)
-                        avg = api.getAvg(pair)
-                        if pair.startswith(key):
-                            btcTotal += value * avg
-                        else:
-                            btcTotal += value /avg
-                    else:
-                        btcTotal += value
-        #calculate funds stuck in orders
-        try:
-            orders = api.query_private('ActiveOrders','https://btc-e.com/tapi')
-        except Exception as e:
-            raise
-        if orders is not None:
-            for orderid, order in orders.iteritems():
-                orderpair = order['pair']
-                typeOrder = order['type']
-                amount = order['amount']
-                keys = orderpair.split('_')
-                key = keys[0]               
-                if key != tovalue:
-                    pair = api.getPair(key,tovalue)
-                    avg = api.getAvg(pair)
-                    if pair.startswith(key):
-                        btcTotal += amount * avg
-                    else:
-                        btcTotal += amount /avg
-                else:
-                    btcTotal += amount
-
+        totals = []
+        #fix for un synchronized getInfo and ActiveOrders call
+        for i in range(3):
+            availablefunds = api.calculateAvailableFunds(tovalue)
+            orderfunds = api.calculateFundsInOrders(tovalue)
+            totals.append(availablefunds + orderfunds)
         out = Collection()
-        out[json['out']] = PartialBalance(btcTotal)
+        out[json['out']] = PartialBalance(sorted(totals)[len(totals)/2])
         return out
 
 class BtceApi:
@@ -141,11 +105,50 @@ class BtceApi:
         ret = self.query_public('https://btc-e.com/api/2/'+pair+'/ticker')
         return ret['ticker']['avg']
 
-def main():
-    obj = {"pubkey": "mypubkey","privkey":"myprivate key"}
-    try:
-        print BtceVisitor().visit(obj)
-    except Exception as e:
-        print e
-if __name__ == '__main__':
-    main()
+    def calculateFundsInOrders(self,tovalue):
+        #calculate funds stuck in orders
+        orderfunds =0
+        try:
+            orders = self.query_private('ActiveOrders','https://btc-e.com/tapi')
+        except Exception as e:
+            raise
+        if orders is not None:
+            for orderid, order in orders.iteritems():
+                orderpair = order['pair']
+                typeOrder = order['type']
+                amount = order['amount']
+                keys = orderpair.split('_')
+                key = keys[0]
+                if key != tovalue:
+                    pair = self.getPair(key,tovalue)
+                    avg = self.getAvg(pair)
+                    if pair.startswith(key):
+                        orderfunds += amount * avg
+                    else:
+                        orderfunds += amount /avg
+                else:
+                    orderfunds += amount
+        return orderfunds
+
+    def calculateAvailableFunds(self,tovalue):
+        wallet = None
+        try:
+            wallet = self.query_private('getInfo','https://btc-e.com/tapi')
+        except Exception as e:
+            raise
+        funds = wallet['funds']
+        total =0
+        #calculate funds
+        if wallet is not None:
+            for key, value in funds.iteritems():
+                if value != 0 :
+                    if key != tovalue:
+                        pair = self.getPair(key,tovalue)
+                        avg = self.getAvg(pair)
+                        if pair.startswith(key):
+                            total += value * avg
+                        else:
+                            total += value /avg
+                    else:
+                        total += value
+        return total
