@@ -90,6 +90,8 @@ class CexApi:
         for pri, sec in self.getMarkets():
             uri = '/api/ticker/%s/%s' % (pri, sec)
             js = self._get(www, uri, {})
+            if 'error' in js:
+                continue
             bid = float(js['bid'])
             ask = float(js['ask'])
             avg = (bid + ask) / 2
