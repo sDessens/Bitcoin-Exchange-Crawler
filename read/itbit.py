@@ -1,7 +1,6 @@
 # Module allows the retrieval of balances from BtcChina
 
 import json
-import requests
 import urllib
 import urllib2
 import time
@@ -37,9 +36,8 @@ class ItbitVisitor:
             total = 0
 
             for k, v in wallet.items():
-                print k
                 total += table.convert(k, 'XBT', v)
-            print total
+            log.debug("total: " + str(total))
             out[json['out']] = PartialBalance( total )
         return out
 
@@ -70,10 +68,16 @@ class ItbitApi:
             'X-Auth-Nonce': nonce,
             'Content-Type': 'application/json'
         }
-        r = requests.request(verb, url, data=json_body, headers=auth_headers)
-        print r.status_code
-        if int(r.status_code) >= 300:
-            log.error(str(r.json()['code']) + " message: " + r.json()['message'])
+        if json_body == "":
+            req = urllib2.Request(url=url, headers=auth_headers)
+        else:
+            req = urllib2.Request(url=url, data=json_body, headers=auth_headers)
+        try:
+            response = urllib2.urlopen(req)
+            r = json.loads(response.read())
+        except urllib2.HTTPError as e:
+            error = json.loads(e.read())
+            log.error("httpstatus: " + str(e.code) + " code: " + str(error['code']) + " message: " + error['message'])
             r = None
         return r
 
@@ -90,7 +94,7 @@ class ItbitApi:
         return response
 
     def getWallet(self, walletId):
-        js = self.get_wallet(walletId).json()
+        js = self.get_wallet(walletId)
         wallet = {}
         if js != None:
             for balance in js['balances']:
@@ -149,7 +153,6 @@ class MessageSigner(object):
 
     def sign_message(self, secret, verb, url, body, nonce, timestamp):
         message = self.make_message(verb, url, body, nonce, timestamp)
-        print message
         sha256_hash = hashlib.sha256()
         nonced_message = str(nonce) + message
         sha256_hash.update(nonced_message)
@@ -157,13 +160,3 @@ class MessageSigner(object):
         hmac_digest = hmac.new(secret, url.encode('utf8') + hash_digest, hashlib.sha512).digest()
 
         return base64.b64encode(hmac_digest)
-def main():
-    FORMAT = "%(levelname)s\t%(name)s: %(message)s"
-    logging.basicConfig(format=FORMAT)
-    obj = {"pubkey": "mypub","privkey":"mypriv","walletid":  "wallet id!", "userid": "userid"}
-    try:
-        print ItbitVisitor().visit(obj)
-    except Exception as e:
-        print e
-if __name__ == '__main__':
-    main()
