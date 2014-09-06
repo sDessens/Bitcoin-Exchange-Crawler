@@ -7,6 +7,8 @@ import time
 import hmac,hashlib
 from common.resources.partialBalance import PartialBalance
 from common.resources.collection import Collection
+from common.conversiontable import ConversionTable
+
 import logging
 log = logging.getLogger( 'main.read.btce' )
 
@@ -26,12 +28,14 @@ class BtceVisitor:
     def visit( self, json ):
         api = BtceApi( json['pubkey'], json['privkey'] )
         tovalue = "btc"
+        table = ConversionTable(api.getMarketsGraph())
         totals = []
         #fix for un synchronized getInfo and ActiveOrders call
         for i in range(3):
-            availablefunds = api.calculateAvailableFunds(tovalue)
-            orderfunds = api.calculateFundsInOrders(tovalue)
+            availablefunds = api.calculateAvailableFunds(tovalue,table)
+            orderfunds = api.calculateFundsInOrders(tovalue,table)
             totals.append(availablefunds + orderfunds)
+            time.sleep(0.01)
         out = Collection()
         out[json['out']] = PartialBalance(sorted(totals)[len(totals)/2])
         return out
@@ -40,8 +44,6 @@ class BtceApi:
     def __init__(self, APIKey, Secret):
         self.APIKey = str(APIKey)
         self.Secret = str(Secret)
-        self.Pairs = []
-        self.fillPairs()
         
     def query_public(self,url):
         ret = urllib2.urlopen(url)
@@ -77,9 +79,9 @@ class BtceApi:
                     return None
                 #retry if succes was 0 and retries <= 2
                 else:
-                    log.error(reply['error'])
-                    log.error( 'retrying... ({0})'.format(str(retries)) )
-                    time.sleep(1)
+                    log.warn(reply['error'])
+                    log.warn( 'retrying... ({0})'.format(str(retries)) )
+                    time.sleep(0.01)
                     retries += 1 
                     retvalue = self.query_private(method,url,req,retries)
                     return retvalue
@@ -87,27 +89,11 @@ class BtceApi:
                 #return the value if it was succesfully retrieved
                 return reply['return']
         else:
-            raise Exception( 'Btce: failed after '+str(retries) + ' retries')    
-        
-    def fillPairs(self):
-        jsonret = self.query_public('https://btc-e.com/api/3/info')
-        pairs = jsonret['pairs']
-        for key, value in pairs.iteritems():
-            self.Pairs.append(key)
-    
-    def getPair(self,code1,code2):
-        for pair in self.Pairs:
-            if code1 in pair and code2 in pair:
-                return pair
-        return "notfound"
-    
-    def getAvg(self,pair):
-        ret = self.query_public('https://btc-e.com/api/2/'+pair+'/ticker')
-        return ret['ticker']['avg']
+            raise Exception( 'Btce: failed after '+str(retries) + ' retries')
 
-    def calculateFundsInOrders(self,tovalue):
+    def calculateFundsInOrders(self,tovalue,table):
         #calculate funds stuck in orders
-        orderfunds =0
+        total =0
         try:
             orders = self.query_private('ActiveOrders','https://btc-e.com/tapi')
         except Exception as e:
@@ -119,36 +105,47 @@ class BtceApi:
                 amount = order['amount']
                 keys = orderpair.split('_')
                 key = keys[0]
-                if key != tovalue:
-                    pair = self.getPair(key,tovalue)
-                    avg = self.getAvg(pair)
-                    if pair.startswith(key):
-                        orderfunds += amount * avg
-                    else:
-                        orderfunds += amount /avg
-                else:
-                    orderfunds += amount
-        return orderfunds
+                total += table.convert(key, tovalue, amount)
+        return total
 
-    def calculateAvailableFunds(self,tovalue):
+    def calculateAvailableFunds(self,tovalue,table):
         wallet = None
         try:
             wallet = self.query_private('getInfo','https://btc-e.com/tapi')
         except Exception as e:
-            raise
+            log.error(e.message)
         funds = wallet['funds']
         total =0
         #calculate funds
         if wallet is not None:
             for key, value in funds.iteritems():
-                if value != 0 :
-                    if key != tovalue:
-                        pair = self.getPair(key,tovalue)
-                        avg = self.getAvg(pair)
-                        if pair.startswith(key):
-                            total += value * avg
-                        else:
-                            total += value /avg
-                    else:
-                        total += value
+                total += table.convert(key, tovalue, value)
         return total
+
+    def getMarketsGraph(self):
+        js = self.query_public('https://btc-e.com/api/3/info')
+        d = {}
+        for key, value in js['pairs'].iteritems():
+            keys = key.split("_")
+            tickerdata = self.getTicker(key)
+            pair = (keys[0], keys[1])
+            rate = (float(tickerdata['sell']) + float(tickerdata['buy'])) / 2.0
+            cost = (float(tickerdata['sell']) - rate) / rate
+            d[pair] = (rate, cost)
+        return d
+
+    def getTicker(self,pair):
+        ret = self.query_public('https://btc-e.com/api/2/'+pair+'/ticker')
+        return ret['ticker']
+def main():
+    FORMAT = "%(levelname)s\t%(name)s: %(message)s"
+    logging.basicConfig(format=FORMAT)
+    log = logging.getLogger('main')
+    log.setLevel(10)
+    jsondata = {'pubkey': 'XC9GJNDH-2H9MMEPK-ASN23UF6-77OYBD5U-0SZHT3G9', 'privkey': '35dbfd7d84c52fb18e1e7ad6011f11fd58ca760e688ef00b322ae7c09a63055b'}
+    visitor = BtceVisitor()
+    visitordata = visitor.visit(jsondata)
+    print str(visitordata)
+
+if __name__ == '__main__':
+    main()
