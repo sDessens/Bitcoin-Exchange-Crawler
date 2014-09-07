@@ -27,14 +27,12 @@ class BtceVisitor:
             return False
 
     def visit( self, json ):
-        api = BtceApi( json['pubkey'], json['privkey'] )
-        tovalue = "btc"
-        table = ConversionTable(api.getMarketsGraph())
+        api = BtceApi( json['pubkey'], json['privkey'],"btc")
         totals = []
         #fix for un synchronized getInfo and ActiveOrders call
         for i in range(3):
-            availablefunds = api.calculateAvailableFunds(tovalue, table)
-            orderfunds = api.calculateFundsInOrders(tovalue, table)
+            availablefunds = api.calculateAvailableFunds()
+            orderfunds = api.calculateFundsInOrders()
             totals.append(availablefunds + orderfunds)
             time.sleep(0.01)
         out = Collection()
@@ -43,11 +41,13 @@ class BtceVisitor:
 
 class BtceApi:
 
-    def __init__(self, APIKey, Secret):
+    def __init__(self, APIKey, Secret,tovalue):
         self.APIKey = str(APIKey)
         self.Secret = str(Secret)
+        self.toValue = tovalue
         self.nonce = int(time.time())
         self.http_pool = connection_from_url('https://btc-e.com')
+        self.table = ConversionTable(self.getMarketsGraph())
         
     def query_public(self,uri):
         ret = self.http_pool.request('GET',uri)
@@ -86,7 +86,7 @@ class BtceApi:
             #return the value if it was succesfully retrieved
             return reply['return']
 
-    def calculateFundsInOrders(self,tovalue,table):
+    def calculateFundsInOrders(self):
         #calculate funds stuck in orders
         total =0
         try:
@@ -99,10 +99,10 @@ class BtceApi:
                 amount = order['amount']
                 keys = orderpair.split('_')
                 key = keys[0]
-                total += table.convert(key, tovalue, amount)
+                total += self.table.convert(key, self.toValue, amount)
         return total
 
-    def calculateAvailableFunds(self,tovalue,table):
+    def calculateAvailableFunds(self):
         wallet = None
         try:
             wallet = self.query_private('getInfo','/tapi')
@@ -112,8 +112,8 @@ class BtceApi:
         total =0
         #calculate funds
         if wallet is not None:
-            for key, value in funds.iteritems():
-                total += table.convert(key, tovalue, value)
+            for key, amount in funds.iteritems():
+                total += self.table.convert(key, self.toValue, amount)
         return total
 
     def getMarketsGraph(self):
