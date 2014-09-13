@@ -23,13 +23,13 @@ class BtceVisitor:
     def accept(self, json):
         try:
             return json['type'] == 'btce'
-        except Exception as e:
+        except BaseException as e:
             return False
 
     def visit( self, json ):
         api = BtceApi( json['pubkey'], json['privkey'],"btc")
         totals = []
-        #fix for un synchronized getInfo and ActiveOrders call
+        #fix for incorrect total value because of un synchronized getInfo and ActiveOrders call
         for i in range(3):
             availablefunds = api.calculateAvailableFunds()
             orderfunds = api.calculateFundsInOrders()
@@ -40,7 +40,6 @@ class BtceVisitor:
         return out
 
 class BtceApi:
-
     def __init__(self, APIKey, Secret,tovalue):
         self.APIKey = str(APIKey)
         self.Secret = str(Secret)
@@ -70,28 +69,28 @@ class BtceApi:
             ret = self.http_pool.request_encode_body('POST', uri, fields=req, headers=headers)
             reply = json.loads(ret.data)
         #retry if the request failed
-        except Exception as e:
+        except BaseException as e:
             log.error(e.message)
         #raise an error if it is an invalid key
-        if (int(reply['success']) ==0):
+        if (int(reply['success']) == 0):
             if (reply['error'] == 'invalid api key') :
-                raise Exception( 'Btce: ' + str( reply['error'] ))
+                raise BaseException( 'Btce: ' + str( reply['error'] ))
             #return None if there are no orders
             elif reply['error'] == 'no orders':
                 return None
             #retry if succes was 0 and retries <= 2
             else:
                 log.error(reply['error'])
-        elif (int(reply['success']) ==1):
+        elif (int(reply['success']) == 1):
             #return the value if it was succesfully retrieved
             return reply['return']
 
     def calculateFundsInOrders(self):
         #calculate funds stuck in orders
-        total =0
+        total = 0
         try:
             orders = self.query_private('ActiveOrders','/tapi')
-        except Exception as e:
+        except BaseException as e:
             raise
         if orders is not None:
             for orderid, order in orders.iteritems():
@@ -106,10 +105,10 @@ class BtceApi:
         wallet = None
         try:
             wallet = self.query_private('getInfo','/tapi')
-        except Exception as e:
+        except BaseException as e:
             log.error(e.message)
         funds = wallet['funds']
-        total =0
+        total = 0
         #calculate funds
         if wallet is not None:
             for key, amount in funds.iteritems():
