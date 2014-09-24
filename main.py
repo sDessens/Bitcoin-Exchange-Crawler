@@ -9,7 +9,7 @@
 # Copyright:    (c) Stefan Dessens 2014
 # Licence:      TBD
 #-------------------------------------------------------------------------------
-
+#!/usr/bin/env python
 import json
 import logging
 import common.parsevisitorsfromfolder as pv
