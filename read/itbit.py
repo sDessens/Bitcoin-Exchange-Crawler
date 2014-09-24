@@ -1,4 +1,4 @@
-# Module allows the retrieval of balances from BtcChina
+# Module allows the retrieval of balances from itbit
 
 import json
 import urllib
@@ -24,7 +24,7 @@ class ItbitVisitor:
     def accept( self, json ):
         try:
             return json['type'] == 'itbit'
-        except Exception as e:
+        except BaseException as e:
             return False
 
     def visit( self, json ):
@@ -37,19 +37,18 @@ class ItbitVisitor:
 
             for k, v in wallet.items():
                 total += table.convert(k, 'XBT', v)
-            log.debug("total: " + str(total))
             out[json['out']] = PartialBalance( total )
         return out
 
 #Most is taken from http://api-portal.anypoint.mulesoft.com/itbit/api/itbit-exchange/docs/code
 class ItbitApi:
-    def __init__(self, pub, priv,userid):
+    def __init__(self, pub, priv, userid):
         self.clientKey = str(pub)
         self.secret = str(priv)
-        self.userId = userid
+        self.userId = str(userid)
         self.nonce = 0
 
-    def make_request(self, verb, url, body_dict):
+    def _make_request(self, verb, url, body_dict):
         url = 'https://api.itbit.com/v1' + url
         nonce = self._get_next_nonce()
         timestamp = self._get_timestamp()
@@ -81,20 +80,20 @@ class ItbitApi:
             r = None
         return r
 
-    def get_all_wallets(self, filters={}):
+    def _get_all_wallets(self, filters={}):
         filters['userId'] = self.userId
         queryString = self._generate_query_string(filters)
         path = "/wallets%s" % (queryString)
-        response = self.make_request("GET", path, {})
+        response = self._make_request("GET", path, {})
         return response
 
-    def get_wallet(self, walletId):
+    def _get_wallet(self, walletId):
         path = "/wallets/%s" % (walletId)
-        response = self.make_request("GET", path, {})
+        response = self._make_request("GET", path, {})
         return response
 
     def getWallet(self, walletId):
-        js = self.get_wallet(walletId)
+        js = self._get_wallet(walletId)
         wallet = {}
         if js != None:
             for balance in js['balances']:
@@ -105,7 +104,7 @@ class ItbitApi:
             wallet = None
         return wallet
 
-    def getMarkets(self):
+    def _getMarkets(self):
         # Also for Itbit. Please fix your api.
         return [
             ('XBT', 'USD'),
@@ -122,7 +121,7 @@ class ItbitApi:
     def getMarketsGraph(self):
         graph = {}
         www = 'https://api.itbit.com'
-        for pri, sec in self.getMarkets():
+        for pri, sec in self._getMarkets():
             uri = '/v1/markets/%s%s/ticker' % (pri, sec)
             js = self._get_public(www, uri)
             bid = float(js['bid'])
@@ -136,17 +135,17 @@ class ItbitApi:
         self.nonce += 1
         return self.nonce
 
-
     def _get_timestamp(self):
         return int(time.time() * 1000)
+
     def _generate_query_string(self, filters):
         if filters:
             return '?' + urllib.urlencode(filters)
         else:
             return ''
 
-class MessageSigner(object):
 
+class MessageSigner(object):
     def make_message(self, verb, url, body, nonce, timestamp):
         # Need to specify that there should be no spaces after separators
         return json.dumps([verb, url, body, str(nonce), str(timestamp)], separators=(',',':'))
