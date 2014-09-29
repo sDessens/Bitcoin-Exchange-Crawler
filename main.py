@@ -1,15 +1,5 @@
-#-------------------------------------------------------------------------------
-# Name          main
-# Purpose:      Read, process, and write various objects, as specified in an
-#               json config file.
-#
-# Author:       Stefan Dessens
-#
-# Created:      15-04-2014
-# Copyright:    (c) Stefan Dessens 2014
-# Licence:      TBD
-#-------------------------------------------------------------------------------
-#!/usr/bin/env python
+#!/usr/bin/env python2
+
 import json
 import logging
 import common.parsevisitorsfromfolder as pv
