@@ -63,8 +63,8 @@ class HitbtcApi:
         for line in self._get(www, '/api/1/trading/balance')['balance']:
             out[line['currency_code']] = float(line['cash']) + float(line['reserved'])
 
-        for line in self._get(www, '/api/1/payment/balance')['balance']:
-            out[line['currency_code']] += float(line['balance'])
+        #for line in self._get(www, '/api/1/payment/balance')['balance']:
+        #    out[line['currency_code']] += float(line['balance'])
 
         return dict((k, v) for k, v in out.items() if v)
 
@@ -88,7 +88,10 @@ class HitbtcApi:
             bid = float(js['bid'])
             ask = float(js['ask'])
             avg = (bid + ask) / 2
-            diff = abs(bid - ask) / avg
-            graph[(pri, sec)] = (avg, diff)
-
+            try:
+                diff = abs(bid - ask) / avg
+                graph[(pri, sec)] = (avg, diff)
+            except ZeroDivisionError:
+                log.error('ZeroDivisionError when crawling market ' +
+                    pri + '/' + sec)
         return graph
