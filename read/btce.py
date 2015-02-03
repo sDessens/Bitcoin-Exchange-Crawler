@@ -98,7 +98,10 @@ class BtceApi:
                 amount = order['amount']
                 keys = orderpair.split('_')
                 key = keys[0]
-                total += self.table.convert(key, self.toValue, amount)
+                try:
+                    total += self.table.convert(key, self.toValue, amount)
+                except BaseException as e:
+                    log.warn(e)
         return total
 
     def calculateAvailableFunds(self):
@@ -112,7 +115,10 @@ class BtceApi:
         #calculate funds
         if wallet is not None:
             for key, amount in funds.iteritems():
-                total += self.table.convert(key, self.toValue, amount)
+                try:
+                    total += self.table.convert(key, self.toValue, amount)
+                except BaseException as e:
+                    log.warn(e)
         return total
 
     def getMarketsGraph(self):
