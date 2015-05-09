@@ -5,7 +5,7 @@ from common.localFileStorageLib import LocalFileStorage
 from common.resources.fullBalance import FullBalance
 from common.resources.collection import Collection
 import logging
-log = logging.getLogger( 'main.read.dropbox' )
+log = logging.getLogger( 'main.read.localfile' )
 
 
 def getInstance():

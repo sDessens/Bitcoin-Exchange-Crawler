@@ -7,7 +7,7 @@ import shutil
 import time
 from common.balanceData import BalanceData
 import logging
-log = logging.getLogger( 'main.dropbox' )
+log = logging.getLogger( 'main.localfile' )
 
 
 ##
@@ -61,7 +61,7 @@ class LocalFileStorage:
                         balance.append(float(values[1]))
                 return BalanceData(timestamps,balance)
         except Exception as e:
-            log.error( 'identifier {0} contains no data'.format(identifier) )
+            log.error( 'failed to parse {0}'.format(identifier) )
 
     ##  Writes the file to local storage
     #   @param filepath a path to a local file
