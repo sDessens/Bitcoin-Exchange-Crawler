@@ -67,7 +67,9 @@ class CexApi:
         wallet = {}
         for k, v in js.items():
             if len(k) == 3:
-                wallet[k] = float(v["available"]) + float(v["orders"])
+                wallet[k] = float(v["available"]) 
+                if "orders" in v:
+                    wallet[k] += float(v["orders"])
 
         return wallet
 

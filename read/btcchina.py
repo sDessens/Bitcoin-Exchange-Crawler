@@ -80,7 +80,6 @@ class BtcChinaApi:
             return json.loads(ret.read())
         except Exception as e:
             log.error( 'network error: ' + str(e) )
-            exit(1)
 
 
     def getWallet(self):
