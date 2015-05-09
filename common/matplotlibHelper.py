@@ -40,8 +40,12 @@ class MatplotlibHelper:
     def _raw_plot_line(self, objects, days ):
         fig, ax = plt.subplots()
 
-        # find the end of this plot
+        # find the min/max of this plot
         maxTimestamp = max( [ balance.maxTimestampAsDateTime() for key, balance in objects ] )
+        minTimestamp = min( [ balance.minTimestampAsDateTime() for key, balance in objects ] )
+        if days is not None:
+            if days > 0: minTimestamp = maxTimestamp - datetime.timedelta(days=days)
+            if days < 0: maxTimestamp = minTimestamp - datetime.timedelta(days=days)
 
         for key, balance in objects:
             ax.plot( balance.timestampsAsDateTime(), balance.balance(), label=key )
@@ -49,7 +53,7 @@ class MatplotlibHelper:
 
         ax.grid(True)
         if days is not None and len(objects):
-            ax.set_xlim( [ maxTimestamp - datetime.timedelta(days=days) ], maxTimestamp )
+            ax.set_xlim( [minTimestamp], maxTimestamp )
 
         return fig, ax
 
