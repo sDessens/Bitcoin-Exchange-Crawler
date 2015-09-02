@@ -19,12 +19,22 @@ class BalanceData:
     ##returns a new BalanceData object
     #
     def generateDiff( self, days = 1 ):
+        return self._generate(days, self.diff)
+
+    ##returns a new BalanceData object
+    #
+    def generateRelativeDiff( self, days = 1 ):
+        return self._generate(days, self.relative_diff)
+
+    ##returns a new BalanceData object
+    #
+    def _generate(self, days, fn):
         seconds = days * 24 * 60 * 60
         new = BalanceData()
         # start at the last timestamp
         timestamp = self._timestamps[-1]
         while timestamp > self._timestamps[0]:
-            diff = self.diff( timestamp - seconds, timestamp ) / days
+            diff = fn(timestamp - seconds, timestamp) / days
             new._timestamps.append( timestamp )
             new._balance.append( diff )
             timestamp -= 3600
@@ -34,11 +44,19 @@ class BalanceData:
 
         return new
 
+
     ##calculate the difference Y between given points
     # @param begin begin of sample
     # @param end end of sample
     def diff( self, begin, end ):
         return self.interpolate( end ) - self.interpolate( begin )
+
+    def relative_diff(self, begin, end):
+        a, b = self.interpolate(begin), self.interpolate(end)
+        try:
+            return (b - a) / a
+        except ZeroDivisionError:
+            return 0
 
     ##Query the value at a certain point in time
     # @param timestamp integer or float Unix timestamp or DateTime object

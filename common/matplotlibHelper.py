@@ -33,6 +33,8 @@ class MatplotlibHelper:
             return self._raw_plot_diffbar( objects, days )
         if type == 'histodiff':
             return self._raw_plot_histodiff( objects, days )
+        if type == 'bar':
+            return self._raw_plot_bar( objects, days )
         else:
             return None
 
@@ -119,7 +121,7 @@ class MatplotlibHelper:
 
         return fig, ax
 
-        ## plot bar chart based on the diff of the first input object.
+    ## plot bar chart based on the diff of the first input object.
     def _raw_plot_histodiff(self, objects, days):
         fig, ax = plt.subplots()
 
@@ -162,6 +164,24 @@ class MatplotlibHelper:
 
         return fig, ax
 
+    def _raw_plot_bar(self, objects, days):
+        fig, ax = plt.subplots()
+
+        object = objects[0][1]
+
+        if days is None:
+            days = (datetime.datetime.utcnow() - object.minTimestampAsDateTime()).days + 1
+        else:
+            days = int(days)
+
+        now = datetime.datetime.utcnow()
+        now = now.replace(hour=23, minute=59, second=0, microsecond=0)
+
+        X = [ now - datetime.timedelta( days=i ) for i in range(days) ]
+        X.reverse()
+        assert isinstance(object, common.balanceData.BalanceData )
+        Y = [ object.interpolate(x) for x in X ]
+        avg = sum(Y) / len(Y)
 
         # offset X by 1 day to line the labels correctly..
         X = [ x - datetime.timedelta(days=1) for x in X ]
@@ -169,7 +189,9 @@ class MatplotlibHelper:
         for k, v in enumerate(barlist):
             v.set_facecolor( 'g' if Y[k] >= 0 else 'r' )
 
+        ax.plot( [min(X), max(X)], [avg, avg], 'k', alpha=.5 )
 
+        ax.grid(True)
 
         if days < 30:
             ax.xaxis.set_major_formatter( ticker.FuncFormatter( dates.DateFormatter( "%a %d" ) ) )
