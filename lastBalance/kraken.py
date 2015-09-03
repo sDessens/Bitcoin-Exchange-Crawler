@@ -8,29 +8,20 @@ import hashlib
 import hmac
 import base64
 import logging
-from common.resources.partialBalance import PartialBalance
 from common.resources.collection import Collection
 
 log = logging.getLogger( 'main.exchanges.kraken' )
 
-def getInstance():
-    return KrakenVisitor()
 
-class KrakenVisitor:
-    def __init__(self):
-        pass
+class KrakenLastBalance:
+    def __init__(self, pubkey, privkey):
+        self._pubkey = pubkey
+        self._privkey = privkey
 
-    def accept( self, json ):
-        try:
-            return json['type'] == 'kraken'
-        except Exception as e:
-            return False
+    def crawl(self):
+        api = KrakenApi(self._pubkey, self._privkey)
+        return api.getBalance('BTC')
 
-    def visit( self, json ):
-        api = KrakenApi( json['pubkey'], json['privkey'] )
-        out = Collection()
-        out[json['out']] = PartialBalance( api.getBalance( 'BTC' ) )
-        return out
 
 class KrakenApi:
     def __init__(self, pub, priv):

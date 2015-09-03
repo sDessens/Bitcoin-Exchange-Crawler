@@ -13,9 +13,6 @@ import logging
 import traceback
 log = logging.getLogger( 'main.process.matplotlibpdf' )
 
-## This function is required for every Visitor module
-def getInstance():
-    return MatplotlibVisitor()
 
 ## this is a stub Process visitor. It provides an template that provides
 #  all required functionality for an Process visitor

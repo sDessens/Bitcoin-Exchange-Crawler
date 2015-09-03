@@ -1,7 +1,6 @@
 # this module can be used to Generate random-walk based FullBalance resource.
 
 
-
 from common.resources.collection import Collection
 from common.resources.fullBalance import FullBalance
 from common.balanceData import BalanceData

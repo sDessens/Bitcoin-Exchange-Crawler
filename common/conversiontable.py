@@ -4,6 +4,13 @@
 # an search algorithm.
 
 import Queue
+import logging
+
+log = logging.getLogger('conversion_table')
+
+class ConversionException(Exception):
+    pass
+
 
 class ConversionTable:
     ##Initialize an conversion table that allows converting
@@ -15,10 +22,10 @@ class ConversionTable:
     # that an conversion will go through this market. If you don't know, just
     # use 1 for the cost at every market. Cost must NOT be zero.
     def __init__(self, markets):
-        uniqueMarkets = set( a for a, b in markets ) | \
-                        set( b for a, b in markets )
+        uniqueMarkets = set(a for a, b in markets) | \
+                        set(b for a, b in markets)
 
-        connections = dict.fromkeys(uniqueMarkets, set() )
+        connections = dict.fromkeys(uniqueMarkets, set())
         conversionRates = {}
         costs = {}
 
@@ -28,8 +35,8 @@ class ConversionTable:
             connections[b] = connections[b] | {a}
             conversionRates[ (a, b) ] = r
             conversionRates[ (b, a) ] = 1.0/r
-            costs[ (a, b) ] = c
-            costs[ (b, a) ] = c
+            costs[(a, b)] = c
+            costs[(b, a)] = c
 
         self.connections = connections
         self.conversionRates = conversionRates
@@ -42,9 +49,17 @@ class ConversionTable:
     # @return the converted amount
     # can throw an ConversionException if conversion fails for some reason.
     def convert(self, fromStock, toStock, amount ):
-        rate = self._computeExchangeRate( fromStock, toStock )
+        rate = self._computeExchangeRate(fromStock, toStock)
         total = rate * amount
         return total
+
+    def try_convert(self, fromStock, toStock, amount):
+        """ Identical to convert(), but returns 0.0 on failure """
+        try:
+            return self.convert(fromStock, toStock, amount)
+        except ConversionException:
+            log.warn('unable to convert {} to {}'.format(fromStock, toStock))
+            return 0.0
 
     def _computeExchangeRate(self, primary, secondary):
         # this does a A* search with H = 0
@@ -54,7 +69,7 @@ class ConversionTable:
         #   current stock,
         #   current conversion rate,
         #   set of all visited stocks )
-        initialState = ( 0, primary, 1, {primary} )
+        initialState = (0, primary, 1, {primary})
         queue = Queue.PriorityQueue()
         queue.put( initialState )
 
@@ -64,49 +79,22 @@ class ConversionTable:
                                            .format(primary, secondary) )
 
         while queue.qsize() > 0:
-            # grab next state
             (cost, stock, rate, visited) = queue.get()
 
             if stock == secondary:
                 return rate
 
             if stock in self.connections:
-                for childStock in self.connections[ stock ]:
+                for childStock in self.connections[stock]:
                     if childStock not in visited:
-                        arc = ( stock, childStock )
-                        childState = ( cost + self.costs[arc],
-                                       childStock,
-                                       rate * self.conversionRates[arc],
-                                       visited | {childStock} )
-                        queue.put( childState )
+                        arc = (stock, childStock)
+                        childState = (cost + self.costs[arc],
+                                      childStock,
+                                      rate * self.conversionRates[arc],
+                                      visited | {childStock})
+                        queue.put(childState)
 
         raise ConversionException( 'could not convert {0} to {1} because destination is unreachable'
                                    .format(primary, secondary) )
-
-class ConversionException(Exception):
-    pass
-
-def main():
-    d = {
-        ('LTC', 'BTC') : (0.02, 1), # 0.02 BTC = 1 LTC. cost 1
-        ('XPM', 'LTC') : (0.1, 3),  # higher cost for lesser used market
-        ('XPM', 'BTC') : (0.01, 2),
-        ('DEV', 'LTC') : (0.1, 5),
-        ('DEV', 'XPM') : (0.1, 10)
-    }
-
-    tab = ConversionTable( d )
-
-    assert( tab.convert( 'BTC', 'BTC', 1.23 ) == 1.23 )
-    assert( tab.convert( 'LTC', 'BTC', 50) == 1 )
-    assert( tab.convert( 'BTC', 'LTC', 1) == 50 )
-    assert( tab.convert( 'LTC', 'BTC', 10 ) == 0.2 )
-
-    # conversion should be dev-ltc-btc, not dev-xpm-btc
-    # because the cost of the latter is higher
-    assert( tab.convert( 'DEV', 'BTC', 1 ) == 0.002 )
-
-if __name__ == '__main__':
-    main()
 
 

@@ -7,36 +7,26 @@ import time
 import hashlib
 import hmac
 import logging
-from common.resources.partialBalance import PartialBalance
-from common.resources.collection import Collection
 from common.conversiontable import ConversionTable
 
 log = logging.getLogger( 'main.exchanges.cex' )
 
-def getInstance():
-    return CexVisitor()
+class CexLastBalance:
+    def __init__(self, pubkey, privkey, username):
+        self._pubkey = pubkey
+        self._privkey = privkey
+        self._username = username
 
-class CexVisitor:
-    def __init__(self):
-        pass
-
-    def accept( self, json ):
-        try:
-            return json['type'] == 'cex'
-        except Exception as e:
-            return False
-
-    def visit( self, json ):
-        api = CexApi( json['pubkey'], json['privkey'], json['username'] )
-        out = Collection()
+    def crawl(self):
+        api = CexApi(self._pubkey, self._privkey, self._username)
 
         wallet = api.getWallet()
         table = ConversionTable(api.getMarketsGraph())
         total = 0
         for k, v in wallet.items():
             total += table.convert(k, 'BTC', v)
-        out[json['out']] = PartialBalance( total )
-        return out
+        return total
+
 
 class CexApi:
     def __init__(self, pub, priv, username):
@@ -63,8 +53,11 @@ class CexApi:
         uri = '/api/balance/'
 
         js = self._get(www, uri, {})
+        if 'error' in js:
+            raise Exception(js['error'])
 
         wallet = {}
+
         for k, v in js.items():
             if len(k) == 3:
                 wallet[k] = float(v["available"]) 

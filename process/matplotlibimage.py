@@ -13,24 +13,11 @@ import logging
 import traceback
 log = logging.getLogger( 'main.process.matplotlibimage' )
 
-## This function is required for every Visitor module
-def getInstance():
-    return MatplotlibVisitor()
-
-## this is a stub Process visitor. It provides an template that provides
-#  all required functionality for an Process visitor
 class MatplotlibVisitor:
     def __init__(self):
         pass
 
-    ## check if visitor accepts given object
-    #  @return true if object is accepted
-    #  may not return exceptions
-    def accept( self, json ):
-        try:
-            return json['type'] == 'matplotlibimage'
-        except Exception as e:
-            return False
+
 
     ## run the process algorithm.
     #  this stub printing algorithm prints the identifier and final value of each

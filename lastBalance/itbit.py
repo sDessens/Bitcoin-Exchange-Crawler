@@ -14,31 +14,25 @@ from common.conversiontable import ConversionTable
 
 log = logging.getLogger( 'main.exchanges.itbit' )
 
-def getInstance():
-    return ItbitVisitor()
 
-class ItbitVisitor:
-    def __init__(self):
-        pass
+class ItbitLastBalance:
+    def __init__(self, pubkey, privkey, userid, walletid):
+        self._pubkey = pubkey
+        self._privkey = privkey
+        self._userid = userid
+        self._walletid = walletid
 
-    def accept( self, json ):
-        try:
-            return json['type'] == 'itbit'
-        except BaseException as e:
-            return False
+    def crawl(self):
+        api = ItbitApi(self._pubkey, self._privkey, self._userid)
 
-    def visit( self, json ):
-        api = ItbitApi( json['pubkey'], json['privkey'], json['userid'] )
-        out = Collection()
-        wallet = api.getWallet(json['walletid'])
-        if wallet != None:
-            table = ConversionTable(api.getMarketsGraph())
-            total = 0
+        wallet = api.getWallet(self._walletid)
 
-            for k, v in wallet.items():
-                total += table.convert(k, 'XBT', v)
-            out[json['out']] = PartialBalance( total )
-        return out
+        table = ConversionTable(api.getMarketsGraph())
+        total = 0
+
+        for k, v in wallet.items():
+            total += table.convert(k, 'XBT', v)
+        return total
 
 #Most is taken from http://api-portal.anypoint.mulesoft.com/itbit/api/itbit-exchange/docs/code
 class ItbitApi:

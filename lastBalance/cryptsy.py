@@ -1,41 +1,26 @@
 # Module allows the retrieval of balances from cryptsy
-
-
 import urllib
 import urllib2
 import json
 import time
 import hmac,hashlib
-import common.conversiontable as conversiontable
-from common.resources.partialBalance import PartialBalance
-from common.resources.collection import Collection
+import logging
+from common.conversiontable import ConversionTable
+
+log = logging.getLogger('main.exchanges.cryptsy')
 
 
+class CryptsyLastBalance:
+    def __init__(self, pubkey, privkey):
+        self._pubkey = pubkey
+        self._privkey = privkey
 
-def getInstance():
-    return CryptsyVisitor()
+    def crawl(self):
+        api = CryptsyApi(self._pubkey, self._privkey)
+        table = self._buildConversionTable(api)
 
-class CryptsyVisitor:
-    def __init__(self):
-        self._table = None
-        pass
+        data = api.query_private('getinfo')
 
-    def accept( self, json ):
-        try:
-            return json['type'] == 'cryptsy'
-        except Exception as e:
-            return False
-
-    def visit( self, json, toValueKey='BTC' ):
-        api = CryptsyApi( json['pubkey'], json['privkey'] )
-        #create the currency conversion table
-        if not self._table:
-            self._buildConversionTable(api)
-        #Get the balance data
-        try:
-            data = api.query_private('getinfo')
-        except Exception as e:
-            raise Exception("Crypty: "+str(e))
         if int(data['success']):
             ret = data['return']
             balances = dict()
@@ -48,26 +33,22 @@ class CryptsyVisitor:
                     if a not in balances:
                         balances[a] = 0
                     balances[a] = balances[a] + float(b)
+
             #Calculate the total
             total = 0
             for (key, value) in balances.items():
-                try:
-                    total += self._table.convert( key,toValueKey, value );
-                except conversiontable.ConversionException:
-                    pass;
+                total += table.convert_or_null(key, 'btc', value)
 
-            out = Collection()
-            out[json['out']] = PartialBalance( total )
-            return out
+            return total
         else:
-            raise Exception('Cryptsy error: '+data['error'] )
-        
+            log.error('cryptsy api call returned success = 0')
+            raise
+            return 0
+
     def _buildConversionTable(self, api):
         #get market values
-        try:
-            data = api.query_public('marketdatav2')
-        except Exception as e:
-            raise Exception( str("Crypty "+str(e)) )
+        data = api.query_public('marketdatav2')
+
         ret = data['return']['markets']
         markets = {}
         for key, item in ret.items():
@@ -92,7 +73,8 @@ class CryptsyVisitor:
                 avg = ( bestbuyorder + bestsellorder ) / 2.0
                 diff = abs( bestbuyorder - bestsellorder ) / avg                
                 markets[(item['primarycode'],item['secondarycode'])] = (avg, diff )
-        self._table = conversiontable.ConversionTable( markets )
+
+        self._table = ConversionTable( markets )
         
 class CryptsyApi:
     def __init__(self, APIKey, Secret):
@@ -117,18 +99,3 @@ class CryptsyApi:
         ret = urllib2.urlopen(urllib2.Request('https://api.cryptsy.com/api', post_data, headers))
         jsonRet = json.loads(ret.read())
         return jsonRet
-
-def main():
-    vis = CryptsyVisitor()
-    json = { 'type':'cryptsy',
-             'out':'cryptsy-test',
-             'pubkey':'bogus-public-key',
-             'privkey':'aa33153451345134513451345314'}
-
-    assert( vis.accept( json ) )
-
-    print vis.visit( json )
-
-if __name__ == '__main__':
-    main()
-

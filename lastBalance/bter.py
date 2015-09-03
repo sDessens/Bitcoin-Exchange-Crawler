@@ -1,6 +1,5 @@
 # Module allows query of balances from Bter
 
-
 import json
 import urllib
 import urllib2
@@ -8,33 +7,24 @@ import time
 import hashlib
 import hmac
 import logging
-log = logging.getLogger('main.exchanges.bter')
-
-import common.conversiontable as conversiontable
-from common.resources.partialBalance import PartialBalance
+from common.conversiontable import ConversionException, ConversionTable
 from common.resources.collection import Collection
 
+log = logging.getLogger('main.exchanges.bter')
 
-def getInstance():
-    return BterVisitor()
 
-class BterVisitor:
-    def __init__(self):
-        self._table = None
-        pass
+class BterLastBalance:
+    def __init__(self, pubkey, privkey):
+        self._pubkey = pubkey
+        self._privkey = privkey
 
-    def accept(self, json):
-        try:
-            return json['type'] == 'bter'
-        except Exception as e:
-            return False
+    def crawl(self):
+        api = BterApi(self._pubkey, self._privkey)
 
-    def visit( self, json ):
-        api = BterApi( json['pubkey'], json['privkey'] )
-        if self._table is None:
-            self._table = self._buildConversionTable(api)
+        self.table = self._buildConversionTable(api)
 
-        balance = api.query_private( 'getfunds', {} )
+        balance = api.query_private('getfunds', {})
+        print balance
         total = 0.0
 
         if 'locked_funds' in balance:
@@ -46,8 +36,7 @@ class BterVisitor:
                 total += self._convert( k, 'BTC', float(v) )
 
         out = Collection()
-        out[json['out']] = PartialBalance( total )
-        return out
+        return total
 
     def _buildConversionTable(self, api):
         tickers = api.query_public('tickers')
@@ -66,14 +55,14 @@ class BterVisitor:
             primary, secondary = k.upper().split('_')
             markets[(primary, secondary)] = ( avg, 1.0 + diff )
 
-        return conversiontable.ConversionTable( markets )
+        return ConversionTable( markets )
 
-    def _convert(self, fromStock, toStock, amount):
+    def _convert(self, table, fromStock, toStock, amount):
         try:
-            result = self._table.convert(fromStock.upper(), toStock.upper(), amount)
+            result = table.convert(fromStock.upper(), toStock.upper(), amount)
             return result
-        except conversiontable.ConversionException as e:
-            log.info( e )
+        except ConversionException as e:
+            log.info(e)
             return 0
 
 

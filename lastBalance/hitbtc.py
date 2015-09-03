@@ -12,30 +12,22 @@ from common.conversiontable import ConversionTable
 
 log = logging.getLogger( 'main.exchanges.hitbtc' )
 
-def getInstance():
-    return HitbtcVisitor()
 
-class HitbtcVisitor:
-    def __init__(self):
-        pass
+class HitbtcLastBalance:
+    def __init__(self, pubkey, privkey):
+        self._pubkey = pubkey
+        self._privkey = privkey
 
-    def accept( self, json ):
-        try:
-            return json['type'] == 'hitbtc'
-        except Exception as e:
-            return False
-
-    def visit( self, json ):
-        api = HitbtcApi( json['pubkey'], json['privkey'] )
-        out = Collection()
+    def crawl(self):
+        api = HitbtcApi(self._pubkey, self._privkey)
 
         wallet = api.getWallet()
         table = ConversionTable(api.getMarketsGraph())
         total = 0
         for k, v in wallet.items():
             total += table.convert(k, 'BTC', v)
-        out[json['out']] = PartialBalance( total )
-        return out
+        return total
+
 
 class HitbtcApi:
     def __init__(self, pub, priv):

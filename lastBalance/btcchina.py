@@ -7,35 +7,24 @@ import hashlib
 import hmac
 import base64
 import logging
-from common.resources.partialBalance import PartialBalance
-from common.resources.collection import Collection
 from common.conversiontable import ConversionTable
 
-log = logging.getLogger( 'main.exchanges.btcchina' )
+log = logging.getLogger('main.exchanges.btcchina')
 
-def getInstance():
-    return BtcChinaVisitor()
 
-class BtcChinaVisitor:
-    def __init__(self):
-        pass
+class BtcChinaLastBalance:
+    def __init__(self, pubkey, privkey):
+        self._pubkey = pubkey
+        self._privkey = privkey
 
-    def accept( self, json ):
-        try:
-            return json['type'] == 'btcchina'
-        except Exception as e:
-            return False
-
-    def visit( self, json ):
-        api = BtcChinaApi( json['pubkey'], json['privkey'] )
-        out = Collection()
+    def crawl(self):
+        api = BtcChinaApi(self._pubkey, self._privkey)
         wallet = api.getWallet()
         table = ConversionTable(api.getMarketsGraph())
         total = 0
         for k, v in wallet.items():
             total += table.convert(k, 'BTC', v)
-        out[json['out']] = PartialBalance( total )
-        return out
+        return total
 
 class BtcChinaApi:
     def __init__(self, pub, priv):
@@ -73,13 +62,8 @@ class BtcChinaApi:
             'Authorization': "Basic " + base64.b64encode(self.pub + ":" + sign),
             'Json-Rpc-Tonce': thetonce
         }
-        print signdata
-        print json.dumps(postdata)
-        try:
-            ret = urllib2.urlopen(urllib2.Request(url, json.dumps(postdata), headers))
-            return json.loads(ret.read())
-        except Exception as e:
-            log.error( 'network error: ' + str(e) )
+        ret = urllib2.urlopen(urllib2.Request(url, json.dumps(postdata), headers))
+        return json.loads(ret.read())
 
 
     def getWallet(self):
@@ -107,5 +91,6 @@ class BtcChinaApi:
             cost = 1/float(payload['vol'])
             d[pair] = (rate, cost)
         return d
+
     def tonce(self):
         return int(time.time()*1000000)

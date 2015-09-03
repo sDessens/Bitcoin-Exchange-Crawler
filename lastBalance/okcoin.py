@@ -1,47 +1,28 @@
 # Module allows query of balances from OkCoin
 
 
+import logging
 import json
 import urllib
 import urllib2
-import time
 import hashlib
-import hmac
-import logging
+from common.conversiontable import ConversionTable
 
 log = logging.getLogger('main.exchanges.okcoin')
 
-import common.conversiontable as conversiontable
-from common.resources.partialBalance import PartialBalance
-from common.resources.collection import Collection
 
+class OkcoinLastBalance:
+    def __init__(self, pubkey, privkey):
+        self._pubkey = pubkey
+        self._privkey = privkey
 
-def getInstance():
-    return OkcoinVisitor()
-
-class OkcoinVisitor:
-    def __init__(self):
-        self._table = None
-        pass
-
-    def accept(self, json):
-        try:
-            return json['type'] == 'okcoincn'
-        except KeyError as e:
-            return False
-
-    def visit(self, json):
-        api = OkcoinApi( json['pubkey'], json['privkey'] )
-        if self._table is None:
-            self._table = self._buildConversionTable(api, True)
+    def crawl(self):
+        api = OkcoinApi(self._pubkey, self._privkey)
+        table = self._buildConversionTable(api, True)
 
         funds = api.query_userinfo()
-
-        total = self._table.convert('cny', 'btc', float(funds['info']['funds']['asset']['total']))
-
-        out = Collection()
-        out[json['out']] = PartialBalance(total)
-        return out
+        total = table.convert('cny', 'btc', float(funds['info']['funds']['asset']['total']))
+        return total
 
     def _buildConversionTable(self, api, is_okcoin_cn):
         if is_okcoin_cn:
@@ -57,7 +38,8 @@ class OkcoinVisitor:
             price = float(js['ticker']['last'])
             ratios[(pri, sec)] = (price, 1)
 
-        return conversiontable.ConversionTable(ratios)
+        return ConversionTable(ratios)
+
 
 class OkcoinApi:
     def __init__(self, pub, priv):

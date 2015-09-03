@@ -9,7 +9,6 @@ import math
 import common.balanceData
 
 
-
 ## this class defined various raw plotting functions.
 #  the size and title should be set by the caller.
 #  the plot should also be saved by the caller.

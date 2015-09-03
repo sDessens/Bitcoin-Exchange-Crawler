@@ -44,7 +44,6 @@ class BalanceData:
 
         return new
 
-
     ##calculate the difference Y between given points
     # @param begin begin of sample
     # @param end end of sample
@@ -90,16 +89,19 @@ class BalanceData:
         return self._timestamps
 
     def timestampsAsDateTime(self):
-        return [ datetime.datetime.fromtimestamp( x ) for x in self._timestamps ]
+        return [datetime.datetime.fromtimestamp( x ) for x in self._timestamps]
 
     def maxTimestampAsDateTime(self):
-        return datetime.datetime.fromtimestamp( self._timestamps[-1] )
+        return datetime.datetime.fromtimestamp(self._timestamps[-1])
 
     def minTimestampAsDateTime(self):
-        return datetime.datetime.fromtimestamp( self._timestamps[0] )
+        return datetime.datetime.fromtimestamp(self._timestamps[0])
 
     def balance(self):
         return self._balance
+
+    def items(self):
+        return zip(self.timestampAsUnix(), self.balance())
 
     def __len__(self):
         return len( self._balance )

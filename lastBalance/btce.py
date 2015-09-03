@@ -1,46 +1,40 @@
 # Module allows the retrieval of balances from BTC-e
 
 import urllib
-import profile
 from urllib3 import connection_from_url
 import json
 import time
 import hmac, hashlib
 from common.resources.partialBalance import PartialBalance
-from common.resources.collection import Collection
-from common.conversiontable import ConversionTable
-
+from common.conversiontable import ConversionTable, ConversionException
 import logging
-log = logging.getLogger( 'main.read.btce' )
 
-def getInstance():
-    return BtceVisitor()
+log = logging.getLogger('main.read.btce')
 
-class BtceVisitor:
-    def __init__(self):
-        pass
 
-    def accept(self, json):
-        try:
-            return json['type'] == 'btce'
-        except BaseException as e:
-            return False
 
-    def visit( self, json ):
-        api = BtceApi( json['pubkey'], json['privkey'],"btc")
+class BtceLastBalance:
+    def __init__(self, pubkey, privkey):
+        self._pubkey = pubkey
+        self._privkey = privkey
+
+    def crawl(self):
+        def median(arr):
+            arr = sorted(arr)
+            return arr[len(arr) / 2 - 1]
+
+        api = BtceApi(self._pubkey, self._privkey, "btc")
         totals = []
-        #fix for incorrect total value because of un synchronized getInfo and ActiveOrders call
+        # Query the balance a few times, then grab the median value to work around
+        # race conditions in the API.
         for i in range(3):
             availablefunds = api.calculateAvailableFunds()
             orderfunds = api.calculateFundsInOrders()
             totals.append(availablefunds + orderfunds)
-            time.sleep(0.01)
-        out = Collection()
-        out[json['out']] = PartialBalance(sorted(totals)[len(totals)/2])
-        return out
+        return median(totals)
 
 class BtceApi:
-    def __init__(self, APIKey, Secret,tovalue):
+    def __init__(self, APIKey, Secret, tovalue):
         self.APIKey = str(APIKey)
         self.Secret = str(Secret)
         self.toValue = tovalue
@@ -65,33 +59,22 @@ class BtceApi:
             'Key': self.APIKey
         }
 
-        try:
-            ret = self.http_pool.request_encode_body('POST', uri, fields=req, headers=headers)
-            reply = json.loads(ret.data)
-        #retry if the request failed
-        except BaseException as e:
-            log.error(e.message)
+        ret = self.http_pool.request_encode_body('POST', uri, fields=req, headers=headers)
+        reply = json.loads(ret.data)
+
         #raise an error if it is an invalid key
-        if (int(reply['success']) == 0):
-            if (reply['error'] == 'invalid api key') :
-                raise BaseException( 'Btce: ' + str( reply['error'] ))
-            #return None if there are no orders
-            elif reply['error'] == 'no orders':
-                return None
-            #retry if succes was 0 and retries <= 2
-            else:
-                log.error(reply['error'])
-        elif (int(reply['success']) == 1):
-            #return the value if it was succesfully retrieved
+        if int(reply['success']) == 1:
             return reply['return']
+
+        if reply['error'] == 'invalid api key':
+            raise Exception( 'Btce: ' + str( reply['error'] ))
+        elif reply['error'] == 'no orders':
+            return None
 
     def calculateFundsInOrders(self):
         #calculate funds stuck in orders
         total = 0
-        try:
-            orders = self.query_private('ActiveOrders','/tapi')
-        except BaseException as e:
-            raise
+        orders = self.query_private('ActiveOrders','/tapi')
         if orders is not None:
             for orderid, order in orders.iteritems():
                 orderpair = order['pair']
@@ -100,25 +83,20 @@ class BtceApi:
                 key = keys[0]
                 try:
                     total += self.table.convert(key, self.toValue, amount)
-                except BaseException as e:
+                except Exception as e:
                     log.warn(e)
         return total
 
     def calculateAvailableFunds(self):
-        wallet = None
-        try:
-            wallet = self.query_private('getInfo','/tapi')
-        except BaseException as e:
-            log.error(e.message)
+        wallet = self.query_private('getInfo', '/tapi')
+        if wallet is None:
+            return 0
+
         funds = wallet['funds']
         total = 0
         #calculate funds
-        if wallet is not None:
-            for key, amount in funds.iteritems():
-                try:
-                    total += self.table.convert(key, self.toValue, amount)
-                except BaseException as e:
-                    log.warn(e)
+        for key, amount in funds.iteritems():
+            total += self.table.try_convert(key, self.toValue, amount)
         return total
 
     def getMarketsGraph(self):

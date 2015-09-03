@@ -1,7 +1,5 @@
 from unittest import TestCase
 
-__author__ = 'Stefan'
-
 import read.blockchain as blockchain
 import common.balanceData as balanceData
 from dateutil import parser
