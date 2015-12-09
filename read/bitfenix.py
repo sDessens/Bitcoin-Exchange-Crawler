@@ -92,13 +92,14 @@ class BitfinexAPI:
         wallet = {}
         if js != None:
             for balance in js:
-                k = balance['currency']
-                v = float(balance['amount'])
-                #since bitfinex has multiple wallets for the same currency we need to add all together
-                if k in wallet:
-                    wallet[k] += v
-                else:
-                    wallet[k] = v
+                if balance['type'] == 'exchange':
+                    k = balance['currency'].upper()
+                    v = float(balance['amount'])
+                    #since bitfinex has multiple wallets for the same currency we need to add all together
+                    if k in wallet:
+                        wallet[k] += v
+                    else:
+                        wallet[k] = v
         else:
             wallet = None
         return wallet
@@ -127,40 +128,3 @@ class BitfinexAPI:
             graph[(pri, sec)] = (avg, diff)
         return graph
 
-def main():
-    api_key = ''
-    api_secret = ''
-    api = BitfinexAPI(api_key, api_secret)
-
-    #url = 'https://bitfinex.com/api/v1/order/new'
-    uri = '/v1/balances'
-    params = {
-               'request':uri,
-               'nonce': str(time.time()),
-               # 'symbol': "btcusd",
-               # 'amount': "0.010",
-               # 'price': "240.5623232323",
-               # 'exchange' : "bitfinex",
-               # "side": "sell",
-               # "type": "limit",
-               "order_id": 396849453
-               }
-    print api.getMarketsGraph()
-    #payload = {
-    #            'request':'/v1/'
-    #            }
-
-    # payload buyorder, btcusd 100 @ $1.00
-    # payload = {
-    #            'request':'/v1/order/new',
-    #            'nonce':time.time(),
-    #            'options' : {'symbol':'btcusd',
-    #             'amount':'100.00000000',
-    #             'price':'1.00',
-    #             'exchange':'bitfinex',
-    #             'side':'buy',
-    #             'type':'limit'}
-    #            }
-
-if __name__ == '__main__':
-    main()
