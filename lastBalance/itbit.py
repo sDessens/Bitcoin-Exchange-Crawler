@@ -8,8 +8,6 @@ import hashlib
 import hmac
 import base64
 import logging
-from common.resources.partialBalance import PartialBalance
-from common.resources.collection import Collection
 from common.conversiontable import ConversionTable
 
 log = logging.getLogger( 'main.exchanges.itbit' )
@@ -33,6 +31,7 @@ class ItbitLastBalance:
         for k, v in wallet.items():
             total += table.convert(k, 'XBT', v)
         return total
+
 
 #Most is taken from http://api-portal.anypoint.mulesoft.com/itbit/api/itbit-exchange/docs/code
 class ItbitApi:

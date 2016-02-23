@@ -28,8 +28,7 @@ class LocalFileStorage:
     ##The write function that adds the balance value to the file in the given folder
     # @param identifier a string that identifies the file it will be written to.
     # @param value the value that should be writen
-    def writeBalance(self, identifier, value):
-        timestamp = int(time.time())
+    def append_balance(self, identifier, timestamp, value):
         filepath = self.location+'/'+identifier+'.csv'
         if not os.path.exists(os.path.dirname(filepath)):
             os.makedirs(os.path.dirname(filepath))

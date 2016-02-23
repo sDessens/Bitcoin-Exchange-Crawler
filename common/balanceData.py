@@ -4,6 +4,7 @@
 from bisect import bisect_left
 import datetime
 import time
+import math
 
 class BalanceData:
     ##Construct an instance of the BalanceData class
@@ -107,6 +108,8 @@ class BalanceData:
         return len( self._balance )
 
 
+
+
 ##sum multiple BalanceData objects together
 # @param array of BalanceData object
 # @return the summed BalanceData object
@@ -125,6 +128,22 @@ def sum(data):
         y.append( val )
 
     return BalanceData( timestamps, y )
+
+def minus(data):
+    timestampSet = set()
+    for bd in data:
+        timestampSet = timestampSet.union(bd._timestamps)
+
+    timestamps = list( timestampSet )
+    timestamps.sort()
+    y = []
+    for x in timestamps:
+        val = 0
+        for bd in data:
+            val = val - bd.interpolate(x)
+        y.append(val)
+
+    return BalanceData(timestamps, y)
 
 
 ##multiply multiple BalanceData objects together
@@ -148,3 +167,66 @@ def multiply(data):
         y.append( val )
 
     return BalanceData( timestamps, y )
+
+
+def divide(a, b):
+    timestamps = list(set(a.timestampAsUnix()) | set(b.timestampAsUnix()))
+    timestamps.sort()
+
+    y = []
+    for x in timestamps:
+        nom = a.interpolate(x)
+        denom = b.interpolate(x)
+        y.append(nom / denom if all([nom, denom]) else 0)
+
+    return BalanceData( timestamps, y )
+
+
+def ema(a,length):
+    length = float(length)
+    out = []
+    ema = 0
+    last_timestamp = 0
+    for timestamp, value in a.items():
+        diff = timestamp - last_timestamp
+        last_timestamp = timestamp
+        mixin = math.exp(-(diff / length))
+        ema = ema * mixin + value * (1 - mixin)
+        out.append(ema)
+
+    return BalanceData(a.timestampAsUnix(), out)
+
+
+
+
+def advantage_over_shannon_profit(portfolio, btc_usd, window_size):
+    def _shannon_profit(old_price, new_price, old_portfolio, new_portfolio):
+        if not all((old_price, new_price, old_portfolio, new_portfolio)):
+            return 0
+
+        shannon = (old_price + new_price) / 2 - old_price
+        our = float(new_price * new_portfolio - old_price * old_portfolio) / old_portfolio
+
+        advantage = (our - shannon) / old_price
+        return advantage
+
+
+    timestamps = list(set(portfolio.timestampAsUnix()) | set(portfolio.timestampAsUnix()))
+    timestamps.sort()
+
+    out = []
+
+    for timestamp in timestamps:
+        begin = timestamp - window_size
+        end = timestamp
+        profit = _shannon_profit(
+            btc_usd.interpolate(begin),
+            btc_usd.interpolate(end),
+            portfolio.interpolate(begin),
+            portfolio.interpolate(end))
+        out.append(profit)
+
+    return BalanceData(timestamps, out)
+
+
+

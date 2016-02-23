@@ -6,8 +6,6 @@ import time
 import hashlib
 import hmac
 import logging
-from common.resources.partialBalance import PartialBalance
-from common.resources.collection import Collection
 from common.conversiontable import ConversionTable
 
 log = logging.getLogger( 'main.exchanges.hitbtc' )

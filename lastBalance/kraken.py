@@ -8,7 +8,6 @@ import hashlib
 import hmac
 import base64
 import logging
-from common.resources.collection import Collection
 
 log = logging.getLogger( 'main.exchanges.kraken' )
 

@@ -136,10 +136,10 @@ class DropboxStorage:
     ##The writeBalance function that adds the blance value to the file in dropbox
     # @param identifier a string that identifies the file it will be written to.
     # @param value the value that should be writen
-    def writeBalance(self,identifier,value):
-        timestamp = int(time.time())
+    def append_balance(self, identifier, timestamp, value):
         filename=identifier+'.'+self.extention
         fullname = self.datafolder+'/'+filename
+        timestamp = int(timestamp)
 
         overwrite = True
 

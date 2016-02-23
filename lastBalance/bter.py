@@ -8,7 +8,6 @@ import hashlib
 import hmac
 import logging
 from common.conversiontable import ConversionException, ConversionTable
-from common.resources.collection import Collection
 
 log = logging.getLogger('main.exchanges.bter')
 
@@ -35,7 +34,6 @@ class BterLastBalance:
             for k, v in balance['available_funds'].items():
                 total += self._convert( k, 'BTC', float(v) )
 
-        out = Collection()
         return total
 
     def _buildConversionTable(self, api):
@@ -109,17 +107,3 @@ class BterApi:
             except:
                 pass
         raise
-
-def main():
-    vis = BterVisitor()
-    json = { 'type':'bter',
-             'out':'bter-test',
-             'pubkey':'bogus-public-key',
-             'privkey':'aa33153451345134513451345314'}
-
-    assert( vis.accept(json) )
-
-    print vis.visit( json )
-
-if __name__ == '__main__':
-    main()

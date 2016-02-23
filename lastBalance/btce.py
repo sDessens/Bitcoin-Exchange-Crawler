@@ -5,7 +5,6 @@ from urllib3 import connection_from_url
 import json
 import time
 import hmac, hashlib
-from common.resources.partialBalance import PartialBalance
 from common.conversiontable import ConversionTable, ConversionException
 import logging
 
