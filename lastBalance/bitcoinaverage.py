@@ -9,7 +9,7 @@ log = logging.getLogger('main.exchanges.bitcoinaverage')
 
 class BitcoinAverageLastBalance:
     def __init__(self, currency):
-        self._currency = 'USD'
+        self._currency = currency
 
     def crawl(self):
         api = BitcoinAverageApi()
