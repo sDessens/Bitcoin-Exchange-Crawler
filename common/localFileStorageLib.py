@@ -29,6 +29,7 @@ class LocalFileStorage:
     # @param identifier a string that identifies the file it will be written to.
     # @param value the value that should be writen
     def append_balance(self, identifier, timestamp, value):
+        timestamp = int(timestamp)
         filepath = self.location+'/'+identifier+'.csv'
         if not os.path.exists(os.path.dirname(filepath)):
             os.makedirs(os.path.dirname(filepath))
