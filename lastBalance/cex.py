@@ -67,17 +67,12 @@ class CexApi:
         return wallet
 
     def getMarkets(self):
-        # Dear cex.io. Please fix your api. Best regards
-        return [
-            ('GHS', 'BTC'),
-            ('LTC', 'BTC'),
-            ('NMC', 'BTC'),
-            ('GHS', 'NMC'),
-            ('IXC', 'BTC'),
-            ('GHS', 'USD'),
-            ('BTC', 'USD'),
-            ('LTC', 'USD')
-        ]
+        js = self._get('https://cex.io', '/api/currency_limits', {})
+
+        symbols = []
+        for p in js['data']["pairs"]:
+            symbols.append((p['symbol1'], p['symbol2']))
+        return symbols
 
     def getMarketsGraph(self):
         graph = {}
