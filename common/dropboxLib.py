@@ -119,7 +119,7 @@ class DropboxStorage:
             metadata,fp  = self.downloadFile(filename)
         except Exception as e:
             log.error( 'while downloading file {0}: {1}'.format( filename, str(e) ) )
-            raise Exception()
+            raise
 
         data = fp.content
         lines = [ line for line in data.split('\n') if len( line ) ]
