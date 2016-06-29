@@ -5,6 +5,7 @@
 import common.tempFileLib
 import json
 import dropbox
+
 import time
 import logging
 log = logging.getLogger( 'main.dropbox' )
@@ -55,7 +56,7 @@ class DropboxStorage:
             app_key = raw_input("Enter the App key here: ").strip()
             print '2. Copy the App secret.'
             app_secret = raw_input("Enter the App secret here: ").strip()
-            flow = dropbox.client.DropboxOAuth2FlowNoRedirect(app_key, app_secret)
+            flow = dropbox.DropboxOAuth2FlowNoRedirect(app_key, app_secret)
 
             authorize_url = flow.start()
             print '1. Go to: ' + authorize_url
@@ -81,27 +82,27 @@ class DropboxStorage:
                     json.dump(self.session,fp)
         else:
             access_token = self.session['access_token']
-        self.client = dropbox.client.DropboxClient(access_token)
+        self.client = dropbox.Dropbox(access_token)
 
     ## Downloads a file from dropbox including metadata
     # @param fullname the path of the file
     # @return dropbox filepointer
     def downloadFile(self,fullname):
         assert( self.client )
-        return self.client.get_file_and_metadata(fullname)
+        return self.client.files_download(fullname)
 
     ## Uploads a file to dropbox through the use of a filepointer
     #   @param filepointer
     #   @param uploadname the name underwhich to upload the file
     def writeFilePTR(self, filepointer,uploadname):
-        response = self.client.put_file(self.datafolder+'/'+uploadname, filepointer,True)
+        response = self.client.files_upload(filepointer, self.datafolder+'/'+uploadname,dropbox.files.WriteMode('overwrite',value=None),True)
     
     ## Uploads a file to dropbox through the use of a filepath
     #   @param localpath path to the file that should be uploaded, relative to current dir
     #   @param uploadname the name under which to upload the file
     def writeFile(self, localpath ,uploadname):
         with open(localpath, 'rb') as fp:
-            response = self.client.put_file(self.datafolder+'/'+uploadname, fp,True)
+            response = self.client.files_upload(fp, self.datafolder+'/'+uploadname,dropbox.files.WriteMode('overwrite',value=None),True)
 
     ##The readBalance function that downloads the balanceData and returns a BalanceData object
     # @param identifier a string that identifies the file it will be written to.
@@ -118,7 +119,7 @@ class DropboxStorage:
 
         try:
             fp, metadata = self.downloadFile(fullname)
-        except dropbox.client.ErrorResponse as e:
+        except Exception as e:
             log.error( 'while downloading file {0}: {1}'.format( fullname, str(e) ) )
             raise Exception()
 
@@ -141,8 +142,6 @@ class DropboxStorage:
         filename=identifier+'.'+self.extention
         fullname = self.datafolder+'/'+filename
 
-        overwrite = True
-
         temppath = common.tempFileLib.generateTempFile(True)
 
         with open(temppath, mode='wb+') as filepointer:
@@ -156,14 +155,12 @@ class DropboxStorage:
                 # Something went terribly wrong.
                 # in both cases, we probably want to NOT overwrite the (possibly) already existing file.
                 log.warn( 'Exception thrown while downloading {0}.'.format(filename))
-                overwrite = False
 
             filepointer.write(str(timestamp)+","+str(value)+"\n")
             filepointer.seek(0)
 
             try:
-                response = self.client.put_file(fullname, filepointer, overwrite)
-            except dropbox.client.ErrorResponse as e:
+                response = response = self.writeFilePTR(filepointer, fullname)
+            except Exception as e:
                 log.error( 'while uploading file {0}: {1}'.format( fullname, str(e) ) )
                 raise Exception()
-
