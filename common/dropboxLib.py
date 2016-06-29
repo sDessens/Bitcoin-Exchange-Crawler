@@ -6,7 +6,6 @@ import common.tempFileLib
 import json
 import dropbox
 
-import time
 import logging
 log = logging.getLogger( 'main.dropbox' )
 
@@ -89,20 +88,20 @@ class DropboxStorage:
     # @return dropbox filepointer
     def downloadFile(self,fullname):
         assert( self.client )
-        return self.client.files_download(fullname)
+        return self.client.files_download('/'.join(["",self.datafolder, fullname]))
 
     ## Uploads a file to dropbox through the use of a filepointer
     #   @param filepointer
     #   @param uploadname the name underwhich to upload the file
     def writeFilePTR(self, filepointer,uploadname):
-        response = self.client.files_upload(filepointer, self.datafolder+'/'+uploadname,dropbox.files.WriteMode('overwrite',value=None),True)
+        response = self.client.files_upload(filepointer, '/'.join(["",self.datafolder, uploadname]), dropbox.files.WriteMode('overwrite',None),True)
     
     ## Uploads a file to dropbox through the use of a filepath
     #   @param localpath path to the file that should be uploaded, relative to current dir
     #   @param uploadname the name under which to upload the file
     def writeFile(self, localpath ,uploadname):
         with open(localpath, 'rb') as fp:
-            response = self.client.files_upload(fp, self.datafolder+'/'+uploadname,dropbox.files.WriteMode('overwrite',value=None),True)
+            response = self.client.files_upload(fp, '/'.join(["",self.datafolder,uploadname]),dropbox.files.WriteMode('overwrite',None),True)
 
     ##The readBalance function that downloads the balanceData and returns a BalanceData object
     # @param identifier a string that identifies the file it will be written to.
@@ -112,18 +111,17 @@ class DropboxStorage:
     def readBalance(self,identifier,fromTime=0,toTime=2000000000):
         assert( self.client )
         filename=identifier+'.'+self.extention
-        fullname = self.datafolder+'/'+filename
 
         timestamps= []
         balance=[]
 
         try:
-            fp, metadata = self.downloadFile(fullname)
+            metadata,fp  = self.downloadFile(filename)
         except Exception as e:
-            log.error( 'while downloading file {0}: {1}'.format( fullname, str(e) ) )
+            log.error( 'while downloading file {0}: {1}'.format( filename, str(e) ) )
             raise Exception()
 
-        data = fp.read()
+        data = fp.content
         lines = [ line for line in data.split('\n') if len( line ) ]
 
         for line in lines:
@@ -139,7 +137,6 @@ class DropboxStorage:
     # @param value the value that should be writen
     def append_balance(self, identifier, timestamp, value):
         filename=identifier+'.'+self.extention
-        fullname = self.datafolder+'/'+filename
         timestamp = int(timestamp)
 
         temppath = common.tempFileLib.generateTempFile(True)
@@ -147,8 +144,8 @@ class DropboxStorage:
         with open(temppath, mode='wb+') as filepointer:
             #if the file already exists download it else create it
             try:
-                restdata, metadata = self.downloadFile(fullname)
-                filepointer.write(restdata.read())
+                metadata, restdata = self.downloadFile(filename)
+                filepointer.write(restdata.content)
             except:
                 # there can be an exception thrown because of 2 reasons:
                 # The file does not exists yet.
@@ -160,7 +157,8 @@ class DropboxStorage:
             filepointer.seek(0)
 
             try:
-                response = response = self.writeFilePTR(filepointer, fullname)
+                response = response = self.writeFilePTR(filepointer, filename)
             except Exception as e:
-                log.error( 'while uploading file {0}: {1}'.format( fullname, str(e) ) )
+                log.error( 'while uploading file {0}: {1}'.format( filename, str(e) ) )
                 raise Exception()
+
