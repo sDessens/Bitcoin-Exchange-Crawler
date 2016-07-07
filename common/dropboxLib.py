@@ -160,5 +160,5 @@ class DropboxStorage:
                 response = response = self.writeFilePTR(filepointer, filename)
             except Exception as e:
                 log.error( 'while uploading file {0}: {1}'.format( filename, str(e) ) )
-                raise Exception()
+                raise
 
