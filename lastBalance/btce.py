@@ -3,8 +3,9 @@
 import urllib
 from urllib3 import connection_from_url
 import json
+import hmac
 import time
-import hmac, hashlib
+import hashlib
 from common.conversiontable import ConversionTable, ConversionException
 import logging
 
@@ -32,21 +33,26 @@ class BtceLastBalance:
             totals.append(availablefunds + orderfunds)
         return median(totals)
 
+
 class BtceApi:
     def __init__(self, APIKey, Secret, tovalue):
         self.APIKey = str(APIKey)
         self.Secret = str(Secret)
         self.toValue = tovalue
         self.nonce = int(time.time())
-        self.http_pool = connection_from_url('https://btc-e.com')
+        self.url = 'https://btc-e.com'
         self.table = ConversionTable(self.getMarketsGraph())
         
-    def query_public(self,uri):
-        ret = self.http_pool.request('GET',uri)
-        jsonRet = json.loads(ret.data)
-        return jsonRet
+    def query_public(self, uri):
+        headers = {
+            "Content-type": "application/x-www-form-urlencoded",
+        }
+        request = urllib2.Request(self.url + uri, headers=headers)
+        response = urllib2.urlopen(request)
+        data = response.read().decode('utf-8')
+        return json.loads(data)
 
-    def query_private(self, method,uri, req={}):
+    def query_private(self, method, uri, req={}):
         req['method'] = method
         req['nonce'] = self.nonce
         post_data = urllib.urlencode(req)
@@ -58,20 +64,22 @@ class BtceApi:
             'Key': self.APIKey
         }
 
-        ret = self.http_pool.request_encode_body('POST', uri, fields=req, headers=headers)
-        reply = json.loads(ret.data)
+        request = urllib2.Request(self.url + uri, headers=headers, data=urllib.urlencode(req))
+        response = urllib2.urlopen(request)
+        data = response.read().decode('utf-8')
+        reply = json.loads(data)
 
-        #raise an error if it is an invalid key
+        # raise an error if it is an invalid key
         if int(reply['success']) == 1:
             return reply['return']
 
         if reply['error'] == 'invalid api key':
-            raise Exception( 'Btce: ' + str( reply['error'] ))
+            raise Exception('Btce: ' + str(reply['error']))
         elif reply['error'] == 'no orders':
             return None
 
     def calculateFundsInOrders(self):
-        #calculate funds stuck in orders
+        # calculate funds stuck in orders
         total = 0
         orders = self.query_private('ActiveOrders','/tapi')
         if orders is not None:
@@ -80,10 +88,7 @@ class BtceApi:
                 amount = order['amount']
                 keys = orderpair.split('_')
                 key = keys[0]
-                try:
-                    total += self.table.convert(key, self.toValue, amount)
-                except Exception as e:
-                    log.warn(e)
+                total += self.table.try_convert(key, self.toValue, amount)
         return total
 
     def calculateAvailableFunds(self):
@@ -93,9 +98,9 @@ class BtceApi:
 
         funds = wallet['funds']
         total = 0
-        #calculate funds
+        # calculate funds
         for key, amount in funds.iteritems():
-            total += self.table.try_convert(key, self.toValue, amount)
+            total += self.table.convert(key, self.toValue, amount)
         return total
 
     def getMarketsGraph(self):
@@ -110,6 +115,6 @@ class BtceApi:
             d[pair] = (rate, cost)
         return d
 
-    def getTicker(self,pair):
+    def getTicker(self, pair):
         ret = self.query_public('/api/2/'+pair+'/ticker')
         return ret['ticker']
