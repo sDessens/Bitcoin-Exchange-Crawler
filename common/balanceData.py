@@ -229,4 +229,35 @@ def advantage_over_shannon_profit(portfolio, btc_usd, window_size):
     return BalanceData(timestamps, out)
 
 
+def reverse_shannon_profit(portfolio, btc_usd):
+    def _shannon_profit(old_price, new_price, old_portfolio, new_portfolio):
+        if not all((old_price, new_price, old_portfolio, new_portfolio)):
+            return 0
+
+        shannon = (old_price + new_price) / 2 - old_price
+        our = float(new_price * new_portfolio - old_price * old_portfolio) / old_portfolio
+
+        advantage = (our - shannon) / old_price
+        return advantage
+
+
+    timestamps = list(set(portfolio.timestampAsUnix()) | set(portfolio.timestampAsUnix()))
+    timestamps.sort()
+
+    out = []
+
+    end = timestamps[-1]
+
+    for timestamp in timestamps:
+        begin = timestamp
+        profit = _shannon_profit(
+            btc_usd.interpolate(begin),
+            btc_usd.interpolate(end),
+            portfolio.interpolate(begin),
+            portfolio.interpolate(end))
+        out.append(profit)
+
+    return BalanceData(timestamps, out)
+
+
 
