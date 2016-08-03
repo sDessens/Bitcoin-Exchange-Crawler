@@ -28,7 +28,7 @@ class KrakenApi:
         self.priv = priv
 
     def getBalance(self, key):
-        key = { 'BTC' : 'XBTC',
+        key = { 'BTC' : 'XXBT',
                 'EUR' : 'ZEUR',
                 'USD' : 'ZUSD'}[key.upper()]
 
@@ -37,7 +37,7 @@ class KrakenApi:
 
     def _parseResponse(self, json):
         if 'result' in json:
-            return float(json['result']['tb'])
+            return float(json['result']['eb'])
         else:
             log.error( '{0}'.format( str( json['error']) ) )
             raise Exception()
