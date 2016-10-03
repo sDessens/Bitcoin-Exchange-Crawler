@@ -1,4 +1,4 @@
-#-Module that provides functionallity to write/read files and
+# -Module that provides functionallity to write/read files and
 # balancedata to/from dropbox.
 
 
@@ -7,27 +7,30 @@ import json
 import dropbox
 
 import logging
-log = logging.getLogger( 'main.dropbox' )
+
+log = logging.getLogger('main.dropbox')
+import time
 
 import common.balanceData as balanceData
 
+
 ##
-#This class uses dropbox as storage medium.
+# This class uses dropbox as storage medium.
 #
 # @param datafolder the dropbox folder the files should be send to
 # \var seperator the separator used for the uploaded files
 # All params should be string values<BR>
 # Example:<BR>
 #   storage = DropboxStorage('/dropboxsubfolder')
-    
+
 class DropboxStorage:
-    def __init__(self,datafolder):
+    def __init__(self, datafolder):
         self.datafolder = datafolder
 
         self.separator = ","
-        self.client= None
+        self.client = None
         self.session = {}
-        
+
         self.extention = 'csv'
         self.accessTokenFile = 'accesstoken.json'
         """Check if the file alreay exists if not creat it"""
@@ -37,7 +40,7 @@ class DropboxStorage:
         except:
             print "creating file"
             with open(self.accessTokenFile, mode='w') as fp:
-                json.dump(self.session,fp)
+                json.dump(self.session, fp)
         self.authorize()
 
     ##
@@ -62,23 +65,23 @@ class DropboxStorage:
             print '2. Click "Allow" (you might have to log in first)'
             print '3. Copy the authorization code.'
             code = raw_input("Enter the authorization code here: ").strip()
-            
+
             # This will fail if the user enters an invalid authorization code
             access_token, user_id = flow.finish(code)
             self.session['access_token'] = access_token
             print 'Access to dropbox can be saved for automation purpose'
-            print 'If you do save it it will be stored in '+self.accessTokenFile
+            print 'If you do save it it will be stored in ' + self.accessTokenFile
             print 'Be aware that this file gives access to your dropbox account, so better protect it!'
             save = None
-            yes = ['y','yes']
-            inputs = yes+['no','n']
+            yes = ['y', 'yes']
+            inputs = yes + ['no', 'n']
             while save not in inputs:
                 save = raw_input('Do you want to store access to this dropbox account [y/n] ()').strip().lower()
                 if save not in inputs:
-                    print 'posible inputs '+str(inputs)
+                    print 'posible inputs ' + str(inputs)
             if save in yes:
                 with open(self.accessTokenFile, mode='w') as fp:
-                    json.dump(self.session,fp)
+                    json.dump(self.session, fp)
         else:
             access_token = self.session['access_token']
         self.client = dropbox.Dropbox(access_token)
@@ -86,79 +89,87 @@ class DropboxStorage:
     ## Downloads a file from dropbox including metadata
     # @param fullname the path of the file
     # @return dropbox filepointer
-    def downloadFile(self,fullname):
-        assert( self.client )
-        return self.client.files_download('/'.join(["",self.datafolder, fullname]))
+    def downloadFile(self, fullname):
+        assert (self.client)
+        return self.client.files_download('/'.join(["", self.datafolder, fullname]))
 
     ## Uploads a file to dropbox through the use of a filepointer
     #   @param filepointer
     #   @param uploadname the name underwhich to upload the file
-    def writeFilePTR(self, filepointer,uploadname):
-        response = self.client.files_upload(filepointer, '/'.join(["",self.datafolder, uploadname]), dropbox.files.WriteMode('overwrite',None),True)
-    
+    def writeFilePTR(self, filepointer, uploadname):
+        return self.client.files_upload(filepointer, '/'.join(["", self.datafolder, uploadname]),
+                                        dropbox.files.WriteMode('overwrite', None), True)
+
     ## Uploads a file to dropbox through the use of a filepath
     #   @param localpath path to the file that should be uploaded, relative to current dir
     #   @param uploadname the name under which to upload the file
-    def writeFile(self, localpath ,uploadname):
+    def writeFile(self, localpath, uploadname):
         with open(localpath, 'rb') as fp:
-            response = self.client.files_upload(fp, '/'.join(["",self.datafolder,uploadname]),dropbox.files.WriteMode('overwrite',None),True)
+            return self.client.files_upload(fp, '/'.join(["", self.datafolder, uploadname]),
+                                            dropbox.files.WriteMode('overwrite', None), True)
 
     ##The readBalance function that downloads the balanceData and returns a BalanceData object
     # @param identifier a string that identifies the file it will be written to.
     # @param fromTime the timeStamp from which the data should be returned
     # @param toTime the until what timeStamp data should be fetched
     # @return BalanceData the object that contains the balance data and timestamp in the period given by fromTime,toTime
-    def readBalance(self,identifier,fromTime=0,toTime=2000000000):
-        assert( self.client )
-        filename=identifier+'.'+self.extention
+    def readBalance(self, identifier, fromTime=0, toTime=2000000000):
+        assert (self.client)
+        filename = identifier + '.' + self.extention
 
-        timestamps= []
-        balance=[]
+        timestamps = []
+        balance = []
 
         try:
-            metadata,fp  = self.downloadFile(filename)
+            metadata, fp = self.downloadFile(filename)
         except Exception as e:
-            log.error( 'while downloading file {0}: {1}'.format( filename, str(e) ) )
+            log.error('while downloading file {0}: {1}'.format(filename, str(e)))
             raise
 
         data = fp.content
-        lines = [ line for line in data.split('\n') if len( line ) ]
+        lines = [line for line in data.split('\n') if len(line)]
 
         for line in lines:
             values = line.split(self.separator)
             time = int(values[0])
-            if  time > fromTime and time < toTime:
+            if time > fromTime and time < toTime:
                 timestamps.append(time)
                 balance.append(float(values[1]))
-        return balanceData.BalanceData(timestamps,balance)
+        return balanceData.BalanceData(timestamps, balance)
 
     ##The writeBalance function that adds the blance value to the file in dropbox
     # @param identifier a string that identifies the file it will be written to.
     # @param value the value that should be writen
     def append_balance(self, identifier, timestamp, value):
-        filename=identifier+'.'+self.extention
+        filename = identifier + '.' + self.extention
         timestamp = int(timestamp)
 
         temppath = common.tempFileLib.generateTempFile(True)
 
         with open(temppath, mode='wb+') as filepointer:
-            #if the file already exists download it else create it
+            # if the file already exists download it else create it
             try:
                 metadata, restdata = self.downloadFile(filename)
                 filepointer.write(restdata.content)
             except:
-                # there can be an exception thrown because of 2 reasons:
-                # The file does not exists yet.
-                # Something went terribly wrong.
-                # in both cases, we probably want to NOT overwrite the (possibly) already existing file.
-                log.warn( 'Exception thrown while downloading {0}.'.format(filename))
+                # the file probably doesn't exist. Create it.
+                log.warn('Exception thrown while downloading {0}.'.format(filename))
 
-            filepointer.write(str(timestamp)+","+str(value)+"\n")
+            filepointer.write(str(timestamp) + "," + str(value) + "\n")
             filepointer.seek(0)
 
-            try:
-                response = response = self.writeFilePTR(filepointer, filename)
-            except Exception as e:
-                log.error( 'while uploading file {0}: {1}'.format( filename, str(e) ) )
-                raise
-
+            n = 0
+            written_file_size = 0
+            while written_file_size == 0:
+                n = n + 1
+                if n >= 5:
+                    raise Exception("max attempts reached")
+                try:
+                    response = self.writeFilePTR(filepointer, filename)
+                    written_file_size = response.size
+                    if written_file_size == 0:
+                        log.warn("retry")
+                        time.sleep(5)
+                except Exception as e:
+                    log.error('while uploading file {0}: {1}'.format(filename, str(e)))
+                    raise
