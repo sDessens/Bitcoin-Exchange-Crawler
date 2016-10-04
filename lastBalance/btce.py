@@ -100,7 +100,8 @@ class BtceApi:
         total = 0
         # calculate funds
         for key, amount in funds.iteritems():
-            total += self.table.convert(key, self.toValue, amount)
+            if amount:
+                total += self.table.try_convert(key, self.toValue, amount)
         return total
 
     def getMarketsGraph(self):
