@@ -166,6 +166,7 @@ class DropboxStorage:
                     raise Exception("max attempts reached")
                 try:
                     response = self.writeFilePTR(filepointer, filename)
+                    filepointer.seek(0)
                     written_file_size = response.size
                     if written_file_size == 0:
                         log.warn("retry")
