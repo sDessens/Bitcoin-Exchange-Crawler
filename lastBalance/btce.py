@@ -1,7 +1,7 @@
 # Module allows the retrieval of balances from BTC-e
 
 import urllib
-from urllib3 import connection_from_url
+import urllib2                         
 import json
 import hmac
 import time
@@ -27,7 +27,7 @@ class BtceLastBalance:
         totals = []
         # Query the balance a few times, then grab the median value to work around
         # race conditions in the API.
-        for i in range(3):
+        for i in range(5):
             availablefunds = api.calculateAvailableFunds()
             orderfunds = api.calculateFundsInOrders()
             totals.append(availablefunds + orderfunds)
