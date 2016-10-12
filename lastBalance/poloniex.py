@@ -9,7 +9,8 @@ import hmac
 import logging
 from common.conversiontable import ConversionTable
 
-log = logging.getLogger( 'main.exchanges.poloniex' )
+log = logging.getLogger('main.exchanges.poloniex')
+
 
 class PoloniexLastBalance:
     def __init__(self, pubkey, privkey):
@@ -20,12 +21,34 @@ class PoloniexLastBalance:
         api = PoloniexApi(self._pubkey, self._privkey)
 
         markets = api.getMarketsGraph()
-        wallet = api.getWallet(markets)
+        wallet = api.getWallet()
+        open_orders = api.getOpenoOrders()
         table = ConversionTable(markets)
+        funds = {}
         total = 0
-        for k, v in wallet.items():
-            total += table.convert(k, 'BTC', v)
+
+        # Although the getWallet call returns the amount of funds in orders and the total
+        # value in btc, the api ia bugged and returns less funds than there actually are
+        # when there are multiple orders for the exact same amount at different markets.
+        # We are forced to parse the in orders ourselves to get ocrrect results
+        for pair, details in wallet.items():
+            amount = float(details['available'])
+            if amount:
+                funds[pair] = float(details['available'])
+
+        for pair, orders in open_orders.items():
+            if orders:
+                for order in orders:
+                    if order['type'] == 'buy':
+                        funds[pair.partition('_')[0]] += float(order['total'])
+                    else:
+                        funds[pair.partition('_')[2]] += float(order['amount'])
+
+        for k, v in funds.items():
+            if v:
+                total += table.convert(k, 'BTC', v)
         return total
+
 
 class PoloniexApi:
     def __init__(self, pub, priv):
@@ -50,21 +73,13 @@ class PoloniexApi:
         req.add_header("User-Agent", "Bitcoin-exchange-crawler")
         return json.loads(urllib2.urlopen(req).read())
 
-    def getWallet(self, markets):
+    def getOpenoOrders(self):
+        command = 'returnOpenOrders'
+        return self._get(command, {'currencyPair': 'all'})
+
+    def getWallet(self):
         command = 'returnCompleteBalances'
-
-        js = self._get(command, {})
-
-        wallet = {}
-        for k, v in js.items():
-            if len(k) == 3 or len(k) == 4:
-                # Some markets are inactive so we need to check if the stock exists in markets
-                for market in markets:
-                    if market[0] == k or market[1] == k:
-                        wallet[k] = float(v["available"])
-                        wallet[k] += float(v["onOrders"])
-
-        return wallet
+        return self._get(command, {})
 
     def getMarketsGraph(self):
         graph = {}
