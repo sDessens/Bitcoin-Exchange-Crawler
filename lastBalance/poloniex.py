@@ -32,9 +32,7 @@ class PoloniexLastBalance:
         # when there are multiple orders for the exact same amount at different markets.
         # We are forced to parse the in orders ourselves to get ocrrect results
         for pair, details in wallet.items():
-            amount = float(details['available'])
-            if amount:
-                funds[pair] = float(details['available'])
+            funds[pair] = float(details['available'])
 
         for pair, orders in open_orders.items():
             if orders:
@@ -89,7 +87,7 @@ class PoloniexApi:
             pair = (keys[1], keys[0])
             if "_" in key:
                 rate = (float(value['lowestAsk']) + float(value['highestBid'])) / 2.0
-                cost = (float(value['lowestAsk']) - rate) / rate
+                cost = abs((float(value['lowestAsk']) - rate)) / rate
                 graph[pair] = (rate, cost)
 
         return graph
