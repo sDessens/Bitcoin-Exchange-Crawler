@@ -23,6 +23,19 @@ class PoloniexLastBalance:
         markets = api.getMarketsGraph()
         wallet = api.getWallet()
         open_orders = api.getOpenoOrders()
+
+        # keep querying the wallet and open orders until we reach a consistent state
+        # which prevents race conditions resulting in an incorrect queried balance
+        while True:
+            wallet2 = api.getWallet()
+            if wallet == wallet2: break
+            wallet = wallet2
+            time.sleep(0.3)
+            open_orders2 = api.getOpenoOrders()
+            if open_orders == open_orders2: break
+            open_orders = open_orders2
+            time.sleep(0.3)
+
         table = ConversionTable(markets)
         funds = {}
         total = 0
