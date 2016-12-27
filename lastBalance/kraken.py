@@ -21,6 +21,10 @@ class KrakenLastBalance:
         api = KrakenApi(self._pubkey, self._privkey)
         return api.getBalance('BTC')
 
+    def crawl_trades(self):
+        api = KrakenApi(self._pubkey, self._privkey)
+        js = api.getTradeHistory()
+        return js['trades']
 
 class KrakenApi:
     def __init__(self, pub, priv):
@@ -33,10 +37,15 @@ class KrakenApi:
                 'USD' : 'ZUSD'}[key.upper()]
 
         json = self._query_private( 'TradeBalance', { 'asset' : key } )
-        return self._parseResponse( json )
+        return self._parseResponse(json)
+
+    def getTradeHistory(self):
+        json = self._query_private('TradesHistory', {})
+        return json['result']
 
     def _parseResponse(self, json):
         if 'result' in json:
+            print json
             return float(json['result']['eb'])
         else:
             log.error( '{0}'.format( str( json['error']) ) )
