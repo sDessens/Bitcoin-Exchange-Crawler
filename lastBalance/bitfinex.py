@@ -10,6 +10,9 @@ from common.conversiontable import ConversionTable
 
 log = logging.getLogger( 'main.exchanges.bitfinex' )
 
+import urllib
+import httplib
+
 class BitfinexLastBalance:
     def __init__(self, pubkey, privkey):
         self._pubkey = pubkey
@@ -31,7 +34,28 @@ class BitfinexLastBalance:
 
         return sorted(totals)[len(totals)/2]
 
+    def crawl_trades(self):
+        api = BitfinexAPI(self._pubkey, self._privkey)
+
+        trades = {}
+
+        for market in api.getMarkets():
+            pair = ''.join(market)
+            trades[pair] = []
+            since = 0
+            while True:
+                js = api.getMyTrades(pair, since)
+                trades[pair] += js
+                if len(js) != api.MAX_MY_TRADES:
+                    break
+                since = int(float(max([str(x['timestamp']) for x in js])) + 1)
+
+        return trades
+
+
 class BitfinexAPI:
+    MAX_MY_TRADES = 1000
+
     def __init__(self, pub, priv):
         self.pub = str(pub)
         self.priv = str(priv)
@@ -39,10 +63,13 @@ class BitfinexAPI:
 
 
     def _getAuthenticated(self, uri, params):
+        h = urllib2.HTTPHandler(debuglevel=1)
+        opener = urllib2.build_opener(h)
+        urllib2.install_opener(opener)
+
         payloadObject = {
             'request': uri,
             'nonce': str(time.time()),
-
         }
         payloadObject.update(params)
         payload_json = json.dumps(payloadObject)
@@ -63,6 +90,7 @@ class BitfinexAPI:
             return json.loads(ret.read())
         except Exception as e:
             log.error( 'network error: ' + str(e) )
+            print e.read()
             raise e
 
     def _get_public(self, uri):
@@ -91,7 +119,20 @@ class BitfinexAPI:
             wallet = None
         return wallet
 
-    def _getMarkets(self):
+    def getMyTrades(self, pair, since):
+        uri = '/v1/mytrades'
+        params = {
+            'request': uri,
+            'nonce': str(time.time()),
+            'symbol': pair,
+            'timestamp': str(since),
+            'limit_trades': self.MAX_MY_TRADES,
+            'reverse': 1
+        }
+        js = self._getAuthenticated(uri, params)
+        return js
+
+    def getMarkets(self):
         uri = '/v1/symbols'
         markets = self._get_public( uri)
         splitsymbols = []
@@ -105,7 +146,7 @@ class BitfinexAPI:
 
     def getMarketsGraph(self):
         graph = {}
-        for pri, sec in self._getMarkets():
+        for pri, sec in self.getMarkets():
             uri = '/v1/pubticker/%s%s' % (pri, sec)
             js = self._get_public( uri)
             bid = float(js['bid'])

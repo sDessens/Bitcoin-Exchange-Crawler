@@ -8,6 +8,7 @@ import hashlib
 import hmac
 import logging
 from common.conversiontable import ConversionTable
+from datetime import datetime
 
 log = logging.getLogger('main.exchanges.poloniex')
 
@@ -60,6 +61,12 @@ class PoloniexLastBalance:
                 total += table.convert(k, 'BTC', v)
         return total
 
+    def crawl_trades(self):
+        api = PoloniexApi(self._pubkey, self._privkey)
+        start = 1420074061
+        end = int(time.time())
+        return api.return_trade_history('all', start, end)
+
 
 class PoloniexApi:
     def __init__(self, pub, priv):
@@ -83,6 +90,11 @@ class PoloniexApi:
         req = urllib2.Request("https://poloniex.com/public?command=" + command)
         req.add_header("User-Agent", "Bitcoin-exchange-crawler")
         return json.loads(urllib2.urlopen(req).read())
+
+    def return_trade_history(self, pair, start, end):
+        return self._get('returnTradeHistory', {'currencyPair': pair,
+                                                'start': start,
+                                                'end': end})
 
     def getOpenoOrders(self):
         command = 'returnOpenOrders'

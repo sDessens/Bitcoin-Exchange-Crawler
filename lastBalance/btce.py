@@ -12,6 +12,30 @@ import logging
 log = logging.getLogger('main.read.btce')
 
 
+class BtceApiException(Exception):
+    pass
+
+
+class BtceNoTradesApiException(BtceApiException):
+    pass
+
+
+class BtceInvalidApiKeyException(BtceApiException):
+    pass
+
+
+def throw_btce_exception(response):
+    if int(response['success']) == 1:
+        return
+
+    error_string = response['error']
+    if error_string == 'no trades':
+        raise BtceNoTradesApiException(error_string)
+    elif error_string == 'invalid api key':
+        raise BtceInvalidApiKeyException(error_string)
+    else:
+        raise BtceApiException(error_string)
+
 
 class BtceLastBalance:
     def __init__(self, pubkey, privkey):
@@ -32,6 +56,22 @@ class BtceLastBalance:
             orderfunds = api.calculateFundsInOrders()
             totals.append(availablefunds + orderfunds)
         return median(totals)
+
+    def crawl_trades(self):
+        api = BtceApi(self._pubkey, self._privkey, "btc")
+        start = 0
+        size = 1000
+        trades = {}
+        while True:
+            try:
+                new_trades = api.getTrades(start, size)
+            except BtceNoTradesApiException:
+                break
+
+            trades.update(new_trades)
+            start += size
+            time.sleep(1)  # do not spam
+        return trades
 
 
 class BtceApi:
@@ -69,14 +109,8 @@ class BtceApi:
         data = response.read().decode('utf-8')
         reply = json.loads(data)
 
-        # raise an error if it is an invalid key
-        if int(reply['success']) == 1:
-            return reply['return']
-
-        if reply['error'] == 'invalid api key':
-            raise Exception('Btce: ' + str(reply['error']))
-        elif reply['error'] == 'no orders':
-            return None
+        throw_btce_exception(reply)
+        return reply['return']
 
     def calculateFundsInOrders(self):
         # calculate funds stuck in orders
@@ -119,3 +153,10 @@ class BtceApi:
     def getTicker(self, pair):
         ret = self.query_public('/api/2/'+pair+'/ticker')
         return ret['ticker']
+
+    def getTrades(self, start, count):
+        params = {
+            "from": start,
+            "count": count,
+        }
+        return self.query_private('TradeHistory', '/tapi', params)

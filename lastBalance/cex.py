@@ -27,6 +27,18 @@ class CexLastBalance:
             total += table.convert(k, 'BTC', v)
         return total
 
+    def crawl_trades(self):
+        api = CexApi(self._pubkey, self._privkey, self._username)
+        trades = {}
+        for pair in ['BTC/USD', 'ETH/BTC', 'ETH/USD']:
+            for retries in range(10):
+                try:
+                    trades[pair] = api.archived_orders(pair)
+                except urllib2.HTTPError as e:
+                    print 'timeout... retying', pair
+                    continue
+                break
+        return trades
 
 class CexApi:
     def __init__(self, pub, priv, username):
@@ -40,6 +52,7 @@ class CexApi:
         params['signature'] = hmac.new(self.priv, params['nonce'] + self.user + self.pub, hashlib.sha256).hexdigest()
 
         req = urllib2.Request(www + uri, urllib.urlencode(params))
+        print urllib.urlencode(params)
         req.add_header("User-Agent", "Bitcoin-exchange-crawler")
         return json.loads(urllib2.urlopen(req).read())
 
@@ -47,6 +60,19 @@ class CexApi:
         req = urllib2.Request(www + uri)
         req.add_header("User-Agent", "Bitcoin-exchange-crawler")
         return json.loads(urllib2.urlopen(req).read())
+
+    def archived_orders(self, pair):
+        params = {
+            'limit': 2000,
+            # these arguments are documented to do something sensible, but do nothing:
+            # 'dateFrom' : ts_from,
+            # 'dateTo': ts_from + 2,
+            # 'lastTxDateFrom' : ts_from,
+            # 'lastTxDateTo': ts_from + 60*60*24*7,
+            'status': 'cd'
+        }
+        js = self._get('https://cex.io', '/api/archived_orders/' + pair, params)
+        return js
 
     def getWallet(self):
         www = 'https://cex.io'
