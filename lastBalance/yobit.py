@@ -112,6 +112,7 @@ class YobitApi:
 
     def calculateAvailableFunds(self):
         wallet = self.query_private('getInfo', '/tapi')
+        print wallet
         if wallet is None:
             return 0
 
@@ -123,9 +124,13 @@ class YobitApi:
                 total += amount
             else:
                 try:
-                    total += amount * self.getTicker(key + '_btc')['avg']
+                    ticker = self.getTicker(key + '_btc')
+                    price = (ticker['sell'] + ticker['buy']) / 2
+                    total += amount * price;
                 except YobitInvalidPairException:
-                    total += amount / self.getTicker('btc_' + key)['avg']
+                    ticker = self.getTicker('btc_' + key)
+                    price = (ticker['sell'] + ticker['buy']) / 2
+                    total += amount / price
 
         return total
 
@@ -133,6 +138,7 @@ class YobitApi:
         ret = self.query_public('/api/2/'+pair+'/ticker')
         if 'error' in ret and ret['error'] == "invalid pair":
             raise YobitInvalidPairException(pair)
+        print pair, ret
         return ret['ticker']
 
     def getTrades(self, start, count, pair='eth_btc'):
