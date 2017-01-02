@@ -8,6 +8,8 @@ log = logging.getLogger('main.localfile')
 class LocalFileStorage:
     def __init__(self, location):
         self.location = location
+        if not self.location.endswith('/'):
+            self.location += '/'
 
     def read_content(self, download_file_path):
         full_path = self.location + os.sep + download_file_path

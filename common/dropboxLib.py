@@ -27,6 +27,8 @@ import common.balanceData as balanceData
 class DropboxStorage:
     def __init__(self, datafolder):
         self.datafolder = datafolder
+        if not self.datafolder.endswith('/'):
+            self.datafolder += '/'
 
         self.separator = ","
         self.client = None
