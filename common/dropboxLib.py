@@ -92,7 +92,6 @@ class DropboxStorage:
     def read_content(self, download_file_path):
         assert self.client
         path = '/' + self.datafolder + download_file_path
-        print path
         return self.client.files_download(path)[1].text
 
     def write_content(self, upload_file_path, content):
