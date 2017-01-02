@@ -1,10 +1,11 @@
 # -Module that provides functionallity to write/read files and
 # balancedata to/from dropbox.
-
+from dropbox.exceptions import ApiError
 
 import common.tempFileLib
 import json
 import dropbox
+import dropbox.files
 
 import logging
 
@@ -86,91 +87,40 @@ class DropboxStorage:
             access_token = self.session['access_token']
         self.client = dropbox.Dropbox(access_token)
 
-    ## Downloads a file from dropbox including metadata
-    # @param fullname the path of the file
-    # @return dropbox filepointer
-    def downloadFile(self, fullname):
-        assert (self.client)
-        return self.client.files_download('/'.join(["", self.datafolder, fullname]))
+    def read_content(self, download_file_path):
+        assert self.client
+        path = '/' + self.datafolder + download_file_path
+        print path
+        return self.client.files_download(path)[1].text
 
-    ## Uploads a file to dropbox through the use of a filepointer
-    #   @param filepointer
-    #   @param uploadname the name underwhich to upload the file
-    def writeFilePTR(self, filepointer, uploadname):
-        return self.client.files_upload(filepointer, '/'.join(["", self.datafolder, uploadname]),
-                                        dropbox.files.WriteMode('overwrite', None), True)
+    def write_content(self, upload_file_path, content):
+        assert self.client
+        path = '/' + self.datafolder + upload_file_path
+        self.client.files_upload(content, path, dropbox.files.WriteMode('overwrite', None), True)
 
-    ## Uploads a file to dropbox through the use of a filepath
-    #   @param localpath path to the file that should be uploaded, relative to current dir
-    #   @param uploadname the name under which to upload the file
-    def writeFile(self, localpath, uploadname):
-        with open(localpath, 'rb') as fp:
-            return self.client.files_upload(fp, '/'.join(["", self.datafolder, uploadname]),
-                                            dropbox.files.WriteMode('overwrite', None), True)
-
-    ##The readBalance function that downloads the balanceData and returns a BalanceData object
-    # @param identifier a string that identifies the file it will be written to.
-    # @param fromTime the timeStamp from which the data should be returned
-    # @param toTime the until what timeStamp data should be fetched
-    # @return BalanceData the object that contains the balance data and timestamp in the period given by fromTime,toTime
-    def readBalance(self, identifier, fromTime=0, toTime=2000000000):
-        assert (self.client)
-        filename = identifier + '.' + self.extention
-
+    def read_balance(self, balance_id):
+        assert self.client
+        content = self.read_content(balance_id + '.csv')
         timestamps = []
-        balance = []
+        values = []
+        for line in content.split('\n'):
+            if line:
+                ts, value = line.split(',')
+                timestamps.append(float(ts))
+                values.append(float(value))
 
+        assert timestamps == sorted(timestamps)
+        return balanceData.BalanceData(timestamps, values)
+
+    def append_balance(self, balance_id, timestamp, value):
+        assert self.client
+        balance_id += '.csv'
         try:
-            metadata, fp = self.downloadFile(filename)
-        except Exception as e:
-            log.error('while downloading file {0}: {1}'.format(filename, str(e)))
-            raise
-
-        data = fp.content
-        lines = [line for line in data.split('\n') if len(line)]
-
-        for line in lines:
-            values = line.split(self.separator)
-            time = int(values[0])
-            if time > fromTime and time < toTime:
-                timestamps.append(time)
-                balance.append(float(values[1]))
-        return balanceData.BalanceData(timestamps, balance)
-
-    ##The writeBalance function that adds the blance value to the file in dropbox
-    # @param identifier a string that identifies the file it will be written to.
-    # @param value the value that should be writen
-    def append_balance(self, identifier, timestamp, value):
-        filename = identifier + '.' + self.extention
-        timestamp = int(timestamp)
-
-        temppath = common.tempFileLib.generateTempFile(True)
-
-        with open(temppath, mode='wb+') as filepointer:
-            # if the file already exists download it else create it
-            try:
-                metadata, restdata = self.downloadFile(filename)
-                filepointer.write(restdata.content)
-            except:
-                # the file probably doesn't exist. Create it.
-                log.warn('Exception thrown while downloading {0}.'.format(filename))
-
-            filepointer.write(str(timestamp) + "," + str(value) + "\n")
-            filepointer.seek(0)
-
-            n = 0
-            written_file_size = 0
-            while written_file_size == 0:
-                n = n + 1
-                if n >= 5:
-                    raise Exception("max attempts reached")
-                try:
-                    response = self.writeFilePTR(filepointer, filename)
-                    filepointer.seek(0)
-                    written_file_size = response.size
-                    if written_file_size == 0:
-                        log.warn("retry")
-                        time.sleep(5)
-                except Exception as e:
-                    log.error('while uploading file {0}: {1}'.format(filename, str(e)))
-                    raise
+            content = self.read_content(balance_id).encode('utf-8')
+        except ApiError as e:
+            log.warn("Balance id {} does not exist. Creating.".format(balance_id))
+            if not e.error.get_path().is_not_found():
+                raise
+            content = ""
+        content += "{},{}\n".format(timestamp, value)
+        self.write_content(balance_id, content)
