@@ -33,7 +33,11 @@ class CexLastBalance:
         for pair in ['BTC/USD', 'ETH/BTC', 'ETH/USD']:
             for retries in range(10):
                 try:
-                    trades[pair] = api.archived_orders(pair)
+                    new_trades = api.archived_orders(pair)
+                    if 'error' in new_trades:
+                        print new_trades
+                        continue  # retry
+                    trades[pair] = new_trades
                 except urllib2.HTTPError as e:
                     print 'timeout... retying', pair
                     continue
