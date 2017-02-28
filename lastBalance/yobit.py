@@ -116,7 +116,7 @@ class YobitApi:
         if wallet is None:
             return 0
 
-        funds = wallet['funds']
+        funds = wallet['funds_incl_orders']
         total = 0
         # calculate funds
         for key, amount in funds.iteritems():
