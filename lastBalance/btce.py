@@ -24,6 +24,9 @@ class BtceInvalidApiKeyException(BtceApiException):
     pass
 
 
+class BtceNoOrdersApiException(BtceApiException):
+    pass
+
 def throw_btce_exception(response):
     if int(response['success']) == 1:
         return
@@ -31,6 +34,8 @@ def throw_btce_exception(response):
     error_string = response['error']
     if error_string == 'no trades':
         raise BtceNoTradesApiException(error_string)
+    if error_string == 'no orders':
+        raise BtceNoOrdersApiException(error_string)
     elif error_string == 'invalid api key':
         raise BtceInvalidApiKeyException(error_string)
     else:
@@ -115,7 +120,10 @@ class BtceApi:
     def calculateFundsInOrders(self):
         # calculate funds stuck in orders
         total = 0
-        orders = self.query_private('ActiveOrders','/tapi')
+        try:
+            orders = self.query_private('ActiveOrders','/tapi')
+        except BtceNoOrdersApiException:
+            return 0
         if orders is not None:
             for orderid, order in orders.iteritems():
                 orderpair = order['pair']
