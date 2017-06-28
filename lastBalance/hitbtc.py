@@ -20,7 +20,7 @@ class HitbtcLastBalance:
         api = HitbtcApi(self._pubkey, self._privkey)
 
         wallet = api.getWallet()
-        table = ConversionTable(api.getMarketsGraph())
+        table = ConversionTable(api.getMarketsGraph(wallet.keys()))
         total = 0
         for k, v in wallet.items():
             total += table.convert(k, 'BTC', v)
@@ -58,22 +58,25 @@ class HitbtcApi:
 
         return dict((k, v) for k, v in out.items() if v)
 
-    def getMarketsGraph(self):
+    def getMarketsGraph(self, interesting_symbols):
         www = 'https://api.hitbtc.com'
 
         symbols = []
 
         for line in self._get_public(www, '/api/1/public/symbols')['symbols']:
             symbol = line['symbol']
-            if symbol.startswith('BTC'):
-                symbols += [('BTC', symbol[3:])]
-            if symbol.endswith('BTC'):
-                symbols += [(symbol[:-3], 'BTC')]
+            if symbol.startswith(u'BTC'):
+                symbols += [(u'BTC', symbol[3:])]
+            if symbol.endswith(u'BTC'):
+                symbols += [(symbol[:-3], u'BTC')]
             else:
                 symbols += [(symbol[:-3], symbol[-3:])]
 
         graph = {}
-        for pri, sec in symbols:
+        for pri, sec in set(symbols):
+            if not (((pri == 'BTC') and (sec in interesting_symbols)) or \
+                   ((sec == 'BTC') and (pri in interesting_symbols))):
+                continue
             js = self._get_public(www, '/api/1/public/{}/ticker'.format(pri+sec))
             bid = float(js['bid'])
             ask = float(js['ask'])
