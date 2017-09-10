@@ -128,10 +128,12 @@ class Bl3pApi:
             if key == 'BTC':
                 total += amount
             else:
-                ticker = self.getTicker('BTC' + key)
-                price = (float(ticker['ask']) + float(ticker['bid'])) / 2
-                total += amount / price
-
+                try:
+                    ticker = self.getTicker('BTC' + key)
+                    price = (float(ticker['ask']) + float(ticker['bid'])) / 2
+                    total += amount / price
+                except Bl3pApiException:
+                    pass  # no ticker available for this market?
 
         return total
 
