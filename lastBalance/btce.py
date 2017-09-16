@@ -85,7 +85,7 @@ class BtceApi:
         self.Secret = str(Secret)
         self.toValue = tovalue
         self.nonce = int(time.time())
-        self.url = 'https://btc-e.com'
+        self.url = 'https://wex.nz'
         self.table = ConversionTable(self.getMarketsGraph())
         
     def query_public(self, uri):
