@@ -62,6 +62,16 @@ class BtceLastBalance:
             totals.append(availablefunds + orderfunds)
         return median(totals)
 
+    def crawl_balance(self):
+        api = BtceApi(self._pubkey, self._privkey, "btc")
+        wallet = api.calculateTotalWallet()
+        table = ConversionTable(api.getMarketsGraph())
+        total = 0
+        for k, v in wallet.items():
+            total += table.convert(k, 'btc', v)
+        wallet["Total_BTC"] = total
+        return wallet
+
     def crawl_trades(self):
         api = BtceApi(self._pubkey, self._privkey, "btc")
         start = 0
@@ -118,12 +128,8 @@ class BtceApi:
         return reply['return']
 
     def calculateFundsInOrders(self):
-        # calculate funds stuck in orders
+        orders = self._getFundsStuckInOrders()
         total = 0
-        try:
-            orders = self.query_private('ActiveOrders','/tapi')
-        except BtceNoOrdersApiException:
-            return 0
         if orders is not None:
             for orderid, order in orders.iteritems():
                 orderpair = order['pair']
@@ -133,12 +139,36 @@ class BtceApi:
                 total += self.table.try_convert(key, self.toValue, amount)
         return total
 
-    def calculateAvailableFunds(self):
+    def calculateTotalWallet(self):
+        funds = self._getWallet()
+        orders = self._getFundsStuckInOrders()
+        if orders is not None:
+            for orderid, order in orders.iteritems():
+                orderpair = order['pair']
+                amount = order['amount']
+                keys = orderpair.split('_')
+                key = keys[0]
+                funds[keys[0]] = funds[keys[0]] + amount
+        return funds
+
+    def _getFundsStuckInOrders(self):
+        # calculate funds stuck in orders
+        try:
+            orders = self.query_private('ActiveOrders', '/tapi')
+        except BtceNoOrdersApiException:
+            return None
+        return orders
+
+    def _getWallet(self):
         wallet = self.query_private('getInfo', '/tapi')
         if wallet is None:
-            return 0
+            return wallet
+        return wallet['funds']
 
-        funds = wallet['funds']
+    def calculateAvailableFunds(self):
+        funds = self._getWallet()
+        if funds is None:
+            return 0
         total = 0
         # calculate funds
         for key, amount in funds.iteritems():
