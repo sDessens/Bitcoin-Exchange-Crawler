@@ -20,8 +20,37 @@ class PoloniexLastBalance:
 
     def crawl(self):
         api = PoloniexApi(self._pubkey, self._privkey)
-
         markets = api.getMarketsGraph()
+        table = ConversionTable(markets)
+        total = 0
+        funds = self._crawl_wallet()
+        for k, v in funds.items():
+            if v:
+                total += table.convert(k, 'BTC', v)
+        return total
+
+    def crawl_trades(self):
+        api = PoloniexApi(self._pubkey, self._privkey)
+        start = 1420074061
+        end = int(time.time())
+        return api.return_trade_history('all', start, end)
+
+    def crawl_balance(self):
+        api = PoloniexApi(self._pubkey, self._privkey)
+        wallet = self._crawl_wallet()
+        markets = api.getMarketsGraph()
+        table = ConversionTable(markets)
+        total = 0
+        for k, v in wallet.items():
+            if v:
+                total += table.convert(k, 'BTC', v)
+        wallet["Total_BTC"] = total
+        return wallet
+
+
+    def _crawl_wallet(self):
+        api = PoloniexApi(self._pubkey, self._privkey)
+
         wallet = api.getWallet()
         open_orders = api.getOpenoOrders()
 
@@ -37,9 +66,8 @@ class PoloniexLastBalance:
             open_orders = open_orders2
             time.sleep(0.3)
 
-        table = ConversionTable(markets)
         funds = {}
-        total = 0
+
 
         # Although the getWallet call returns the amount of funds in orders and the total
         # value in btc, the api ia bugged and returns less funds than there actually are
@@ -55,18 +83,7 @@ class PoloniexLastBalance:
                         funds[pair.partition('_')[0]] += float(order['total'])
                     else:
                         funds[pair.partition('_')[2]] += float(order['amount'])
-
-        for k, v in funds.items():
-            if v:
-                total += table.convert(k, 'BTC', v)
-        return total
-
-    def crawl_trades(self):
-        api = PoloniexApi(self._pubkey, self._privkey)
-        start = 1420074061
-        end = int(time.time())
-        return api.return_trade_history('all', start, end)
-
+        return funds
 
 class PoloniexApi:
     def __init__(self, pub, priv):

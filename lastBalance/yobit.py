@@ -47,7 +47,8 @@ class YobitLastBalance:
 
     def crawl(self):
         api = YobitApi(self._pubkey, self._privkey, "btc")
-        return api.calculateAvailableFunds()
+        wallet = api.get_wallet()
+        return api.calculateAvailableFunds(wallet)
 
     def crawl_trades(self):
         pairs = ['btc_usd', 'eth_btc', 'eth_usd']
@@ -67,6 +68,11 @@ class YobitLastBalance:
                 time.sleep(1)  # do not spam
         return trades
 
+    def crawl_balance(self):
+        api = YobitApi(self._pubkey, self._privkey, "btc")
+        wallet = api.get_wallet()
+        wallet["Total_BTC"] = api.calculateAvailableFunds(wallet)
+        return wallet
 
 class YobitApi:
     def __init__(self, APIKey, Secret, tovalue):
@@ -110,16 +116,18 @@ class YobitApi:
         else:
             return {}
 
-    def calculateAvailableFunds(self):
+    def get_wallet(self):
         wallet = self.query_private('getInfo', '/tapi')
-        print wallet
         if wallet is None:
             return 0
 
-        funds = wallet['funds_incl_orders']
+        return wallet['funds_incl_orders']
+
+    def calculateAvailableFunds(self, wallet):
+
         total = 0
         # calculate funds
-        for key, amount in funds.iteritems():
+        for key, amount in wallet.iteritems():
             if key == 'btc':
                 total += amount
             else:
@@ -138,7 +146,6 @@ class YobitApi:
         ret = self.query_public('/api/2/'+pair+'/ticker')
         if 'error' in ret and ret['error'] == "invalid pair":
             raise YobitInvalidPairException(pair)
-        print pair, ret
         return ret['ticker']
 
     def getTrades(self, start, count, pair='eth_btc'):
