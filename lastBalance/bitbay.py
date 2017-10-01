@@ -72,7 +72,7 @@ class BitbayAPI:
 
     def get_markets(self):
         # just the subset we need
-        return [(('BTC', 'PLN'), 'BTCPLN')]
+        return [(('BTC', 'PLN'), 'BTCPLN'), (('BTC', 'USD'), 'BTCUSD')]
 
     def get_ticker_price(self, pair):
         ticker = self._get_public('/API/Public/{pair}/ticker.json'.format(pair=pair))
