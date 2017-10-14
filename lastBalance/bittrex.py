@@ -120,7 +120,7 @@ class BittrexApi:
         total = 0
         # calculate funds
         for obj in funds:
-            amount = float(obj['Available'])
+            amount = float(obj['Balance'])
             if obj['Currency'] == 'BTC':
                 total += amount
             else:
@@ -129,7 +129,7 @@ class BittrexApi:
                     total += amount / price
                 else:
                     price = self.marketSummary[ 'BTC' + "-" + obj['Currency']]
-                    total += price / amount
+                    total += price * amount
 
         return total
 
@@ -137,7 +137,7 @@ class BittrexApi:
         ret =  self.query_public('public/getmarketsummaries')
         marketPrice = {}
         for obj in ret:
-            marketPrice[obj['MarketName']] = float(obj['Bid']) + float(obj['Ask']) /2
+            marketPrice[obj['MarketName']] = float(obj['Last'])
         return marketPrice
 
     def getTrades(self, start, count):
