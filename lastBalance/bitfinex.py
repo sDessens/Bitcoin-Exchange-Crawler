@@ -146,12 +146,17 @@ class BitfinexAPI:
 
     def getMarketsGraph(self):
         graph = {}
+        uri = '/v2/tickers?symbols='
         for pri, sec in self.getMarkets():
-            uri = '/v1/pubticker/%s%s' % (pri, sec)
-            js = self._get_public( uri)
-            bid = float(js['bid'])
-            ask = float(js['ask'])
+            uri = uri + 't%s%s,' % (pri, sec)
+        js = self._get_public( uri )
+        for ticker in js:
+            bid = float(ticker[1])
+            ask = float(ticker[3])
             avg = (bid + ask) / 2
             diff = abs(bid - ask) / avg
+            market = ticker[0][1:]
+            pri = market[:3].upper()
+            sec = market[-3:].upper()
             graph[(pri, sec)] = (avg, diff)
         return graph
