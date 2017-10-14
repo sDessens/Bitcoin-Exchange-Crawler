@@ -10,8 +10,6 @@ from common.conversiontable import ConversionTable
 
 log = logging.getLogger( 'main.exchanges.bitfinex' )
 
-import urllib
-import httplib
 
 class BitfinexLastBalance:
     def __init__(self, pubkey, privkey):
@@ -23,16 +21,11 @@ class BitfinexLastBalance:
 
         wallet = api.getWallet()
         table = ConversionTable(api.getMarketsGraph())
-        totals = []
-        #fix for incorrect total value because of un synchronized orders and wallet call
-        for i in range(3):
-            total = 0
-            for k, v in wallet.items():
+        total = 0
+        for k, v in wallet.items():
+            if v > 0:
                 total += table.convert(k, 'BTC', v)
-            totals.append(total)
-            time.sleep(0.01)
-
-        return sorted(totals)[len(totals)/2]
+        return total
 
     def crawl_trades(self):
         api = BitfinexAPI(self._pubkey, self._privkey)
