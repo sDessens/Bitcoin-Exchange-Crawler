@@ -38,6 +38,7 @@ class BitfinexLastBalance:
             since = 0
             while True:
                 js = api.getMyTrades(pair, since)
+                time.sleep(2)
                 trades[pair] += js
                 if len(js) != api.MAX_MY_TRADES:
                     break

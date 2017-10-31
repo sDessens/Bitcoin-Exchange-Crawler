@@ -24,7 +24,8 @@ class CexLastBalance:
         table = ConversionTable(api.getMarketsGraph())
         total = 0
         for k, v in wallet.items():
-            total += table.convert(k, 'BTC', v)
+            if v:
+                total += table.try_convert(k, 'BTC', v)
         return total
 
     def crawl_trades(self):
@@ -111,6 +112,8 @@ class CexApi:
             uri = '/api/ticker/%s/%s' % (pri, sec)
             js = self._get(www, uri, {})
             if 'error' in js:
+                continue
+            if not 'bid' in js or not 'ask' in js:
                 continue
             bid = float(js['bid'])
             ask = float(js['ask'])
