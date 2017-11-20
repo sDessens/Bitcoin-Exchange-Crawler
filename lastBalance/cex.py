@@ -51,7 +51,7 @@ class CexLastBalance:
         table = ConversionTable(api.getMarketsGraph())
         total = 0
         for k, v in wallet.items():
-            if k != "LTC":
+            if not k in ["LTC","BTG"]:
                 total += table.convert(k, 'BTC', v)
         wallet["Total_BTC"] = total
         return wallet
@@ -126,10 +126,14 @@ class CexApi:
                 continue
             if not 'bid' in js or not 'ask' in js:
                 continue
-            bid = float(js['bid'])
-            ask = float(js['ask'])
-            avg = (bid + ask) / 2
-            diff = abs(bid - ask) / avg
+            try:
+                bid = float(js['bid'])
+                ask = float(js['ask'])
+                avg = (bid + ask) / 2
+                diff = abs(bid - ask) / avg
+            except:
+                avg = float(js['last'])
+                diff = 0.0
             graph[(pri, sec)] = (avg, diff)
 
         return graph
