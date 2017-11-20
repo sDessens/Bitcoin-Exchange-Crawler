@@ -127,6 +127,8 @@ class Bl3pApi:
             amount = float(obj['balance']['value'])
             if key == 'BTC':
                 total += amount
+            elif key in ['BCH','LTC']:
+                continue
             else:
                 try:
                     ticker = self.getTicker('BTC' + key)
