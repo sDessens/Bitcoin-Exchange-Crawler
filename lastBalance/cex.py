@@ -24,8 +24,8 @@ class CexLastBalance:
         table = ConversionTable(api.getMarketsGraph())
         total = 0
         for k, v in wallet.items():
-            if v:
-                total += table.try_convert(k, 'BTC', v)
+            if k != "LTC":
+                total += table.convert(k, 'BTC', v)
         return total
 
     def crawl_trades(self):
