@@ -71,7 +71,8 @@ class KucoinApi:
         table = {}
         for ticker in symbols:
             quote, base = ticker['coinType'], ticker['coinTypePair']
-            table[(quote, base)] = ((ticker['buy'] + ticker['sell']) / 2, float(ticker['volValue']))
+            table[(quote, base)] = ((ticker['buy'] + ticker['sell']) / 2,
+                                    1.0 / (1 + float(ticker['volValue'])))
 
         conversion_table = ConversionTable(table)
 
