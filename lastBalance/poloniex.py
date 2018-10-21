@@ -111,8 +111,10 @@ class PoloniexApi:
             keys = key.split("_")
             pair = (keys[1], keys[0])
             if "_" in key:
+                print(value)
                 rate = (float(value['lowestAsk']) + float(value['highestBid'])) / 2.0
-                cost = abs((float(value['lowestAsk']) - rate)) / rate
-                graph[pair] = (rate, cost)
+                if rate != 0:
+                    cost = abs((float(value['lowestAsk']) - rate)) / rate
+                    graph[pair] = (rate, cost)
 
         return graph

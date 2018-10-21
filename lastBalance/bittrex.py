@@ -57,7 +57,7 @@ class BittrexLastBalance:
         wallet = api.getWallet()
         balances = {}
         for obj in wallet:
-            amount = float(obj['Available'])
+            amount = float(obj['Balance'])
             if amount != 0:
                 balances[obj['Currency']] = amount
         balances["Total_BTC"] = total_btc
@@ -107,15 +107,11 @@ class BittrexApi:
 
     def getWallet(self):
         wallet = self.query_private('account/getbalances')
-        print wallet
-        if wallet is None:
-            return 0
-
         return wallet
 
     def calculateAvailableFunds(self):
         funds = self.getWallet()
-        if funds == 0:
+        if funds is None:
             return 0
         total = 0
         # calculate funds
@@ -123,21 +119,23 @@ class BittrexApi:
             amount = float(obj['Balance'])
             if obj['Currency'] == 'BTC':
                 total += amount
-            else:
-                if obj['Currency'] == 'USDT':
-                    price = self.marketSummary[obj['Currency'] + "-" + 'BTC']
-                    total += amount / price
-                else:
-                    price = self.marketSummary[ 'BTC' + "-" + obj['Currency']]
-                    total += price * amount
+            elif obj['Currency'] == 'USDT':
+                price = self.marketSummary[obj['Currency'] + "-" + 'BTC']
+                total += amount / price
 
+            elif obj['Currency'] != 'BTG':
+                price = self.marketSummary[ 'BTC' + "-" + obj['Currency']]
+                total += price * amount
+            else:
+                continue
         return total
 
     def getTicker(self):
         ret =  self.query_public('public/getmarketsummaries')
         marketPrice = {}
         for obj in ret:
-            marketPrice[obj['MarketName']] = float(obj['Last'])
+            if obj['Last']:
+                marketPrice[obj['MarketName']] = float(obj['Last'])
         return marketPrice
 
     def getTrades(self, start, count):
