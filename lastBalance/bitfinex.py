@@ -46,6 +46,17 @@ class BitfinexLastBalance:
 
         return trades
 
+    def crawl_balance(self):
+        api = BitfinexAPI(self._pubkey, self._privkey)
+        table = ConversionTable(api.getMarketsGraph())
+        wallet = api.getWallet()
+        total = 0
+        for k, v in wallet.items():
+            if k != "BFX":
+                total += table.convert(k, 'BTC', v)
+        wallet["Total_BTC"] = total
+        return wallet
+
 
 class BitfinexAPI:
     MAX_MY_TRADES = 1000
@@ -81,7 +92,9 @@ class BitfinexAPI:
         request = urllib2.Request(self.url+uri, data={}, headers=headers)
         try:
             ret = urllib2.urlopen(request)
-            return json.loads(ret.read())
+            result = ret.read()
+            print result
+            return json.loads(result)
         except Exception as e:
             log.error( 'network error: ' + str(e) )
             print e.read()
@@ -89,7 +102,8 @@ class BitfinexAPI:
 
     def _get_public(self, uri):
         req = urllib2.Request(self.url + uri)
-        return json.loads(urllib2.urlopen(req).read())
+        result = urllib2.urlopen(req).read()
+        return json.loads(result)
 
     def getWallet(self):
         uri = '/v1/balances'

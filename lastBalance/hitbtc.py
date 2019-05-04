@@ -26,6 +26,15 @@ class HitbtcLastBalance:
             total += table.convert(k, 'BTC', v)
         return total
 
+    def crawl_balance(self):
+        api = HitbtcApi(self._pubkey, self._privkey)
+        wallet = api.getWallet()
+        table = ConversionTable(api.getMarketsGraph(wallet.keys()))
+        total = 0
+        for k, v in wallet.items():
+            total += table.convert(k, 'BTC', v)
+        wallet["Total_BTC"] = total
+        return wallet
 
 class HitbtcApi:
     def __init__(self, pub, priv):
@@ -57,6 +66,7 @@ class HitbtcApi:
         #    out[line['currency_code']] += float(line['balance'])
 
         return dict((k, v) for k, v in out.items() if v)
+
 
     def getMarketsGraph(self, interesting_symbols):
         www = 'https://api.hitbtc.com'

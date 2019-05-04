@@ -73,6 +73,17 @@ class Bl3pLastBalance:
                 time.sleep(1)  # do not spam
         return trades
 
+    def crawl_balance(self):
+        api = Bl3pApi(self._pubkey, self._privkey, "btc")
+        total_btc = api.calculateAvailableFunds()
+        wallet = api.getWallet()
+        balances = {}
+        for key, obj in wallet.iteritems():
+            amount = float(obj['balance']['value'])
+            if amount != 0:
+                balances[key] = amount
+        balances["Total_BTC"] = total_btc
+        return balances
 
 class Bl3pApi:
     def __init__(self, APIKey, Secret, tovalue):
@@ -114,13 +125,18 @@ class Bl3pApi:
         else:
             return {}
 
-    def calculateAvailableFunds(self):
+    def getWallet(self):
         wallet = self.query_private('GENMKT/money/info')
         print wallet
         if wallet is None:
             return 0
 
-        funds = wallet['wallets']
+        return wallet['wallets']
+
+    def calculateAvailableFunds(self):
+        funds = self.getWallet()
+        if funds == 0:
+            return 0
         total = 0
         # calculate funds
         for key, obj in funds.iteritems():

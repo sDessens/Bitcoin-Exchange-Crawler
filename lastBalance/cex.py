@@ -45,6 +45,17 @@ class CexLastBalance:
                 break
         return trades
 
+    def crawl_balance(self):
+        api = CexApi(self._pubkey, self._privkey, self._username)
+        wallet = api.getWallet()
+        table = ConversionTable(api.getMarketsGraph())
+        total = 0
+        for k, v in wallet.items():
+            if k != "LTC":
+                total += table.convert(k, 'BTC', v)
+        wallet["Total_BTC"] = total
+        return wallet
+
 class CexApi:
     def __init__(self, pub, priv, username):
         self.pub = str(pub)
@@ -57,7 +68,6 @@ class CexApi:
         params['signature'] = hmac.new(self.priv, params['nonce'] + self.user + self.pub, hashlib.sha256).hexdigest()
 
         req = urllib2.Request(www + uri, urllib.urlencode(params))
-        print urllib.urlencode(params)
         req.add_header("User-Agent", "Bitcoin-exchange-crawler")
         return json.loads(urllib2.urlopen(req).read())
 
@@ -77,6 +87,7 @@ class CexApi:
             'status': 'cd'
         }
         js = self._get('https://cex.io', '/api/archived_orders/' + pair, params)
+        print js
         return js
 
     def getWallet(self):
