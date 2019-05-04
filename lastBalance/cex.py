@@ -31,7 +31,7 @@ class CexLastBalance:
     def crawl_trades(self):
         api = CexApi(self._pubkey, self._privkey, self._username)
         trades = {}
-        for pair in ['BTC/USD', 'ETH/BTC', 'ETH/USD']:
+        for pair in ['BTC/USD', 'ETH/BTC', 'ETH/USD','BTC/EUR','ETH/EUR']:
             for retries in range(10):
                 try:
                     new_trades = api.archived_orders(pair)
@@ -51,7 +51,7 @@ class CexLastBalance:
         table = ConversionTable(api.getMarketsGraph())
         total = 0
         for k, v in list(wallet.items()):
-            if not k in ["LTC","BTG","GHS","XRP"]:
+            if not k in ["LTC","BTG","GHS","XRP","BSV","OMG"]:
                 total += table.convert(k, 'BTC', v)
         wallet["Total_BTC"] = total
         return wallet

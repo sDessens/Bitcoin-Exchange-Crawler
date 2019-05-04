@@ -52,7 +52,7 @@ class BitfinexLastBalance:
         wallet = api.getWallet()
         total = 0
         for k, v in list(wallet.items()):
-            if k != "BFX":
+            if k not in ["BFX","BCH"]:
                 total += table.convert(k, 'BTC', v)
         wallet["Total_BTC"] = total
         return wallet
