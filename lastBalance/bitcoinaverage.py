@@ -36,7 +36,7 @@ class BitcoinAverageApi:
         return self.get('/ticker/%s' % currency)
 
     def query_fiat(self):
-        uri = "/indices/global/ticker/short?crypto={}&fiat=USD,EUR".format(self._currency)
+        uri = "/indices/global/ticker/short?fiat=USD,EUR".format(self._currency)
         result = self.get(uri)
         rates = {}
         if result != {}:
