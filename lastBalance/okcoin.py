@@ -3,8 +3,8 @@
 
 import logging
 import json
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import hashlib
 from common.conversiontable import ConversionTable
 
@@ -51,8 +51,8 @@ class OkcoinApi:
         headers = {
             "Content-type" : "application/x-www-form-urlencoded",
         }
-        request = urllib2.Request(self.url + uri, data=urllib.urlencode(params), headers=headers)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(self.url + uri, data=urllib.parse.urlencode(params), headers=headers)
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         return json.loads(data)
 
@@ -60,8 +60,8 @@ class OkcoinApi:
         headers = {
             "Content-type" : "application/x-www-form-urlencoded",
         }
-        request = urllib2.Request(self.url + uri, headers=headers)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(self.url + uri, headers=headers)
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         return json.loads(data)
 

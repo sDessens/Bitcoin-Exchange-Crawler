@@ -1,7 +1,7 @@
 # Module allows the retrieval of balances from BtcChina
 
 import json
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import hashlib
 import hmac
@@ -22,7 +22,7 @@ class BtcChinaLastBalance:
         wallet = api.getWallet()
         table = ConversionTable(api.getMarketsGraph())
         total = 0
-        for k, v in wallet.items():
+        for k, v in list(wallet.items()):
             total += table.convert(k, 'BTC', v)
         return total
 
@@ -62,31 +62,31 @@ class BtcChinaApi:
             'Authorization': "Basic " + base64.b64encode(self.pub + ":" + sign),
             'Json-Rpc-Tonce': thetonce
         }
-        ret = urllib2.urlopen(urllib2.Request(url, json.dumps(postdata), headers))
+        ret = urllib.request.urlopen(urllib.request.Request(url, json.dumps(postdata), headers))
         return json.loads(ret.read())
 
 
     def getWallet(self):
         js = self._getAuthenticated('https://api.btcchina.com/api_trade_v1.php', 'getAccountInfo', ['ALL'])["result"]
         d = {}
-        for payload in js['balance'].values():
+        for payload in list(js['balance'].values()):
             k = payload['currency']
             v = float(payload['amount'])
             d[k] = v
-        for payload in js['frozen'].values():
+        for payload in list(js['frozen'].values()):
             k = payload['currency']
             v = float(payload['amount'])
             d[k] += v
         return d
 
     def getMarketsGraph(self):
-        ret = urllib2.urlopen(urllib2.Request('https://data.btcchina.com/data/ticker?market=all'))
+        ret = urllib.request.urlopen(urllib.request.Request('https://data.btcchina.com/data/ticker?market=all'))
         js = json.loads(ret.read())
         d = {}
-        for key, payload in js.items():
+        for key, payload in list(js.items()):
             marketcode = str(key).split("_")[1]
             pair = (marketcode[:3].upper(),marketcode[-3:].upper())
-            print pair
+            print(pair)
             rate = float(payload['last'])
             cost = 1/float(payload['vol'])
             d[pair] = (rate, cost)

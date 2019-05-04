@@ -1,7 +1,7 @@
 # Module allows the retrieval of balances from BTC-e
 
-import urllib
-import urllib2                         
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse                         
 import json
 import hmac
 import time
@@ -77,7 +77,7 @@ class YobitLastBalance:
 class YobitApi:
     def __init__(self, APIKey, Secret, tovalue):
         self.APIKey = str(APIKey)
-        self.Secret = str(Secret)
+        self.Secret = str(Secret).encode("utf-8")
         self.toValue = tovalue
         self.nonce = int((time.time() * 1000 - (1481463210000)) / 100)
         self.url = 'https://yobit.net'
@@ -87,26 +87,26 @@ class YobitApi:
             "Content-type": "application/x-www-form-urlencoded",
             "User-agent": "python"
         }
-        request = urllib2.Request(self.url + uri, headers=headers)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(self.url + uri, headers=headers)
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         return json.loads(data)
 
     def query_private(self, method, uri, req={}):
         req['method'] = method
         req['nonce'] = self.nonce
-        post_data = urllib.urlencode(req)
+        post_data = urllib.parse.urlencode(req).encode("utf-8")
         self.nonce += 1
 
         sign = hmac.new(self.Secret, post_data, hashlib.sha512).hexdigest()
         headers = {
             'Sign': sign,
             'Key': self.APIKey,
-            'user-agent': 'python'
+            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0'
         }
 
-        request = urllib2.Request(self.url + uri, headers=headers, data=urllib.urlencode(req))
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(self.url + uri, headers=headers, data=urllib.parse.urlencode(req).encode("utf-8"))
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         reply = json.loads(data)
 
@@ -127,7 +127,7 @@ class YobitApi:
 
         total = 0
         # calculate funds
-        for key, amount in wallet.iteritems():
+        for key, amount in wallet.items():
             if key == 'btc':
                 total += amount
             else:

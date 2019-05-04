@@ -1,7 +1,7 @@
 # Module allows query of recent bitcoin prices from bitcoinaverage api
 
 import json
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import logging
 
 log = logging.getLogger('main.exchanges.bitcoinaverage')
@@ -27,8 +27,8 @@ class BitcoinAverageApi:
         headers = {
             "Content-type" : "application/x-www-form-urlencoded",
         }
-        request = urllib2.Request(self.url + uri, headers=headers)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(self.url + uri, headers=headers)
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         return json.loads(data)
 

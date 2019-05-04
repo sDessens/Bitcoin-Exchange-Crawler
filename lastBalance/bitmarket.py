@@ -1,10 +1,10 @@
 import json
 import hashlib
 import hmac
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import logging
-from urllib import urlencode
+from urllib.parse import urlencode
 
 from common.conversiontable import ConversionTable
 
@@ -23,7 +23,7 @@ class BitmarketLastBalance:
         table = api.get_markets_graph()
 
         total = 0
-        for k, v in wallet.items():
+        for k, v in list(wallet.items()):
             total += table.convert(k, 'BTC', v)
 
         return total
@@ -49,20 +49,20 @@ class BitmarketAPI:
             'API-Hash': sign
         }
 
-        request = urllib2.Request(url, headers=headers, data=post_data)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(url, headers=headers, data=post_data)
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         return json.loads(data)
 
     def _get_public(self, uri):
-        req = urllib2.Request(self._url + uri)
-        return json.loads(urllib2.urlopen(req).read())
+        req = urllib.request.Request(self._url + uri)
+        return json.loads(urllib.request.urlopen(req).read())
 
     def get_info(self):
         info = self._post_auth('info')
         result = {}
-        for key, value in info['data']['balances']['available'].items() + \
-                            info['data']['balances']['blocked'].items():
+        for key, value in list(info['data']['balances']['available'].items()) + \
+                            list(info['data']['balances']['blocked'].items()):
             amount = float(value)
             if amount:
                 result[key] = amount + (result[key] if key in result else 0)

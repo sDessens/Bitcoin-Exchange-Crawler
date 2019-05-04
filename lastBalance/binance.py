@@ -1,6 +1,6 @@
 # Module allows the retrieval of balances from binance
 
-import urllib
+import urllib.request
 import time
 import hashlib
 import hmac

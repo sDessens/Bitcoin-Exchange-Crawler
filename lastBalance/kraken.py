@@ -1,8 +1,8 @@
 # Module allows the retrieval of balances from Kraken
 
 import json
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import time
 import hashlib
 import hmac
@@ -31,7 +31,7 @@ class KrakenLastBalance:
         mapping = api.getKeyAltnamesMapping()
         balance = api.getWalletBalance()
         mappedbalance = {}
-        for key, bal in balance.iteritems():
+        for key, bal in balance.items():
             if key.upper() == 'XXBT':
                 mappedbalance['BTC'] = float(bal)
             else:
@@ -56,7 +56,7 @@ class KrakenApi:
     def getOrderBalance(self):
         balance = {}
         json = self._query_private('OpenOrders', {})
-        for key, order in json['result']['open'].iteritems():
+        for key, order in json['result']['open'].items():
             vol = float(order['vol'])
             price = float(order['descr']['price'])
             if order['descr']['type'] == "sell":
@@ -67,7 +67,7 @@ class KrakenApi:
     def getKeyAltnamesMapping(self):
         json = self._query('/0/public/Assets', {})
         keys = {}
-        for key, decription in json['result'].iteritems():
+        for key, decription in json['result'].items():
             keys[key] = decription["altname"]
         return keys
 
@@ -88,9 +88,9 @@ class KrakenApi:
 
     def _query(self, path, params, headers = {}):
         url = 'https://api.kraken.com' + path
-        post = urllib.urlencode( params )
+        post = urllib.parse.urlencode( params ).encode("utf-8")
         headers['user-agent'] = 'bot'
-        ret = urllib2.urlopen(urllib2.Request( url, post, headers ))
+        ret = urllib.request.urlopen(urllib.request.Request( url, post, headers ))
         return json.loads(ret.read())
 
     def _query_public(self, method, params):
@@ -101,9 +101,14 @@ class KrakenApi:
         path = '/0/private/' + method
 
         params['nonce'] = int(time.time()*1000)
-        post = urllib.urlencode( params )
-        message = path + hashlib.sha256(str(params['nonce']) + post).digest()
-        signature = hmac.new(base64.b64decode(self.priv), message, hashlib.sha512)
+        postdata = urllib.parse.urlencode(params)
+
+        # Unicode-objects must be encoded before hashing
+        encoded = (str(params['nonce']) + postdata).encode()
+        message = path.encode() + hashlib.sha256(encoded).digest()
+
+        signature = hmac.new(base64.b64decode(self.priv),
+                             message, hashlib.sha512)
         headers = {
             'API-Key': self.pub,
             'API-Sign': base64.b64encode(signature.digest())
@@ -114,4 +119,4 @@ class KrakenApi:
 if __name__ == '__main__':
     api = KrakenLastBalance('S5fGxCsAkASnNMJ10+7W/k32GlJImi92RVL2Ttt7K9cyS7Y8YYsW7HSA',
                       'kAKroFx3cayY+Vki+mgd5SYnRaTcwQme5+YhkD5yixn/r8xd/igtn2u5lUZ83vdtmXT2d71gMR0ASTe/uj0OlA==')
-    print api.crawl_balance()
+    print(api.crawl_balance())

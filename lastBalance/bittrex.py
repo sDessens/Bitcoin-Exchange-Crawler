@@ -1,7 +1,7 @@
 # Module allows the retrieval of balances from BTC-e
 
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import base64
 import json
 import hmac
@@ -66,7 +66,7 @@ class BittrexLastBalance:
 class BittrexApi:
     def __init__(self, APIKey, Secret, tovalue):
         self.APIKey = APIKey
-        self.Secret = Secret
+        self.Secret = Secret.encode("utf-8")
         self.toValue = tovalue
         self.url = 'https://bittrex.com/api/v1.1/'
         self.marketSummary = self.getTicker()
@@ -76,8 +76,8 @@ class BittrexApi:
             "Content-type": "application/x-www-form-urlencoded",
             "User-agent": "python"
         }
-        request = urllib2.Request(self.url + uri, headers=headers)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(self.url + uri, headers=headers)
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         reply = json.loads(data)
         if reply['success'] == True:
@@ -87,15 +87,15 @@ class BittrexApi:
 
     def query_private(self,  uri, req={}):
         req['nonce'] = int((time.time() * 1000 ))
-        encoded_url = self.url + uri + '?apikey=' +self.APIKey + "&" + urllib.urlencode(req)
+        encoded_url = self.url + uri + '?apikey=' +self.APIKey + "&" + str(urllib.parse.urlencode(req))
 
-        sign = hmac.new(self.Secret, encoded_url, hashlib.sha512).hexdigest()
+        sign = hmac.new(self.Secret, encoded_url.encode("utf-8"), hashlib.sha512).hexdigest()
         headers = {
             'apisign': sign,
         }
 
-        request = urllib2.Request(encoded_url, headers=headers)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(encoded_url, headers=headers)
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         reply = json.loads(data)
 

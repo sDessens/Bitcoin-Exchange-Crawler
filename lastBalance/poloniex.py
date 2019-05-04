@@ -1,8 +1,8 @@
 # Module allows the retrieval of balances from Poloniex
 
 import json
-import urllib2
-import urllib
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import time
 import hashlib
 import hmac
@@ -24,7 +24,7 @@ class PoloniexLastBalance:
         table = ConversionTable(markets)
         total = 0
         funds = self._crawl_wallet()
-        for k, v in funds.items():
+        for k, v in list(funds.items()):
             if v:
                 total += table.convert(k, 'BTC', v)
         return total
@@ -41,7 +41,7 @@ class PoloniexLastBalance:
         markets = api.getMarketsGraph()
         table = ConversionTable(markets)
         total = 0
-        for k, v in wallet.items():
+        for k, v in list(wallet.items()):
             if v:
                 total += table.convert(k, 'BTC', v)
         wallet["Total_BTC"] = total
@@ -73,10 +73,10 @@ class PoloniexLastBalance:
         # value in btc, the api ia bugged and returns less funds than there actually are
         # when there are multiple orders for the exact same amount at different markets.
         # We are forced to parse the in orders ourselves to get ocrrect results
-        for pair, details in wallet.items():
+        for pair, details in list(wallet.items()):
             funds[pair] = float(details['available'])
 
-        for pair, orders in open_orders.items():
+        for pair, orders in list(open_orders.items()):
             if orders:
                 for order in orders:
                     if order['type'] == 'buy':
@@ -88,25 +88,25 @@ class PoloniexLastBalance:
 class PoloniexApi:
     def __init__(self, pub, priv):
         self.pub = str(pub)
-        self.priv = str(priv)
+        self.priv = str(priv).encode("utf-8")
 
     def _get(self, command, params):
         www = "https://poloniex.com/tradingApi"
         params['nonce'] = str(int(time.time()*1000))
         params['command'] = command
-        sign= hmac.new(self.priv, urllib.urlencode(params), hashlib.sha512).hexdigest()
+        sign= hmac.new(self.priv, urllib.parse.urlencode(params).encode("utf-8"), hashlib.sha512).hexdigest()
 
-        req = urllib2.Request(www, urllib.urlencode(params))
+        req = urllib.request.Request(www, urllib.parse.urlencode(params).encode("utf-8"))
 
         req.add_header("User-Agent", "Bitcoin-exchange-crawler")
         req.add_header("Sign", sign)
         req.add_header("Key", self.pub)
-        return json.loads(urllib2.urlopen(req).read())
+        return json.loads( urllib.request.urlopen(req).read())
 
     def _get_public(self, command):
-        req = urllib2.Request("https://poloniex.com/public?command=" + command)
+        req = urllib.request.Request("https://poloniex.com/public?command=" + command)
         req.add_header("User-Agent", "Bitcoin-exchange-crawler")
-        return json.loads(urllib2.urlopen(req).read())
+        return json.loads(urllib.request.urlopen(req).read())
 
     def return_trade_history(self, pair, start, end):
         return self._get('returnTradeHistory', {'currencyPair': pair,
@@ -124,7 +124,7 @@ class PoloniexApi:
     def getMarketsGraph(self):
         graph = {}
         js = self._get_public('returnTicker')
-        for key, value in js.iteritems():
+        for key, value in js.items():
             keys = key.split("_")
             pair = (keys[1], keys[0])
             if "_" in key:

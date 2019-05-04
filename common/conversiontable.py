@@ -3,7 +3,7 @@
 # The conversion rate from DOGE to BTC is then calculated using
 # an search algorithm.
 
-import Queue
+from queue import PriorityQueue
 import logging
 
 log = logging.getLogger('conversion_table')
@@ -30,7 +30,7 @@ class ConversionTable:
         costs = {}
 
         # primary, secondary, rate, cost
-        for (a, b), (r, c) in markets.items():
+        for (a, b), (r, c) in list(markets.items()):
             connections[a] = connections[a] | {b}
             connections[b] = connections[b] | {a}
             conversionRates[ (a, b) ] = r
@@ -70,7 +70,7 @@ class ConversionTable:
         #   current conversion rate,
         #   set of all visited stocks )
         initialState = (0, primary, 1, {primary})
-        queue = Queue.PriorityQueue()
+        queue = PriorityQueue()
         queue.put( initialState )
 
         if primary in self.connections:

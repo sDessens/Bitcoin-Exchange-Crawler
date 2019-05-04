@@ -1,8 +1,8 @@
 # Module allows the retrieval of balances from itbit
 
 import json
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import time
 import hashlib
 import hmac
@@ -28,7 +28,7 @@ class ItbitLastBalance:
         table = ConversionTable(api.getMarketsGraph())
         total = 0
 
-        for k, v in wallet.items():
+        for k, v in list(wallet.items()):
             total += table.convert(k, 'XBT', v)
         return total
 
@@ -61,13 +61,13 @@ class ItbitApi:
             'Content-Type': 'application/json'
         }
         if json_body == "":
-            req = urllib2.Request(url=url, headers=auth_headers)
+            req = urllib.request.Request(url=url, headers=auth_headers)
         else:
-            req = urllib2.Request(url=url, data=json_body, headers=auth_headers)
+            req = urllib.request.Request(url=url, data=json_body, headers=auth_headers)
         try:
-            response = urllib2.urlopen(req)
+            response = urllib.request.urlopen(req)
             r = json.loads(response.read())
-        except urllib2.HTTPError as e:
+        except urllib.error.HTTPError as e:
             error = json.loads(e.read())
             log.error("httpstatus: " + str(e.code) + " code: " + str(error['code']) + " message: " + error['message'])
             r = None
@@ -107,9 +107,9 @@ class ItbitApi:
         ]
 
     def _get_public(self, www, uri):
-        req = urllib2.Request(www + uri)
+        req = urllib.request.Request(www + uri)
         req.add_header("User-Agent", "Bitcoin-exchange-crawler")
-        return json.loads(urllib2.urlopen(req).read())
+        return json.loads(urllib.request.urlopen(req).read())
 
     def getMarketsGraph(self):
         graph = {}
@@ -133,7 +133,7 @@ class ItbitApi:
 
     def _generate_query_string(self, filters):
         if filters:
-            return '?' + urllib.urlencode(filters)
+            return '?' + urllib.parse.urlencode(filters)
         else:
             return ''
 

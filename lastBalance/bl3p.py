@@ -1,7 +1,7 @@
 # Module allows the retrieval of balances from BTC-e
 
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import base64
 import json
 import hmac
@@ -78,7 +78,7 @@ class Bl3pLastBalance:
         total_btc = api.calculateAvailableFunds()
         wallet = api.getWallet()
         balances = {}
-        for key, obj in wallet.iteritems():
+        for key, obj in wallet.items():
             amount = float(obj['balance']['value'])
             if amount != 0:
                 balances[key] = amount
@@ -98,36 +98,36 @@ class Bl3pApi:
             "Content-type": "application/x-www-form-urlencoded",
             "User-agent": "python"
         }
-        request = urllib2.Request(self.url + uri, headers=headers)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(self.url + uri, headers=headers)
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         return json.loads(data)
 
     def query_private(self,  uri, req={}):
-        post_data = urllib.urlencode(req)
+        post_data = urllib.parse.urlencode(req)
         body = '%s%c%s' % (uri, 0x00, post_data)
 
-        sign = hmac.new(self.Secret, body, hashlib.sha512).digest()
+        sign = hmac.new(self.Secret, body.encode("utf-8"), hashlib.sha512).digest()
         headers = {
             'Rest-Sign': base64.b64encode(sign),
             'Rest-Key': self.APIKey,
             'user-agent': 'python'
         }
 
-        request = urllib2.Request(self.url + uri, headers=headers, data=post_data)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(self.url + uri, headers=headers, data=post_data.encode('utf-8'))
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         reply = json.loads(data)
 
         throw_Bl3p_exception(reply)
-        if 'data' in reply:
+        if 'data' in reply.keys():
             return reply['data']
         else:
             return {}
 
     def getWallet(self):
         wallet = self.query_private('GENMKT/money/info')
-        print wallet
+        print(wallet)
         if wallet is None:
             return 0
 
@@ -139,7 +139,7 @@ class Bl3pApi:
             return 0
         total = 0
         # calculate funds
-        for key, obj in funds.iteritems():
+        for key, obj in funds.items():
             amount = float(obj['balance']['value'])
             if key == 'BTC':
                 total += amount

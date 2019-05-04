@@ -1,7 +1,7 @@
 # Module allows the retrieval of balances from Mintpal
 
 import json
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import hashlib
 import hmac
@@ -20,18 +20,18 @@ class HitbtcLastBalance:
         api = HitbtcApi(self._pubkey, self._privkey)
 
         wallet = api.getWallet()
-        table = ConversionTable(api.getMarketsGraph(wallet.keys()))
+        table = ConversionTable(api.getMarketsGraph(list(wallet.keys())))
         total = 0
-        for k, v in wallet.items():
+        for k, v in list(wallet.items()):
             total += table.convert(k, 'BTC', v)
         return total
 
     def crawl_balance(self):
         api = HitbtcApi(self._pubkey, self._privkey)
         wallet = api.getWallet()
-        table = ConversionTable(api.getMarketsGraph(wallet.keys()))
+        table = ConversionTable(api.getMarketsGraph(list(wallet.keys())))
         total = 0
-        for k, v in wallet.items():
+        for k, v in list(wallet.items()):
             total += table.convert(k, 'BTC', v)
         wallet["Total_BTC"] = total
         return wallet
@@ -39,21 +39,21 @@ class HitbtcLastBalance:
 class HitbtcApi:
     def __init__(self, pub, priv):
         self.pub = str(pub)
-        self.priv = str(priv)
+        self.priv = str(priv).encode("utf-8")
 
     def _get(self, www, uri):
         uri += '?nonce={}'.format(str(int(time.time()*1000000)))
         uri += '&apikey={}'.format(self.pub)
 
-        sign = hmac.new(self.priv, uri, hashlib.sha512).digest().encode('hex')
+        sign = hmac.new(self.priv, uri.encode("utf-8"), hashlib.sha512).hexdigest()
 
-        req = urllib2.Request(www + uri)
+        req = urllib.request.Request(www + uri)
         req.add_header('X-Signature', sign)
-        return json.loads(urllib2.urlopen(req).read())
+        return json.loads(urllib.request.urlopen(req).read())
 
     def _get_public(self, www, uri):
-        req = urllib2.Request(www + uri)
-        return json.loads(urllib2.urlopen(req).read())
+        req = urllib.request.Request(www + uri)
+        return json.loads(urllib.request.urlopen(req).read())
 
     def getWallet(self):
         www = 'https://api.hitbtc.com'
@@ -65,7 +65,7 @@ class HitbtcApi:
         #for line in self._get(www, '/api/1/payment/balance')['balance']:
         #    out[line['currency_code']] += float(line['balance'])
 
-        return dict((k, v) for k, v in out.items() if v)
+        return dict((k, v) for k, v in list(out.items()) if v)
 
 
     def getMarketsGraph(self, interesting_symbols):
@@ -75,10 +75,10 @@ class HitbtcApi:
 
         for line in self._get_public(www, '/api/1/public/symbols')['symbols']:
             symbol = line['symbol']
-            if symbol.startswith(u'BTC'):
-                symbols += [(u'BTC', symbol[3:])]
-            if symbol.endswith(u'BTC'):
-                symbols += [(symbol[:-3], u'BTC')]
+            if symbol.startswith('BTC'):
+                symbols += [('BTC', symbol[3:])]
+            if symbol.endswith('BTC'):
+                symbols += [(symbol[:-3], 'BTC')]
             else:
                 symbols += [(symbol[:-3], symbol[-3:])]
 

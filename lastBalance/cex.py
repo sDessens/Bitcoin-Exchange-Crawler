@@ -1,8 +1,8 @@
 # Module allows the retrieval of balances from Cex.io
 
 import json
-import urllib2
-import urllib
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import time
 import hashlib
 import hmac
@@ -36,11 +36,11 @@ class CexLastBalance:
                 try:
                     new_trades = api.archived_orders(pair)
                     if 'error' in new_trades:
-                        print new_trades
+                        print(new_trades)
                         continue  # retry
                     trades[pair] = new_trades
-                except urllib2.HTTPError as e:
-                    print 'timeout... retying', pair
+                except urllib.error.HTTPError as e:
+                    print('timeout... retying', pair)
                     continue
                 break
         return trades
@@ -50,8 +50,8 @@ class CexLastBalance:
         wallet = api.getWallet()
         table = ConversionTable(api.getMarketsGraph())
         total = 0
-        for k, v in wallet.items():
-            if not k in ["LTC","BTG"]:
+        for k, v in list(wallet.items()):
+            if not k in ["LTC","BTG","GHS","XRP"]:
                 total += table.convert(k, 'BTC', v)
         wallet["Total_BTC"] = total
         return wallet
@@ -59,22 +59,23 @@ class CexLastBalance:
 class CexApi:
     def __init__(self, pub, priv, username):
         self.pub = str(pub)
-        self.priv = str(priv)
+        self.priv = priv.encode("utf-8")
         self.user = str(username)
 
     def _get(self, www, uri, params):
         params['nonce'] = str(int(time.time()*1000000))
         params['key'] = self.pub
-        params['signature'] = hmac.new(self.priv, params['nonce'] + self.user + self.pub, hashlib.sha256).hexdigest()
+        plain_text = params['nonce'] + self.user + self.pub
+        params['signature'] = hmac.new(self.priv, plain_text.encode("utf-8"), hashlib.sha256).hexdigest()
 
-        req = urllib2.Request(www + uri, urllib.urlencode(params))
+        req = urllib.request.Request(www + uri, urllib.parse.urlencode(params).encode("utf-8"))
         req.add_header("User-Agent", "Bitcoin-exchange-crawler")
-        return json.loads(urllib2.urlopen(req).read())
+        return json.loads(urllib.request.urlopen(req).read())
 
     def _get_public(self, www, uri):
-        req = urllib2.Request(www + uri)
+        req = urllib.request.Request(www + uri)
         req.add_header("User-Agent", "Bitcoin-exchange-crawler")
-        return json.loads(urllib2.urlopen(req).read())
+        return json.loads(urllib.request.urlopen(req).read())
 
     def archived_orders(self, pair):
         params = {
@@ -87,7 +88,7 @@ class CexApi:
             'status': 'cd'
         }
         js = self._get('https://cex.io', '/api/archived_orders/' + pair, params)
-        print js
+        print(js)
         return js
 
     def getWallet(self):
@@ -100,7 +101,7 @@ class CexApi:
 
         wallet = {}
 
-        for k, v in js.items():
+        for k, v in list(js.items()):
             if len(k) == 3:
                 wallet[k] = float(v["available"]) 
                 if "orders" in v:

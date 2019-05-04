@@ -1,7 +1,7 @@
 # Module allows query of balances from coincheck.jp
 
 import json
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import hashlib
 import hmac
@@ -44,8 +44,8 @@ class CoincheckApi:
         headers = {
             "Content-type" : "application/x-www-form-urlencoded",
         }
-        request = urllib2.Request(self.url + uri, headers=headers)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(self.url + uri, headers=headers)
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         return json.loads(data)
 
@@ -61,8 +61,8 @@ class CoincheckApi:
             "ACCESS-SIGNATURE": hmac.new(self.priv, message, hashlib.sha256).hexdigest().lower()
         }
 
-        request = urllib2.Request(self.url + uri, headers=headers)
-        response = urllib2.urlopen(request)
+        request = urllib.request.Request(self.url + uri, headers=headers)
+        response = urllib.request.urlopen(request)
         data = response.read().decode('utf-8')
         return json.loads(data)
 

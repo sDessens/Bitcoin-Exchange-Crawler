@@ -2,7 +2,7 @@ import json
 import base64
 import hashlib
 import hmac
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import logging
 
@@ -22,7 +22,7 @@ class BitfinexLastBalance:
         wallet = api.getWallet()
         table = ConversionTable(api.getMarketsGraph())
         total = 0
-        for k, v in wallet.items():
+        for k, v in list(wallet.items()):
             if v > 0:
                 total += table.convert(k, 'BTC', v)
         return total
@@ -51,7 +51,7 @@ class BitfinexLastBalance:
         table = ConversionTable(api.getMarketsGraph())
         wallet = api.getWallet()
         total = 0
-        for k, v in wallet.items():
+        for k, v in list(wallet.items()):
             if k != "BFX":
                 total += table.convert(k, 'BTC', v)
         wallet["Total_BTC"] = total
@@ -63,25 +63,25 @@ class BitfinexAPI:
 
     def __init__(self, pub, priv):
         self.pub = str(pub)
-        self.priv = str(priv)
+        self.priv = str(priv).encode("utf-8")
         self.url = 'https://api.bitfinex.com'
 
 
     def _getAuthenticated(self, uri, params):
-        h = urllib2.HTTPHandler(debuglevel=1)
-        opener = urllib2.build_opener(h)
-        urllib2.install_opener(opener)
+        h = urllib.request.HTTPHandler(debuglevel=1)
+        opener = urllib.request.build_opener(h)
+        urllib.request.install_opener(opener)
 
         payloadObject = {
             'request': uri,
             'nonce': str(time.time()),
         }
         payloadObject.update(params)
-        payload_json = json.dumps(payloadObject)
+        payload_json = json.dumps(payloadObject).encode('utf-8')
 
-        payload = str(base64.b64encode(payload_json))
+        payload = base64.b64encode(payload_json)
 
-        m = hmac.new(self.priv,payload,hashlib.sha384).digest().encode('hex')
+        m = hmac.new(self.priv,payload,hashlib.sha384).hexdigest()
 
         # headers
         headers = {
@@ -89,20 +89,20 @@ class BitfinexAPI:
                    'X-BFX-PAYLOAD' : base64.b64encode(payload_json),
                    'X-BFX-SIGNATURE' : m
                    }
-        request = urllib2.Request(self.url+uri, data={}, headers=headers)
+        request = urllib.request.Request(self.url+uri, data={}, headers=headers)
         try:
-            ret = urllib2.urlopen(request)
+            ret = urllib.request.urlopen(request)
             result = ret.read()
-            print result
+            print(result)
             return json.loads(result)
         except Exception as e:
             log.error( 'network error: ' + str(e) )
-            print e.read()
+            print(e.read())
             raise e
 
     def _get_public(self, uri):
-        req = urllib2.Request(self.url + uri)
-        result = urllib2.urlopen(req).read()
+        req = urllib.request.Request(self.url + uri)
+        result = urllib.request.urlopen(req).read()
         return json.loads(result)
 
     def getWallet(self):

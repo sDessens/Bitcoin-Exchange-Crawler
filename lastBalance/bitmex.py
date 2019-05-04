@@ -1,7 +1,7 @@
 # Module allows the retrieval of balances from Bitmex
 
 import json
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import time
 import hashlib
 import hmac
@@ -44,5 +44,5 @@ class KrakenApi:
             'api-signature': signature
         }
 
-        ret = urllib2.urlopen(urllib2.Request(url + uri, headers=headers))
+        ret = urllib.request.urlopen(urllib.request.Request(url + uri, headers=headers))
         return json.loads(ret.read())
